@@ -1,0 +1,895 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="目录 前言 1、 –cluster create  创建集群 2、–cluster check  检查集群 3、–cluster info 查看集群 4、–cluster fix  修复集群 5、–cluster rehard 迁移槽位 6、 –cluster rebalance 平衡集群 7、 –cluster  add-node    集群扩容 8、–cluster del-node">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis集群维护">
+<meta property="og:url" content="https://fyyhub.github.io/article/7ea8260e.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="目录 前言 1、 –cluster create  创建集群 2、–cluster check  检查集群 3、–cluster info 查看集群 4、–cluster fix  修复集群 5、–cluster rehard 迁移槽位 6、 –cluster rebalance 平衡集群 7、 –cluster  add-node    集群扩容 8、–cluster del-node">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d3968b7dce8b99f3fc589b2eba9104df.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/59db12799c1a7acd9c6fc267ccf790fc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/47dcb320ce3a8ca6ab958daf758a3194.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png">
+<meta property="og:image" content="https://devpress.csdnimg.cn/79de2bf0b7994defa4242ef90d5513fa.jpg">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/columns/default/20201014180756913.png?x-oss-process=image/resize,m_fixed,h_224,w_224">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d3968b7dce8b99f3fc589b2eba9104df.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/59db12799c1a7acd9c6fc267ccf790fc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/47dcb320ce3a8ca6ab958daf758a3194.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png">
+<meta property="og:image" content="https://devpress.csdnimg.cn/79de2bf0b7994defa4242ef90d5513fa.jpg">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/columns/default/20201014180756913.png?x-oss-process=image/resize,m_fixed,h_224,w_224">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d3968b7dce8b99f3fc589b2eba9104df.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/59db12799c1a7acd9c6fc267ccf790fc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/47dcb320ce3a8ca6ab958daf758a3194.png">
+<meta property="article:published_time" content="2025-01-13T00:00:00.000Z">
+<meta property="article:modified_time" content="2025-02-22T23:16:18.798Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png">
+  
+  
+  
+  <title>redis集群维护 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="redis集群维护"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-13 00:00" pubdate>
+          2025年1月13日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          30k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          252 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">redis集群维护</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>目录</strong></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t0">前言</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t1">1、 –cluster create  创建集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t2">2、–cluster check  检查集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t3">3、–cluster info 查看集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t4">4、–cluster fix  修复集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t5">5、–cluster rehard 迁移槽位</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t6">6、 –cluster rebalance 平衡集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t7">7、 –cluster  add-node    集群扩容</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t8">8、–cluster del-node      集群缩容</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t9">9、 –cluster call  在集群中执行命令</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t10">10、–cluster set-timeout     整个集群的cluster-node-timeout时间</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t11">11、–cluster import          导入数据至集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t12">12、–cluster backup         备份集群rdb文件</a></p>
+<hr>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>redis-trib.rb</code>是官方提供的Redis Cluster的管理工具，它提供了集群创建、检查、修复、均衡等命令行工具。Redis Cluster 在5.0之后取消了ruby脚本的支持，而是直接集合到redis-cli里，避免了再安装ruby的相关环境。</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">[root@localhost bin]# ./redis-cli --cluster helpCluster Manager Commands:  create         host1:port1 ... hostN:portN                 --cluster-replicas <span class="hljs-symbol">&lt;arg&gt;</span>  check          hos<span class="hljs-variable">t:port</span>                 --cluster-<span class="hljs-built_in">search</span>-multiple-owners  info           hos<span class="hljs-variable">t:port</span>  <span class="hljs-keyword">fix</span>            hos<span class="hljs-variable">t:port</span>                 --cluster-<span class="hljs-built_in">search</span>-multiple-owners                 --cluster-<span class="hljs-keyword">fix</span>-with-unreachable-masters  reshard        hos<span class="hljs-variable">t:port</span>                 --cluster-from <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-<span class="hljs-keyword">to</span> <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-slots <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-yes                 --cluster-timeout <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-pipeline <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-replace  rebalance      hos<span class="hljs-variable">t:port</span>                 --cluster-weight &lt;node1=w1...nodeN=<span class="hljs-keyword">wN</span>&gt;                 --cluster-use-<span class="hljs-built_in">empty</span>-masters                 --cluster-timeout <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-simulate                 --cluster-pipeline <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-threshold <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-replace  <span class="hljs-built_in">add</span>-node       new_hos<span class="hljs-variable">t:new_port</span> existing_hos<span class="hljs-variable">t:existing_port</span>                 --cluster-slave                 --cluster-master-id <span class="hljs-symbol">&lt;arg&gt;</span>  del-node       hos<span class="hljs-variable">t:port</span> node_id  <span class="hljs-keyword">call</span>           hos<span class="hljs-variable">t:port</span> <span class="hljs-keyword">command</span> arg arg .. arg                 --cluster-<span class="hljs-keyword">only</span>-masters                 --cluster-<span class="hljs-keyword">only</span>-replicas  <span class="hljs-keyword">set</span>-timeout    hos<span class="hljs-variable">t:port</span> milliseconds  import         hos<span class="hljs-variable">t:port</span>                 --cluster-from <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-user <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-pass <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-askpass                 --cluster-<span class="hljs-keyword">copy</span>                 --cluster-replace  backup         hos<span class="hljs-variable">t:port</span> backup_directory  <span class="hljs-keyword">help</span>            For check, <span class="hljs-keyword">fix</span>, reshard, del-node, <span class="hljs-keyword">set</span>-timeout you can specify the host <span class="hljs-built_in">and</span> port of any working node in the cluster. Cluster Manager Options:  --cluster-yes  Automatic yes <span class="hljs-keyword">to</span> cluster commands prompts <br></code></pre></td></tr></table></figure>
+
+<p>下面我们来详细的说下各命令的用法和作用：</p>
+<h2 id="1、-–cluster-create-创建集群"><a href="#1、-–cluster-create-创建集群" class="headerlink" title="1、 –cluster create  创建集群"></a><strong>1、 –cluster create</strong>  创建<strong>集群</strong></h2><p>create         host1:port1 … hostN:portN<br>                 –cluster-replicas <arg></p>
+<p>该命令用来创建集群，假设我现在想搭建三主三从的集群127.0.0.1:7001~7006</p>
+<p>启动所有节点后，可通过如下命令进行搭建：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">redis-cli --cluster create <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7001 127.0</span>.<span class="hljs-number">0.1:7002</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7003 127.0</span>.<span class="hljs-number">0.1:7004</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7005 127.0</span>.<span class="hljs-number">0.1:7006</span> --cluster-replicas <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>--cluster-replicas 1 :表示每个主节点需要1个从节点。这里随机分配主从关系，如果需要定制，则可以不加该参数，使用add-node来定制,查看第7节</p>
+<h2 id="2、–cluster-check-检查集群"><a href="#2、–cluster-check-检查集群" class="headerlink" title="2、–cluster check  检查集群"></a><strong>2、–cluster check  检查集群</strong></h2><p>check          host:port<br>                 –cluster-search-multiple-owners #检查是否有槽同时被分配给了多个节点</p>
+<p>该命令经常使用，需要拥有槽位的所有节点为启动状态，用于检查集群状态是否正常，只有当所有的槽位正常时，集群状态才OK</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3、–cluster-info-查看集群"><a href="#3、–cluster-info-查看集群" class="headerlink" title="3、–cluster info 查看集群"></a><strong>3、–cluster info 查看集群</strong></h2><p>用于查看集群的简易信息</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/d3968b7dce8b99f3fc589b2eba9104df.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4、–cluster-fix-修复集群"><a href="#4、–cluster-fix-修复集群" class="headerlink" title="4、–cluster fix  修复集群"></a><strong>4、–cluster fix  修复集群</strong></h2><p>fix            host:port<br>                 –cluster-search-multiple-owners    <br>                 –cluster-fix-with-unreachable-masters  </p>
+<p>该命令十分有用，说明如下：</p>
+<p> –cluster-search-multiple-owners ： 是否修复多个拥有者的槽位。当集群中的槽位在迁移过程中，出现意外时，使用fix可使用该参数。fix功能，redis内部在槽位的某些异常情况下会交互式的询问操作者是否同意它的修复策略，一般情况下，默认即可。</p>
+<p> –cluster-fix-with-unreachable-masters ： 是否修复不可达的主节点上的槽位。例如，集群中某个主节点就是坏掉了，也没有故障转移成功。此时如何恢复该主节点上的所有槽位呢，这时就可以使用该参数，会将处于该主节点上的所有槽位恢复到存活的主节点上（之前的数据会丢失，仅仅是恢复了槽位）。</p>
+<h2 id="5、–cluster-rehard-迁移槽位"><a href="#5、–cluster-rehard-迁移槽位" class="headerlink" title="5、–cluster rehard 迁移槽位"></a><strong>5、–cluster rehard 迁移槽位</strong></h2><p>reshard        host:port<br>                 –cluster-from <arg>   #槽位来源的节点运行id，多个用,分割，all表示全部节点<br>                 –cluster-to <arg>       #目标节点的运行id，只允一个<br>                 –cluster-slots <arg>   #迁移的槽位数<br>                 –cluster-yes               #是否默认同意集群内部的迁移计划（默认同意就可以）<br>                 –cluster-timeout <arg>   #迁移命令（migrate）的超时时间<br>                 –cluster-pipeline <arg>  #迁移key时，一次取出 的key数量，默认10<br>                 –cluster-replace           #是否直接replace到目标节点</p>
+<p>迁移一个或者多个（–cluster-from）节点上的–cluster-slots个槽位至一个目标节点（–cluster-to）上。</p>
+<p> –cluster-from 的值不为all的情况下， –cluster-from不能包含–cluster-to</p>
+<p>可以使用如下命令查看整个集群中的所有运行id</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@localhost bin]# ./redis-cli -h <span class="hljs-number">192.168.84.1</span> -p <span class="hljs-number">7001</span> cluster nodes8ae862c1815ff89e49d6c8801ea0cb074e82855c <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7006@17006</span> slave <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">0</span> <span class="hljs-number">1694427906290</span> <span class="hljs-number">3</span> connectedf6df82f6c67fbe83049d6f95a8473221afee2ee<span class="hljs-number">6 192.168.84</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004@17004</span> slave <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">0</span> <span class="hljs-number">1694427905000</span> <span class="hljs-number">1</span> connected222df2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003@17003</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1694427904000</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923</span>-<span class="hljs-number">163834</span>cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7005@17005</span> slave <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">0</span> <span class="hljs-number">1694427905255</span> <span class="hljs-number">2</span> connected30c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001@17001</span> myself,master - <span class="hljs-number">0</span> <span class="hljs-number">1694427902000</span> <span class="hljs-number">1</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">546010</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002@17002</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1694427902000</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461-10922</span><br></code></pre></td></tr></table></figure>
+
+<p>通过集群的配置文件查看也可以</p>
+<h2 id="6、-–cluster-rebalance-平衡集群"><a href="#6、-–cluster-rebalance-平衡集群" class="headerlink" title="6、 –cluster rebalance 平衡集群"></a>6、 <strong>–cluster rebalance 平衡集群</strong></h2><p>rebalance      host:port<br>                 –cluster-weight &lt;node1&#x3D;w1…nodeN&#x3D;wN&gt;<br>                 –cluster-use-empty-masters<br>                 –cluster-timeout <arg>     #迁移命令（migrate）的超时时间<br>                 –cluster-simulate              # 模拟rebalance操作，不会真正执行迁移操作<br>                 –cluster-pipeline <arg>    #定义 getkeysinslot命令一次取出的key数量，默认值为10<br>                 –cluster-threshold <arg><br>                 –cluster-replace               #是否直接replace到目标节点</p>
+<p>--cluster-weight： 槽位权重（浮点型）比值，例如（这里使用端口号代替运行id）： 7001&#x3D;1.0,7002&#x3D;1.0,7003&#x3D;2.0 则表示，总权重为4.0， 7001和7002将分配到 (16384&#x2F;4)*1  个槽位，7003则是(16384&#x2F;4)*2个槽位。</p>
+<p> –cluster-threshold: 平衡触发的阈值条件，默认为2.00%。例如上一步，7001和7002应该有4096个槽位，如果7001的槽位数不够4096个，且超过 (4096*0.02 约等于)82个及以上；或者7001的槽位数比4096少于82个及以上，则会触发自平衡。</p>
+<h2 id="7、-–cluster-add-node-集群扩容"><a href="#7、-–cluster-add-node-集群扩容" class="headerlink" title="7、 –cluster  add-node    集群扩容"></a><strong>7、 –cluster  add-node    集群扩容</strong></h2><p>add-node    new_host:new_port                  #新加入集群的ip和port</p>
+<p>                existing_host:existing_port          #集群中任一节点的ip和port<br>                 –cluster-slave                             #新节点作为从节点，默认随机一个主节点<br>                 –cluster-master-id <arg>            #给新节点指定主节点,值为节点的运行id</p>
+<p>可用于向集群中添加主、从节点(即扩容)</p>
+<p>假设我现在集群中有7001 7002 7003三个主节点了，想为7001添加一个从节点127.0.0.1:7006，则可执行如下命令：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs smali">redis-cli --cluster<span class="hljs-built_in"> add-node </span>127.0.0.1:7006 127.0.0.1:7001  --cluster-slave --cluster-master-id 30c69d9e408015082c1a2145875cd1ec0c7a41ea<br></code></pre></td></tr></table></figure>
+
+<p> 不传入–cluster-slave –cluster-master-id 参数，表示添加一个主节点。</p>
+<p>当添加的是一个主节点时，此时，该主节点没有任何槽位，可以使用rebalance或者reshard来迁移槽位给它。</p>
+<h2 id="8、–cluster-del-node-集群缩容"><a href="#8、–cluster-del-node-集群缩容" class="headerlink" title="8、–cluster del-node      集群缩容"></a><strong>8、–cluster del-node      集群缩容</strong></h2><p>del-node    host:port node_id         #删除给定的一个节点，成功后关闭该节点服务</p>
+<p>也就是缩容。</p>
+<p>删除一个主节点要求先迁移走改主节点上的槽位（数据），这时就可以使用reshard命令了。</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-string">[root@localhost bin]</span># ./redis-cli --cluster del-node <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span> <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe&gt;&gt;&gt; Removing node <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-keyword">from</span> cluster <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span>[ERR] Node <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> empty! Reshard data away <span class="hljs-keyword">and</span> <span class="hljs-keyword">try</span> again.<br></code></pre></td></tr></table></figure>
+
+<h2 id="9、-–cluster-call-在集群中执行命令"><a href="#9、-–cluster-call-在集群中执行命令" class="headerlink" title="9、 –cluster call  在集群中执行命令"></a><strong>9、 –cluster call</strong>  在集群中执行命令</h2><p>call           host:port command arg arg .. arg               #在集群的所有节点执行相关命令<br>                 –cluster-only-masters                                #是否只在主节点上执行<br>                 –cluster-only-replicas                                #是否只在从节点上执行</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/59db12799c1a7acd9c6fc267ccf790fc.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="10、–cluster-set-timeout-整个集群的cluster-node-timeout时间"><a href="#10、–cluster-set-timeout-整个集群的cluster-node-timeout时间" class="headerlink" title="10、–cluster set-timeout     整个集群的cluster-node-timeout时间"></a><strong>10、–cluster set-timeout</strong>     整个集群的cluster-node-timeout时间</h2><p>        set-timeout    host:port milliseconds</p>
+<p>设置整个集群的cluster-node-timeout时间</p>
+<h2 id="11、–cluster-import-导入数据至集群"><a href="#11、–cluster-import-导入数据至集群" class="headerlink" title="11、–cluster import          导入数据至集群"></a><strong>11、–cluster import</strong>          导入数据至集群</h2><p>import         host:port<br>                 –cluster-from <arg><br>                 –cluster-from-user <arg><br>                 –cluster-from-pass <arg><br>                 –cluster-from-askpass<br>                 –cluster-copy               #migrate时指定类型为copy<br>                 –cluster-replace           #migrate时指定类型为replace</p>
+<p>将外部redis的数据导入集群 </p>
+<p>redis-cli –cluster import 127.0.01:6379 –cluster-from 127.0.0.2:6379 –cluster-replace –cluster-copy</p>
+<p>说明：外部Redis实例（127.0.0.2:6379）导入到集群中的任意一节点，倒入之后，原来集群的key变为空，导入到新集群的key会自动分片到各个mater节点的slot</p>
+<p>--cluster-replace 如果集群（127.0.01:6379）中存在外部redis实例（127.0.0.2:6379）的key，则会覆盖掉（10.35.2.68:6379）的value</p>
+<p>--cluster-copy 默认情况下，import 命令在向集群导入数据的同时，还会删除单机服务器中源数据。如果用户想要保留单机服务器中的数据，那么可以在执行命令的同时给定 –cluster-copy 选项 </p>
+<p>该命令将正在运行的实例的所有键（从源实例中删除键）移动到指定的预先存在的 Redis 集群。</p>
+<p>实际项目上，数据导入应该用redis-shake工具的比较多。</p>
+<h2 id="12、–cluster-backup-备份集群rdb文件"><a href="#12、–cluster-backup-备份集群rdb文件" class="headerlink" title="12、–cluster backup         备份集群rdb文件"></a>12、–cluster backup         备份集群<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=rdb&spm=1001.2101.3001.7020">rdb</a>文件</h2><p>backup         host:port backup_directory    </p>
+<p>备份主节点上的数据值RDB文件</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@localhost bin]# mkdir backup[root@localhost bin]# ./redis-cli --cluster backup <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>  ./backup&gt;&gt;&gt; Performing Cluster Check (using node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>)M: <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>   slots:[<span class="hljs-number">0</span>-<span class="hljs-number">5460</span>] (<span class="hljs-number">5461</span> slots) master   <span class="hljs-number">1</span> additional replica(s)S: <span class="hljs-number">8</span>ae862c1815ff89e49d6c8801ea0cb074e82855c <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7006</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad292637873S: f6df82f6c67fbe83049d6f95a8473221afee2ee<span class="hljs-number">6 192.168.84</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41eaM: <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003</span>   slots:[<span class="hljs-number">10923-16383</span>] (<span class="hljs-number">5461</span> slots) master   <span class="hljs-number">1</span> additional replica(s)S: <span class="hljs-number">4</span>cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7005</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43feM: <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002</span>   slots:[<span class="hljs-number">5461-10922</span>] (<span class="hljs-number">5462</span> slots) master   <span class="hljs-number">1</span> additional replica(s)[OK] All nodes agree about slots configuration.&gt;&gt;&gt; Check for open slots...&gt;&gt;&gt; Check slots coverage...[OK] All <span class="hljs-number">16384</span> slots covered.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">232</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7001</span>-<span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea.rdb&#x27;Transfer finished with success.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">226</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7003</span>-<span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span>.rdb&#x27;Transfer finished with success.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">206</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7002</span>-<span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe.rdb&#x27;Transfer finished with success.Saving cluster configuration to: ./backup/nodes.json[OK] Backup created into: ./backup<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/47dcb320ce3a8ca6ab958daf758a3194.png" srcset="/img/loading.gif" lazyload></p>
+<p>nodes.json保存的是集群结构：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">[root@localhost bin]# cat nodes.json [  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;30c69d9e408015082c1a2145875cd1ec0c7a41ea&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7001</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[0,5460]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5461</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">1</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;8ae862c1815ff89e49d6c8801ea0cb074e82855c&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7006</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;222df2165b7b9dba291cfa572d472ad292637873&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">3</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;f6df82f6c67fbe83049d6f95a8473221afee2ee6&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7004</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;30c69d9e408015082c1a2145875cd1ec0c7a41ea&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">1</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;222df2165b7b9dba291cfa572d472ad292637873&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7003</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[10923,16383]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5461</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">3</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;4cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7005</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;10a4381d9869e293cad95bf75482f506de9f43fe&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">2</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;10a4381d9869e293cad95bf75482f506de9f43fe&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7002</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[5461,10922]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5462</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">2</span>  &#125;]<br></code></pre></td></tr></table></figure>
+
+<p>   </p>
+<p>显示推荐内容# redis集群的维护（redis-cli –cluster 命令用法）</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png" srcset="/img/loading.gif" lazyload></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue" title="cj_eryue">cj_eryue</a> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png" srcset="/img/loading.gif" lazyload> 已于 2024-06-11 10:54:16 修改</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png" srcset="/img/loading.gif" lazyload> 阅读量7.1k <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png" srcset="/img/loading.gif" lazyload> 收藏 19</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png" srcset="/img/loading.gif" lazyload> 点赞数 6</p>
+<p>分类专栏： <a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/category_7806826.html">redis</a> 文章标签： <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=redis&t=all&o=vip&s=&l=&f=&viparticle=&from_tracking_code=tag_word&from_code=app_blog_art">redis</a></p>
+<p>于 2023-09-12 10:51:33 首次发布</p>
+<p>版权声明：本文为博主原创文章，遵循 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上原文出处链接和本声明。</p>
+<p>本文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758">https://blog.csdn.net/cj_eryue&#x2F;article&#x2F;details&#x2F;132811758</a></p>
+<p>版权</p>
+<p> <a href="javascript:;" title="开放原子开发者工作坊"><img src="https://devpress.csdnimg.cn/79de2bf0b7994defa4242ef90d5513fa.jpg" srcset="/img/loading.gif" lazyload> 开放原子开发者工作坊 文章已被社区收录</a></p>
+<p>加入社区</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/category_7806826.html" title="redis"><img src="https://i-blog.csdnimg.cn/columns/default/20201014180756913.png?x-oss-process=image/resize,m_fixed,h_224,w_224" srcset="/img/loading.gif" lazyload> redis 专栏收录该内容</a></p>
+<p>12 篇文章 2 订阅</p>
+<p>订阅专栏</p>
+<p><strong>目录</strong></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t0">前言</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t1">1、 –cluster create  创建集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t2">2、–cluster check  检查集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t3">3、–cluster info 查看集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t4">4、–cluster fix  修复集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t5">5、–cluster rehard 迁移槽位</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t6">6、 –cluster rebalance 平衡集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t7">7、 –cluster  add-node    集群扩容</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t8">8、–cluster del-node      集群缩容</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t9">9、 –cluster call  在集群中执行命令</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t10">10、–cluster set-timeout     整个集群的cluster-node-timeout时间</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t11">11、–cluster import          导入数据至集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t12">12、–cluster backup         备份集群rdb文件</a></p>
+<hr>
+<h2 id="前言-1"><a href="#前言-1" class="headerlink" title="前言"></a>前言</h2><p><code>redis-trib.rb</code>是官方提供的Redis Cluster的管理工具，它提供了集群创建、检查、修复、均衡等命令行工具。Redis Cluster 在5.0之后取消了ruby脚本的支持，而是直接集合到redis-cli里，避免了再安装ruby的相关环境。</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">[root@localhost bin]# ./redis-cli --cluster helpCluster Manager Commands:  create         host1:port1 ... hostN:portN                 --cluster-replicas <span class="hljs-symbol">&lt;arg&gt;</span>  check          hos<span class="hljs-variable">t:port</span>                 --cluster-<span class="hljs-built_in">search</span>-multiple-owners  info           hos<span class="hljs-variable">t:port</span>  <span class="hljs-keyword">fix</span>            hos<span class="hljs-variable">t:port</span>                 --cluster-<span class="hljs-built_in">search</span>-multiple-owners                 --cluster-<span class="hljs-keyword">fix</span>-with-unreachable-masters  reshard        hos<span class="hljs-variable">t:port</span>                 --cluster-from <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-<span class="hljs-keyword">to</span> <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-slots <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-yes                 --cluster-timeout <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-pipeline <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-replace  rebalance      hos<span class="hljs-variable">t:port</span>                 --cluster-weight &lt;node1=w1...nodeN=<span class="hljs-keyword">wN</span>&gt;                 --cluster-use-<span class="hljs-built_in">empty</span>-masters                 --cluster-timeout <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-simulate                 --cluster-pipeline <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-threshold <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-replace  <span class="hljs-built_in">add</span>-node       new_hos<span class="hljs-variable">t:new_port</span> existing_hos<span class="hljs-variable">t:existing_port</span>                 --cluster-slave                 --cluster-master-id <span class="hljs-symbol">&lt;arg&gt;</span>  del-node       hos<span class="hljs-variable">t:port</span> node_id  <span class="hljs-keyword">call</span>           hos<span class="hljs-variable">t:port</span> <span class="hljs-keyword">command</span> arg arg .. arg                 --cluster-<span class="hljs-keyword">only</span>-masters                 --cluster-<span class="hljs-keyword">only</span>-replicas  <span class="hljs-keyword">set</span>-timeout    hos<span class="hljs-variable">t:port</span> milliseconds  import         hos<span class="hljs-variable">t:port</span>                 --cluster-from <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-user <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-pass <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-askpass                 --cluster-<span class="hljs-keyword">copy</span>                 --cluster-replace  backup         hos<span class="hljs-variable">t:port</span> backup_directory  <span class="hljs-keyword">help</span>            For check, <span class="hljs-keyword">fix</span>, reshard, del-node, <span class="hljs-keyword">set</span>-timeout you can specify the host <span class="hljs-built_in">and</span> port of any working node in the cluster. Cluster Manager Options:  --cluster-yes  Automatic yes <span class="hljs-keyword">to</span> cluster commands prompts <br></code></pre></td></tr></table></figure>
+
+<p>下面我们来详细的说下各命令的用法和作用：</p>
+<h2 id="1、-–cluster-create-创建集群-1"><a href="#1、-–cluster-create-创建集群-1" class="headerlink" title="1、 –cluster create  创建集群"></a><strong>1、 –cluster create</strong>  创建<strong>集群</strong></h2><p>create         host1:port1 … hostN:portN<br>                 –cluster-replicas <arg></p>
+<p>该命令用来创建集群，假设我现在想搭建三主三从的集群127.0.0.1:7001~7006</p>
+<p>启动所有节点后，可通过如下命令进行搭建：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">redis-cli --cluster create <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7001 127.0</span>.<span class="hljs-number">0.1:7002</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7003 127.0</span>.<span class="hljs-number">0.1:7004</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7005 127.0</span>.<span class="hljs-number">0.1:7006</span> --cluster-replicas <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>--cluster-replicas 1 :表示每个主节点需要1个从节点。这里随机分配主从关系，如果需要定制，则可以不加该参数，使用add-node来定制,查看第7节</p>
+<h2 id="2、–cluster-check-检查集群-1"><a href="#2、–cluster-check-检查集群-1" class="headerlink" title="2、–cluster check  检查集群"></a><strong>2、–cluster check  检查集群</strong></h2><p>check          host:port<br>                 –cluster-search-multiple-owners #检查是否有槽同时被分配给了多个节点</p>
+<p>该命令经常使用，需要拥有槽位的所有节点为启动状态，用于检查集群状态是否正常，只有当所有的槽位正常时，集群状态才OK</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3、–cluster-info-查看集群-1"><a href="#3、–cluster-info-查看集群-1" class="headerlink" title="3、–cluster info 查看集群"></a><strong>3、–cluster info 查看集群</strong></h2><p>用于查看集群的简易信息</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/d3968b7dce8b99f3fc589b2eba9104df.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4、–cluster-fix-修复集群-1"><a href="#4、–cluster-fix-修复集群-1" class="headerlink" title="4、–cluster fix  修复集群"></a><strong>4、–cluster fix  修复集群</strong></h2><p>fix            host:port<br>                 –cluster-search-multiple-owners    <br>                 –cluster-fix-with-unreachable-masters  </p>
+<p>该命令十分有用，说明如下：</p>
+<p> –cluster-search-multiple-owners ： 是否修复多个拥有者的槽位。当集群中的槽位在迁移过程中，出现意外时，使用fix可使用该参数。fix功能，redis内部在槽位的某些异常情况下会交互式的询问操作者是否同意它的修复策略，一般情况下，默认即可。</p>
+<p> –cluster-fix-with-unreachable-masters ： 是否修复不可达的主节点上的槽位。例如，集群中某个主节点就是坏掉了，也没有故障转移成功。此时如何恢复该主节点上的所有槽位呢，这时就可以使用该参数，会将处于该主节点上的所有槽位恢复到存活的主节点上（之前的数据会丢失，仅仅是恢复了槽位）。</p>
+<h2 id="5、–cluster-rehard-迁移槽位-1"><a href="#5、–cluster-rehard-迁移槽位-1" class="headerlink" title="5、–cluster rehard 迁移槽位"></a><strong>5、–cluster rehard 迁移槽位</strong></h2><p>reshard        host:port<br>                 –cluster-from <arg>   #槽位来源的节点运行id，多个用,分割，all表示全部节点<br>                 –cluster-to <arg>       #目标节点的运行id，只允一个<br>                 –cluster-slots <arg>   #迁移的槽位数<br>                 –cluster-yes               #是否默认同意集群内部的迁移计划（默认同意就可以）<br>                 –cluster-timeout <arg>   #迁移命令（migrate）的超时时间<br>                 –cluster-pipeline <arg>  #迁移key时，一次取出 的key数量，默认10<br>                 –cluster-replace           #是否直接replace到目标节点</p>
+<p>迁移一个或者多个（–cluster-from）节点上的–cluster-slots个槽位至一个目标节点（–cluster-to）上。</p>
+<p> –cluster-from 的值不为all的情况下， –cluster-from不能包含–cluster-to</p>
+<p>可以使用如下命令查看整个集群中的所有运行id</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@localhost bin]# ./redis-cli -h <span class="hljs-number">192.168.84.1</span> -p <span class="hljs-number">7001</span> cluster nodes8ae862c1815ff89e49d6c8801ea0cb074e82855c <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7006@17006</span> slave <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">0</span> <span class="hljs-number">1694427906290</span> <span class="hljs-number">3</span> connectedf6df82f6c67fbe83049d6f95a8473221afee2ee<span class="hljs-number">6 192.168.84</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004@17004</span> slave <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">0</span> <span class="hljs-number">1694427905000</span> <span class="hljs-number">1</span> connected222df2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003@17003</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1694427904000</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923</span>-<span class="hljs-number">163834</span>cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7005@17005</span> slave <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">0</span> <span class="hljs-number">1694427905255</span> <span class="hljs-number">2</span> connected30c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001@17001</span> myself,master - <span class="hljs-number">0</span> <span class="hljs-number">1694427902000</span> <span class="hljs-number">1</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">546010</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002@17002</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1694427902000</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461-10922</span><br></code></pre></td></tr></table></figure>
+
+<p>通过集群的配置文件查看也可以</p>
+<h2 id="6、-–cluster-rebalance-平衡集群-1"><a href="#6、-–cluster-rebalance-平衡集群-1" class="headerlink" title="6、 –cluster rebalance 平衡集群"></a>6、 <strong>–cluster rebalance 平衡集群</strong></h2><p>rebalance      host:port<br>                 –cluster-weight &lt;node1&#x3D;w1…nodeN&#x3D;wN&gt;<br>                 –cluster-use-empty-masters<br>                 –cluster-timeout <arg>     #迁移命令（migrate）的超时时间<br>                 –cluster-simulate              # 模拟rebalance操作，不会真正执行迁移操作<br>                 –cluster-pipeline <arg>    #定义 getkeysinslot命令一次取出的key数量，默认值为10<br>                 –cluster-threshold <arg><br>                 –cluster-replace               #是否直接replace到目标节点</p>
+<p>--cluster-weight： 槽位权重（浮点型）比值，例如（这里使用端口号代替运行id）： 7001&#x3D;1.0,7002&#x3D;1.0,7003&#x3D;2.0 则表示，总权重为4.0， 7001和7002将分配到 (16384&#x2F;4)*1  个槽位，7003则是(16384&#x2F;4)*2个槽位。</p>
+<p> –cluster-threshold: 平衡触发的阈值条件，默认为2.00%。例如上一步，7001和7002应该有4096个槽位，如果7001的槽位数不够4096个，且超过 (4096*0.02 约等于)82个及以上；或者7001的槽位数比4096少于82个及以上，则会触发自平衡。</p>
+<h2 id="7、-–cluster-add-node-集群扩容-1"><a href="#7、-–cluster-add-node-集群扩容-1" class="headerlink" title="7、 –cluster  add-node    集群扩容"></a><strong>7、 –cluster  add-node    集群扩容</strong></h2><p>add-node    new_host:new_port                  #新加入集群的ip和port</p>
+<p>                existing_host:existing_port          #集群中任一节点的ip和port<br>                 –cluster-slave                             #新节点作为从节点，默认随机一个主节点<br>                 –cluster-master-id <arg>            #给新节点指定主节点,值为节点的运行id</p>
+<p>可用于向集群中添加主、从节点(即扩容)</p>
+<p>假设我现在集群中有7001 7002 7003三个主节点了，想为7001添加一个从节点127.0.0.1:7006，则可执行如下命令：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs smali">redis-cli --cluster<span class="hljs-built_in"> add-node </span>127.0.0.1:7006 127.0.0.1:7001  --cluster-slave --cluster-master-id 30c69d9e408015082c1a2145875cd1ec0c7a41ea<br></code></pre></td></tr></table></figure>
+
+<p> 不传入–cluster-slave –cluster-master-id 参数，表示添加一个主节点。</p>
+<p>当添加的是一个主节点时，此时，该主节点没有任何槽位，可以使用rebalance或者reshard来迁移槽位给它。</p>
+<h2 id="8、–cluster-del-node-集群缩容-1"><a href="#8、–cluster-del-node-集群缩容-1" class="headerlink" title="8、–cluster del-node      集群缩容"></a><strong>8、–cluster del-node      集群缩容</strong></h2><p>del-node    host:port node_id         #删除给定的一个节点，成功后关闭该节点服务</p>
+<p>也就是缩容。</p>
+<p>删除一个主节点要求先迁移走改主节点上的槽位（数据），这时就可以使用reshard命令了。</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-string">[root@localhost bin]</span># ./redis-cli --cluster del-node <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span> <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe&gt;&gt;&gt; Removing node <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-keyword">from</span> cluster <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span>[ERR] Node <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> empty! Reshard data away <span class="hljs-keyword">and</span> <span class="hljs-keyword">try</span> again.<br></code></pre></td></tr></table></figure>
+
+<h2 id="9、-–cluster-call-在集群中执行命令-1"><a href="#9、-–cluster-call-在集群中执行命令-1" class="headerlink" title="9、 –cluster call  在集群中执行命令"></a><strong>9、 –cluster call</strong>  在集群中执行命令</h2><p>call           host:port command arg arg .. arg               #在集群的所有节点执行相关命令<br>                 –cluster-only-masters                                #是否只在主节点上执行<br>                 –cluster-only-replicas                                #是否只在从节点上执行</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/59db12799c1a7acd9c6fc267ccf790fc.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="10、–cluster-set-timeout-整个集群的cluster-node-timeout时间-1"><a href="#10、–cluster-set-timeout-整个集群的cluster-node-timeout时间-1" class="headerlink" title="10、–cluster set-timeout     整个集群的cluster-node-timeout时间"></a><strong>10、–cluster set-timeout</strong>     整个集群的cluster-node-timeout时间</h2><p>        set-timeout    host:port milliseconds</p>
+<p>设置整个集群的cluster-node-timeout时间</p>
+<h2 id="11、–cluster-import-导入数据至集群-1"><a href="#11、–cluster-import-导入数据至集群-1" class="headerlink" title="11、–cluster import          导入数据至集群"></a><strong>11、–cluster import</strong>          导入数据至集群</h2><p>import         host:port<br>                 –cluster-from <arg><br>                 –cluster-from-user <arg><br>                 –cluster-from-pass <arg><br>                 –cluster-from-askpass<br>                 –cluster-copy               #migrate时指定类型为copy<br>                 –cluster-replace           #migrate时指定类型为replace</p>
+<p>将外部redis的数据导入集群 </p>
+<p>redis-cli –cluster import 127.0.01:6379 –cluster-from 127.0.0.2:6379 –cluster-replace –cluster-copy</p>
+<p>说明：外部Redis实例（127.0.0.2:6379）导入到集群中的任意一节点，倒入之后，原来集群的key变为空，导入到新集群的key会自动分片到各个mater节点的slot</p>
+<p>--cluster-replace 如果集群（127.0.01:6379）中存在外部redis实例（127.0.0.2:6379）的key，则会覆盖掉（10.35.2.68:6379）的value</p>
+<p>--cluster-copy 默认情况下，import 命令在向集群导入数据的同时，还会删除单机服务器中源数据。如果用户想要保留单机服务器中的数据，那么可以在执行命令的同时给定 –cluster-copy 选项 </p>
+<p>该命令将正在运行的实例的所有键（从源实例中删除键）移动到指定的预先存在的 Redis 集群。</p>
+<p>实际项目上，数据导入应该用redis-shake工具的比较多。</p>
+<h2 id="12、–cluster-backup-备份集群rdb文件-1"><a href="#12、–cluster-backup-备份集群rdb文件-1" class="headerlink" title="12、–cluster backup         备份集群rdb文件"></a>12、–cluster backup         备份集群<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=rdb&spm=1001.2101.3001.7020">rdb</a>文件</h2><p>backup         host:port backup_directory    </p>
+<p>备份主节点上的数据值RDB文件</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@localhost bin]# mkdir backup[root@localhost bin]# ./redis-cli --cluster backup <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>  ./backup&gt;&gt;&gt; Performing Cluster Check (using node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>)M: <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>   slots:[<span class="hljs-number">0</span>-<span class="hljs-number">5460</span>] (<span class="hljs-number">5461</span> slots) master   <span class="hljs-number">1</span> additional replica(s)S: <span class="hljs-number">8</span>ae862c1815ff89e49d6c8801ea0cb074e82855c <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7006</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad292637873S: f6df82f6c67fbe83049d6f95a8473221afee2ee<span class="hljs-number">6 192.168.84</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41eaM: <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003</span>   slots:[<span class="hljs-number">10923-16383</span>] (<span class="hljs-number">5461</span> slots) master   <span class="hljs-number">1</span> additional replica(s)S: <span class="hljs-number">4</span>cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7005</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43feM: <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002</span>   slots:[<span class="hljs-number">5461-10922</span>] (<span class="hljs-number">5462</span> slots) master   <span class="hljs-number">1</span> additional replica(s)[OK] All nodes agree about slots configuration.&gt;&gt;&gt; Check for open slots...&gt;&gt;&gt; Check slots coverage...[OK] All <span class="hljs-number">16384</span> slots covered.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">232</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7001</span>-<span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea.rdb&#x27;Transfer finished with success.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">226</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7003</span>-<span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span>.rdb&#x27;Transfer finished with success.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">206</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7002</span>-<span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe.rdb&#x27;Transfer finished with success.Saving cluster configuration to: ./backup/nodes.json[OK] Backup created into: ./backup<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/47dcb320ce3a8ca6ab958daf758a3194.png" srcset="/img/loading.gif" lazyload></p>
+<p>nodes.json保存的是集群结构：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">[root@localhost bin]# cat nodes.json [  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;30c69d9e408015082c1a2145875cd1ec0c7a41ea&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7001</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[0,5460]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5461</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">1</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;8ae862c1815ff89e49d6c8801ea0cb074e82855c&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7006</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;222df2165b7b9dba291cfa572d472ad292637873&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">3</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;f6df82f6c67fbe83049d6f95a8473221afee2ee6&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7004</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;30c69d9e408015082c1a2145875cd1ec0c7a41ea&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">1</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;222df2165b7b9dba291cfa572d472ad292637873&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7003</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[10923,16383]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5461</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">3</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;4cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7005</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;10a4381d9869e293cad95bf75482f506de9f43fe&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">2</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;10a4381d9869e293cad95bf75482f506de9f43fe&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7002</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[5461,10922]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5462</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">2</span>  &#125;]<br></code></pre></td></tr></table></figure>
+
+<p>   </p>
+<p>显示推荐内容# redis集群的维护（redis-cli –cluster 命令用法）</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/original.png" srcset="/img/loading.gif" lazyload></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue" title="cj_eryue">cj_eryue</a> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png" srcset="/img/loading.gif" lazyload> 已于 2024-06-11 10:54:16 修改</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png" srcset="/img/loading.gif" lazyload> 阅读量7.1k <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png" srcset="/img/loading.gif" lazyload> 收藏 19</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png" srcset="/img/loading.gif" lazyload> 点赞数 6</p>
+<p>分类专栏： <a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/category_7806826.html">redis</a> 文章标签： <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=redis&t=all&o=vip&s=&l=&f=&viparticle=&from_tracking_code=tag_word&from_code=app_blog_art">redis</a></p>
+<p>于 2023-09-12 10:51:33 首次发布</p>
+<p>版权声明：本文为博主原创文章，遵循 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-sa/4.0/">CC 4.0 BY-SA</a> 版权协议，转载请附上原文出处链接和本声明。</p>
+<p>本文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758">https://blog.csdn.net/cj_eryue&#x2F;article&#x2F;details&#x2F;132811758</a></p>
+<p>版权</p>
+<p> <a href="javascript:;" title="开放原子开发者工作坊"><img src="https://devpress.csdnimg.cn/79de2bf0b7994defa4242ef90d5513fa.jpg" srcset="/img/loading.gif" lazyload> 开放原子开发者工作坊 文章已被社区收录</a></p>
+<p>加入社区</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/category_7806826.html" title="redis"><img src="https://i-blog.csdnimg.cn/columns/default/20201014180756913.png?x-oss-process=image/resize,m_fixed,h_224,w_224" srcset="/img/loading.gif" lazyload> redis 专栏收录该内容</a></p>
+<p>12 篇文章 2 订阅</p>
+<p>订阅专栏</p>
+<p><strong>目录</strong></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t0">前言</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t1">1、 –cluster create  创建集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t2">2、–cluster check  检查集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t3">3、–cluster info 查看集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t4">4、–cluster fix  修复集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t5">5、–cluster rehard 迁移槽位</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t6">6、 –cluster rebalance 平衡集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t7">7、 –cluster  add-node    集群扩容</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t8">8、–cluster del-node      集群缩容</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t9">9、 –cluster call  在集群中执行命令</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t10">10、–cluster set-timeout     整个集群的cluster-node-timeout时间</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t11">11、–cluster import          导入数据至集群</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cj_eryue/article/details/132811758#t12">12、–cluster backup         备份集群rdb文件</a></p>
+<hr>
+<h2 id="前言-2"><a href="#前言-2" class="headerlink" title="前言"></a>前言</h2><p><code>redis-trib.rb</code>是官方提供的Redis Cluster的管理工具，它提供了集群创建、检查、修复、均衡等命令行工具。Redis Cluster 在5.0之后取消了ruby脚本的支持，而是直接集合到redis-cli里，避免了再安装ruby的相关环境。</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs vim">[root@localhost bin]# ./redis-cli --cluster helpCluster Manager Commands:  create         host1:port1 ... hostN:portN                 --cluster-replicas <span class="hljs-symbol">&lt;arg&gt;</span>  check          hos<span class="hljs-variable">t:port</span>                 --cluster-<span class="hljs-built_in">search</span>-multiple-owners  info           hos<span class="hljs-variable">t:port</span>  <span class="hljs-keyword">fix</span>            hos<span class="hljs-variable">t:port</span>                 --cluster-<span class="hljs-built_in">search</span>-multiple-owners                 --cluster-<span class="hljs-keyword">fix</span>-with-unreachable-masters  reshard        hos<span class="hljs-variable">t:port</span>                 --cluster-from <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-<span class="hljs-keyword">to</span> <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-slots <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-yes                 --cluster-timeout <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-pipeline <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-replace  rebalance      hos<span class="hljs-variable">t:port</span>                 --cluster-weight &lt;node1=w1...nodeN=<span class="hljs-keyword">wN</span>&gt;                 --cluster-use-<span class="hljs-built_in">empty</span>-masters                 --cluster-timeout <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-simulate                 --cluster-pipeline <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-threshold <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-replace  <span class="hljs-built_in">add</span>-node       new_hos<span class="hljs-variable">t:new_port</span> existing_hos<span class="hljs-variable">t:existing_port</span>                 --cluster-slave                 --cluster-master-id <span class="hljs-symbol">&lt;arg&gt;</span>  del-node       hos<span class="hljs-variable">t:port</span> node_id  <span class="hljs-keyword">call</span>           hos<span class="hljs-variable">t:port</span> <span class="hljs-keyword">command</span> arg arg .. arg                 --cluster-<span class="hljs-keyword">only</span>-masters                 --cluster-<span class="hljs-keyword">only</span>-replicas  <span class="hljs-keyword">set</span>-timeout    hos<span class="hljs-variable">t:port</span> milliseconds  import         hos<span class="hljs-variable">t:port</span>                 --cluster-from <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-user <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-pass <span class="hljs-symbol">&lt;arg&gt;</span>                 --cluster-from-askpass                 --cluster-<span class="hljs-keyword">copy</span>                 --cluster-replace  backup         hos<span class="hljs-variable">t:port</span> backup_directory  <span class="hljs-keyword">help</span>            For check, <span class="hljs-keyword">fix</span>, reshard, del-node, <span class="hljs-keyword">set</span>-timeout you can specify the host <span class="hljs-built_in">and</span> port of any working node in the cluster. Cluster Manager Options:  --cluster-yes  Automatic yes <span class="hljs-keyword">to</span> cluster commands prompts <br></code></pre></td></tr></table></figure>
+
+<p>下面我们来详细的说下各命令的用法和作用：</p>
+<h2 id="1、-–cluster-create-创建集群-2"><a href="#1、-–cluster-create-创建集群-2" class="headerlink" title="1、 –cluster create  创建集群"></a><strong>1、 –cluster create</strong>  创建<strong>集群</strong></h2><p>create         host1:port1 … hostN:portN<br>                 –cluster-replicas <arg></p>
+<p>该命令用来创建集群，假设我现在想搭建三主三从的集群127.0.0.1:7001~7006</p>
+<p>启动所有节点后，可通过如下命令进行搭建：</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">redis-cli --cluster create <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7001 127.0</span>.<span class="hljs-number">0.1:7002</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7003 127.0</span>.<span class="hljs-number">0.1:7004</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7005 127.0</span>.<span class="hljs-number">0.1:7006</span> --cluster-replicas <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>--cluster-replicas 1 :表示每个主节点需要1个从节点。这里随机分配主从关系，如果需要定制，则可以不加该参数，使用add-node来定制,查看第7节</p>
+<h2 id="2、–cluster-check-检查集群-2"><a href="#2、–cluster-check-检查集群-2" class="headerlink" title="2、–cluster check  检查集群"></a><strong>2、–cluster check  检查集群</strong></h2><p>check          host:port<br>                 –cluster-search-multiple-owners #检查是否有槽同时被分配给了多个节点</p>
+<p>该命令经常使用，需要拥有槽位的所有节点为启动状态，用于检查集群状态是否正常，只有当所有的槽位正常时，集群状态才OK</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/f1b7cd4b9fc1eb68c1e9383ac8005d40.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3、–cluster-info-查看集群-2"><a href="#3、–cluster-info-查看集群-2" class="headerlink" title="3、–cluster info 查看集群"></a><strong>3、–cluster info 查看集群</strong></h2><p>用于查看集群的简易信息</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/d3968b7dce8b99f3fc589b2eba9104df.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4、–cluster-fix-修复集群-2"><a href="#4、–cluster-fix-修复集群-2" class="headerlink" title="4、–cluster fix  修复集群"></a><strong>4、–cluster fix  修复集群</strong></h2><p>fix            host:port<br>                 –cluster-search-multiple-owners    <br>                 –cluster-fix-with-unreachable-masters  </p>
+<p>该命令十分有用，说明如下：</p>
+<p> –cluster-search-multiple-owners ： 是否修复多个拥有者的槽位。当集群中的槽位在迁移过程中，出现意外时，使用fix可使用该参数。fix功能，redis内部在槽位的某些异常情况下会交互式的询问操作者是否同意它的修复策略，一般情况下，默认即可。</p>
+<p> –cluster-fix-with-unreachable-masters ： 是否修复不可达的主节点上的槽位。例如，集群中某个主节点就是坏掉了，也没有故障转移成功。此时如何恢复该主节点上的所有槽位呢，这时就可以使用该参数，会将处于该主节点上的所有槽位恢复到存活的主节点上（之前的数据会丢失，仅仅是恢复了槽位）。</p>
+<h2 id="5、–cluster-rehard-迁移槽位-2"><a href="#5、–cluster-rehard-迁移槽位-2" class="headerlink" title="5、–cluster rehard 迁移槽位"></a><strong>5、–cluster rehard 迁移槽位</strong></h2><p>reshard        host:port<br>                 –cluster-from <arg>   #槽位来源的节点运行id，多个用,分割，all表示全部节点<br>                 –cluster-to <arg>       #目标节点的运行id，只允一个<br>                 –cluster-slots <arg>   #迁移的槽位数<br>                 –cluster-yes               #是否默认同意集群内部的迁移计划（默认同意就可以）<br>                 –cluster-timeout <arg>   #迁移命令（migrate）的超时时间<br>                 –cluster-pipeline <arg>  #迁移key时，一次取出 的key数量，默认10<br>                 –cluster-replace           #是否直接replace到目标节点</p>
+<p>迁移一个或者多个（–cluster-from）节点上的–cluster-slots个槽位至一个目标节点（–cluster-to）上。</p>
+<p> –cluster-from 的值不为all的情况下， –cluster-from不能包含–cluster-to</p>
+<p>可以使用如下命令查看整个集群中的所有运行id</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@localhost bin]# ./redis-cli -h <span class="hljs-number">192.168.84.1</span> -p <span class="hljs-number">7001</span> cluster nodes8ae862c1815ff89e49d6c8801ea0cb074e82855c <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7006@17006</span> slave <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">0</span> <span class="hljs-number">1694427906290</span> <span class="hljs-number">3</span> connectedf6df82f6c67fbe83049d6f95a8473221afee2ee<span class="hljs-number">6 192.168.84</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004@17004</span> slave <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">0</span> <span class="hljs-number">1694427905000</span> <span class="hljs-number">1</span> connected222df2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003@17003</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1694427904000</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923</span>-<span class="hljs-number">163834</span>cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7005@17005</span> slave <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">0</span> <span class="hljs-number">1694427905255</span> <span class="hljs-number">2</span> connected30c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001@17001</span> myself,master - <span class="hljs-number">0</span> <span class="hljs-number">1694427902000</span> <span class="hljs-number">1</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">546010</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002@17002</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1694427902000</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461-10922</span><br></code></pre></td></tr></table></figure>
+
+<p>通过集群的配置文件查看也可以</p>
+<h2 id="6、-–cluster-rebalance-平衡集群-2"><a href="#6、-–cluster-rebalance-平衡集群-2" class="headerlink" title="6、 –cluster rebalance 平衡集群"></a>6、 <strong>–cluster rebalance 平衡集群</strong></h2><p>rebalance      host:port<br>                 –cluster-weight &lt;node1&#x3D;w1…nodeN&#x3D;wN&gt;<br>                 –cluster-use-empty-masters<br>                 –cluster-timeout <arg>     #迁移命令（migrate）的超时时间<br>                 –cluster-simulate              # 模拟rebalance操作，不会真正执行迁移操作<br>                 –cluster-pipeline <arg>    #定义 getkeysinslot命令一次取出的key数量，默认值为10<br>                 –cluster-threshold <arg><br>                 –cluster-replace               #是否直接replace到目标节点</p>
+<p>--cluster-weight： 槽位权重（浮点型）比值，例如（这里使用端口号代替运行id）： 7001&#x3D;1.0,7002&#x3D;1.0,7003&#x3D;2.0 则表示，总权重为4.0， 7001和7002将分配到 (16384&#x2F;4)*1  个槽位，7003则是(16384&#x2F;4)*2个槽位。</p>
+<p> –cluster-threshold: 平衡触发的阈值条件，默认为2.00%。例如上一步，7001和7002应该有4096个槽位，如果7001的槽位数不够4096个，且超过 (4096*0.02 约等于)82个及以上；或者7001的槽位数比4096少于82个及以上，则会触发自平衡。</p>
+<h2 id="7、-–cluster-add-node-集群扩容-2"><a href="#7、-–cluster-add-node-集群扩容-2" class="headerlink" title="7、 –cluster  add-node    集群扩容"></a><strong>7、 –cluster  add-node    集群扩容</strong></h2><p>add-node    new_host:new_port                  #新加入集群的ip和port</p>
+<p>                existing_host:existing_port          #集群中任一节点的ip和port<br>                 –cluster-slave                             #新节点作为从节点，默认随机一个主节点<br>                 –cluster-master-id <arg>            #给新节点指定主节点,值为节点的运行id</p>
+<p>可用于向集群中添加主、从节点(即扩容)</p>
+<p>假设我现在集群中有7001 7002 7003三个主节点了，想为7001添加一个从节点127.0.0.1:7006，则可执行如下命令：</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs smali">redis-cli --cluster<span class="hljs-built_in"> add-node </span>127.0.0.1:7006 127.0.0.1:7001  --cluster-slave --cluster-master-id 30c69d9e408015082c1a2145875cd1ec0c7a41ea<br></code></pre></td></tr></table></figure>
+
+<p> 不传入–cluster-slave –cluster-master-id 参数，表示添加一个主节点。</p>
+<p>当添加的是一个主节点时，此时，该主节点没有任何槽位，可以使用rebalance或者reshard来迁移槽位给它。</p>
+<h2 id="8、–cluster-del-node-集群缩容-2"><a href="#8、–cluster-del-node-集群缩容-2" class="headerlink" title="8、–cluster del-node      集群缩容"></a><strong>8、–cluster del-node      集群缩容</strong></h2><p>del-node    host:port node_id         #删除给定的一个节点，成功后关闭该节点服务</p>
+<p>也就是缩容。</p>
+<p>删除一个主节点要求先迁移走改主节点上的槽位（数据），这时就可以使用reshard命令了。</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs angelscript"><span class="hljs-string">[root@localhost bin]</span># ./redis-cli --cluster del-node <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span> <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe&gt;&gt;&gt; Removing node <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-keyword">from</span> cluster <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span>[ERR] Node <span class="hljs-number">192.168</span><span class="hljs-number">.84</span><span class="hljs-number">.1</span>:<span class="hljs-number">7002</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> empty! Reshard data away <span class="hljs-keyword">and</span> <span class="hljs-keyword">try</span> again.<br></code></pre></td></tr></table></figure>
+
+<h2 id="9、-–cluster-call-在集群中执行命令-2"><a href="#9、-–cluster-call-在集群中执行命令-2" class="headerlink" title="9、 –cluster call  在集群中执行命令"></a><strong>9、 –cluster call</strong>  在集群中执行命令</h2><p>call           host:port command arg arg .. arg               #在集群的所有节点执行相关命令<br>                 –cluster-only-masters                                #是否只在主节点上执行<br>                 –cluster-only-replicas                                #是否只在从节点上执行</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/59db12799c1a7acd9c6fc267ccf790fc.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="10、–cluster-set-timeout-整个集群的cluster-node-timeout时间-2"><a href="#10、–cluster-set-timeout-整个集群的cluster-node-timeout时间-2" class="headerlink" title="10、–cluster set-timeout     整个集群的cluster-node-timeout时间"></a><strong>10、–cluster set-timeout</strong>     整个集群的cluster-node-timeout时间</h2><p>        set-timeout    host:port milliseconds</p>
+<p>设置整个集群的cluster-node-timeout时间</p>
+<h2 id="11、–cluster-import-导入数据至集群-2"><a href="#11、–cluster-import-导入数据至集群-2" class="headerlink" title="11、–cluster import          导入数据至集群"></a><strong>11、–cluster import</strong>          导入数据至集群</h2><p>import         host:port<br>                 –cluster-from <arg><br>                 –cluster-from-user <arg><br>                 –cluster-from-pass <arg><br>                 –cluster-from-askpass<br>                 –cluster-copy               #migrate时指定类型为copy<br>                 –cluster-replace           #migrate时指定类型为replace</p>
+<p>将外部redis的数据导入集群 </p>
+<p>redis-cli –cluster import 127.0.01:6379 –cluster-from 127.0.0.2:6379 –cluster-replace –cluster-copy</p>
+<p>说明：外部Redis实例（127.0.0.2:6379）导入到集群中的任意一节点，倒入之后，原来集群的key变为空，导入到新集群的key会自动分片到各个mater节点的slot</p>
+<p>--cluster-replace 如果集群（127.0.01:6379）中存在外部redis实例（127.0.0.2:6379）的key，则会覆盖掉（10.35.2.68:6379）的value</p>
+<p>--cluster-copy 默认情况下，import 命令在向集群导入数据的同时，还会删除单机服务器中源数据。如果用户想要保留单机服务器中的数据，那么可以在执行命令的同时给定 –cluster-copy 选项 </p>
+<p>该命令将正在运行的实例的所有键（从源实例中删除键）移动到指定的预先存在的 Redis 集群。</p>
+<p>实际项目上，数据导入应该用redis-shake工具的比较多。</p>
+<h2 id="12、–cluster-backup-备份集群rdb文件-2"><a href="#12、–cluster-backup-备份集群rdb文件-2" class="headerlink" title="12、–cluster backup         备份集群rdb文件"></a>12、–cluster backup         备份集群<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=rdb&spm=1001.2101.3001.7020">rdb</a>文件</h2><p>backup         host:port backup_directory    </p>
+<p>备份主节点上的数据值RDB文件</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@localhost bin]# mkdir backup[root@localhost bin]# ./redis-cli --cluster backup <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>  ./backup&gt;&gt;&gt; Performing Cluster Check (using node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>)M: <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span>   slots:[<span class="hljs-number">0</span>-<span class="hljs-number">5460</span>] (<span class="hljs-number">5461</span> slots) master   <span class="hljs-number">1</span> additional replica(s)S: <span class="hljs-number">8</span>ae862c1815ff89e49d6c8801ea0cb074e82855c <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7006</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad292637873S: f6df82f6c67fbe83049d6f95a8473221afee2ee<span class="hljs-number">6 192.168.84</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41eaM: <span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span> <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003</span>   slots:[<span class="hljs-number">10923-16383</span>] (<span class="hljs-number">5461</span> slots) master   <span class="hljs-number">1</span> additional replica(s)S: <span class="hljs-number">4</span>cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7005</span>   slots: (<span class="hljs-number">0</span> slots) slave   replicates <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43feM: <span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002</span>   slots:[<span class="hljs-number">5461-10922</span>] (<span class="hljs-number">5462</span> slots) master   <span class="hljs-number">1</span> additional replica(s)[OK] All nodes agree about slots configuration.&gt;&gt;&gt; Check for open slots...&gt;&gt;&gt; Check slots coverage...[OK] All <span class="hljs-number">16384</span> slots covered.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7001</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">232</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7001</span>-<span class="hljs-number">30</span>c69d9e408015082c1a2145875cd1ec0c7a41ea.rdb&#x27;Transfer finished with success.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7003</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">226</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7003</span>-<span class="hljs-number">222d</span>f2165b7b9dba291cfa572d472ad<span class="hljs-number">292637873</span>.rdb&#x27;Transfer finished with success.&gt;&gt;&gt; Node <span class="hljs-number">192.168.84.1</span>:<span class="hljs-number">7002</span> -&gt; Saving RDB...SYNC sent to master, writing <span class="hljs-number">206</span> bytes to &#x27;./backup/redis-node-<span class="hljs-number">192.168.84.1</span>-<span class="hljs-number">7002</span>-<span class="hljs-number">10</span>a4381d9869e293cad95bf75482f506de9f43fe.rdb&#x27;Transfer finished with success.Saving cluster configuration to: ./backup/nodes.json[OK] Backup created into: ./backup<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/47dcb320ce3a8ca6ab958daf758a3194.png" srcset="/img/loading.gif" lazyload></p>
+<p>nodes.json保存的是集群结构：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">[root@localhost bin]# cat nodes.json [  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;30c69d9e408015082c1a2145875cd1ec0c7a41ea&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7001</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[0,5460]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5461</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">1</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;8ae862c1815ff89e49d6c8801ea0cb074e82855c&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7006</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;222df2165b7b9dba291cfa572d472ad292637873&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">3</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;f6df82f6c67fbe83049d6f95a8473221afee2ee6&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7004</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;30c69d9e408015082c1a2145875cd1ec0c7a41ea&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">1</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;222df2165b7b9dba291cfa572d472ad292637873&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7003</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[10923,16383]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5461</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">3</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;4cdc4c8127dc5ea8d15a239fa6c2f3c09b0d5f3a&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7005</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: <span class="hljs-string">&quot;10a4381d9869e293cad95bf75482f506de9f43fe&quot;</span>,    <span class="hljs-string">&quot;slots&quot;</span>: [],    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">0</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;slave&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">2</span>  &#125;,  &#123;    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;10a4381d9869e293cad95bf75482f506de9f43fe&quot;</span>,    <span class="hljs-string">&quot;host&quot;</span>: <span class="hljs-string">&quot;192.168.84.1&quot;</span>,    <span class="hljs-string">&quot;port&quot;</span>: <span class="hljs-number">7002</span>,    <span class="hljs-string">&quot;replicate&quot;</span>: null,    <span class="hljs-string">&quot;slots&quot;</span>: <span class="hljs-string">[[5461,10922]]</span>,    <span class="hljs-string">&quot;slots_count&quot;</span>: <span class="hljs-number">5462</span>,    <span class="hljs-string">&quot;flags&quot;</span>: <span class="hljs-string">&quot;master&quot;</span>,    <span class="hljs-string">&quot;current_epoch&quot;</span>: <span class="hljs-number">2</span>  &#125;]<br></code></pre></td></tr></table></figure>
+
+<p>   </p>
+<p>显示推荐内容</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Redis/">#Redis</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/e0bb1c9a.html" title="@Transactional 失效场景">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">@Transactional 失效场景</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/41a6994d.html" title="Redisson分布式锁">
+                        <span class="hidden-mobile">Redisson分布式锁</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
