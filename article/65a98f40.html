@@ -1,0 +1,688 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="最近对分布式任务调度系统比较感兴趣，于是了解了下网上的开源项目。 发现有一个国内的开源项目xxl-job写的还不错，开源代码比较简单易懂的、文档也比较齐全。 首先是xxl-job系统的架构介绍：  xxl-job就是一个中心化管理系统，系统主要通过MySQL管理各种定时任务信息，当到了定时任务的触发时间，就把任务信息从db中拉进内存，对任务执行器发起触发请求。这个任务执行器，既可以是bean、g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xxl-job知识点">
+<meta property="og:url" content="https://fyyhub.github.io/article/65a98f40.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="最近对分布式任务调度系统比较感兴趣，于是了解了下网上的开源项目。 发现有一个国内的开源项目xxl-job写的还不错，开源代码比较简单易懂的、文档也比较齐全。 首先是xxl-job系统的架构介绍：  xxl-job就是一个中心化管理系统，系统主要通过MySQL管理各种定时任务信息，当到了定时任务的触发时间，就把任务信息从db中拉进内存，对任务执行器发起触发请求。这个任务执行器，既可以是bean、g">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic4.zhimg.com/v2-70a6d9e0c3c658a7e10376666130d763_r.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-7e9f3e0f1e561c5d02c364d6d48545c0_720w.webp">
+<meta property="article:published_time" content="2022-11-09T10:14:32.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.276Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="xxl-job">
+<meta property="article:tag" content="定时任务">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pic4.zhimg.com/v2-70a6d9e0c3c658a7e10376666130d763_r.jpg">
+  
+  
+  
+  <title>xxl-job知识点 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="xxl-job知识点"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-09 10:14" pubdate>
+          2022年11月9日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">xxl-job知识点</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p> 最近对分布式任务调度系统比较感兴趣，于是了解了下网上的开源项目。</p>
+<p>发现有一个国内的开源项目xxl-job写的还不错，开源代码比较简单易懂的、文档也比较齐全。</p>
+<p>首先是xxl-job系统的架构介绍：</p>
+<p><img src="https://pic4.zhimg.com/v2-70a6d9e0c3c658a7e10376666130d763_r.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>xxl-job就是一个中心化管理系统，系统主要通过MySQL管理各种定时任务信息，当到了定时任务的触发时间，就把任务信息从db中拉进内存，对任务执行器发起触发请求。这个任务执行器，既可以是bean、groovy脚本、python脚本等，也可以是外部的http接口。</p>
+<p>相比起当当网开源的elastic-job-lite（基于zookeeper作为协调器的“无中心”架构），这种中心化管理的系统其实更简单、易于维护。</p>
+<p>下面核心介绍下我感兴趣的几个特性的实现原理：</p>
+<p><strong>1、定时触发任务是如何实现的？：使用时间轮实现</strong></p>
+<ul>
+<li><p>xxl_job_info表是记录定时任务的db表，里面有个trigger_next_time（Long）字段，表示下一次触发的时间点</p>
+</li>
+<li><p>任务时间被修改 &#x2F; 每一次任务触发后，可以根据cronb表达式计算下一次触发时间戳：Date nextValidTime &#x3D; new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(new Date())），更新trigger_next_time字段</p>
+</li>
+<li><p>定时执行任务逻辑：</p>
+</li>
+<li><p>定时任务scheduleThread：不断从db把5秒内要执行的任务读出，立即触发 &#x2F; 放到时间轮等待触发，并更新trigger_next_time</p>
+</li>
+<li><p>获取当前时间now</p>
+</li>
+<li><p>轮询db，找出trigger_next_time在距now 5秒内的任务</p>
+</li>
+<li><p>（0）对到达now时间后的任务（超出now 5秒外）：</p>
+</li>
+<li><p>直接跳过不执行；</p>
+</li>
+<li><p>重置trigger_next_time</p>
+</li>
+<li><p>（1）对到达now时间后的任务（超出now 5秒内）：</p>
+</li>
+<li><p>开线程执行触发逻辑；</p>
+</li>
+<li><p>若任务下一次触发时间是在5秒内，则放到时间轮内（Map&lt;Integer, List<Integer>&gt; 秒数(1-60) &#x3D;&gt; 任务id列表）；</p>
+</li>
+<li><p>重置trigger_next_time</p>
+</li>
+<li><p>（2）对未到达now时间的任务：</p>
+</li>
+<li><p>直接放到时间轮内；</p>
+</li>
+<li><p>重置trigger_next_time</p>
+</li>
+<li><p>定时任务ringThread：时间轮实现到点触发任务</p>
+</li>
+<li><p>时间轮数据结构：Map&lt;Integer, List<Integer>&gt; key是秒数(1-60) ，value是任务id列表</p>
+</li>
+</ul>
+<p><img src="https://pic1.zhimg.com/80/v2-7e9f3e0f1e561c5d02c364d6d48545c0_720w.webp" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>获取当前时间秒数</li>
+<li>从时间轮内移出当前秒数前2个秒数（避免处理耗时太长，跨过刻度，向前校验一个刻度）的任务列表id，一一触发任务；</li>
+</ul>
+<p><strong>2、当xxl-job应用本身集群部署（实现高可用HA）时，如何避免集群中的多个服务器同时调度任务？：通过mysql悲观锁实现分布式锁（for update语句）</strong></p>
+<ul>
+<li>setAutoCommit(false)关闭隐式自动提交事务，启动事务</li>
+<li>select lock for update（显式排他锁，其他事务无法进入&amp;无法实现for update）</li>
+<li>读db任务信息 -&gt; 拉任务到内存时间轮 -&gt; 更新db任务信息</li>
+<li>commit提交事务，同时会释放for update的排他锁（悲观锁）</li>
+</ul>
+<p><strong>3、任务执行器注册中心是如何实现的？</strong></p>
+<ul>
+<li>使用db表xxl_job_group记录下执行器的信息：执行器AppName、执行器名称title、执行器地址列表address_list(多地址逗号分隔)</li>
+</ul>
+<p><strong>4、如何实现任务执行器的路由？</strong></p>
+<ul>
+<li><p>执行器集群部署时提供丰富的路由策略，包括：第一个、最后一个、轮询、随机、一致性HASH、最不经常使用、最近最久未使用、故障转移、忙碌转移等；</p>
+</li>
+<li><p><strong>第一个、最后一个、轮询、随机</strong>：都是简单读address_list即可</p>
+</li>
+<li><p><strong>一致性HASH</strong>：TreeSet实现一致性hash算法</p>
+</li>
+<li><p><strong>最不经常使用、最近最久未使用</strong>：HashMap、LinkedHashMap</p>
+</li>
+<li><p><strong>故障转移</strong>：遍历address_list获取address时，逐个检查该address的心跳（请求返回状态）；只有心跳正常的address才返回使用</p>
+</li>
+<li><p><strong>忙碌转移</strong>：遍历address_list获取address时，逐个检查该address是否忙碌（请求返回状态）；只有状态为idle的address才返回使用</p>
+</li>
+</ul>
+<p><strong>5、如何实现任务分片、并行执行？</strong></p>
+<ul>
+<li>拉出任务的执行机器列表，逐个设置index &#x2F; total，把index &#x2F; total分发到任务执行器</li>
+<li>任务执行器可根据index &#x2F; total参数开发分片任务</li>
+</ul>
+<p>其他更多特性，可以自行查看代码。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/xxl-job/">#xxl-job</a>
+      
+        <a href="/tags/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/">#定时任务</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/c7875919.html" title="mysql转sqllite数据表">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mysql转sqllite数据表</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/27010637.html" title="redis集群操作命令">
+                        <span class="hidden-mobile">redis集群操作命令</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

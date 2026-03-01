@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="转载于：https:&#x2F;&#x2F;www.modb.pro&#x2F;db&#x2F;380587   2020年以后随着Netflix的相关SpringCloud组件进入停更状态，Cloud吸收前人经验，自己创造了一套相关组件，今天就跟大家揭秘一下客户端负载均衡组件Ribbon和LoadBalancer。  现状大PKRibbon： 目前处于停更维护阶段，由于Ribbon比较优秀，生命力顽强，在生产环境还处在大规模使用中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ribbon和Spring Cloud Loadbalancer">
+<meta property="og:url" content="https://fyyhub.github.io/article/c1b21328.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="转载于：https:&#x2F;&#x2F;www.modb.pro&#x2F;db&#x2F;380587   2020年以后随着Netflix的相关SpringCloud组件进入停更状态，Cloud吸收前人经验，自己创造了一套相关组件，今天就跟大家揭秘一下客户端负载均衡组件Ribbon和LoadBalancer。  现状大PKRibbon： 目前处于停更维护阶段，由于Ribbon比较优秀，生命力顽强，在生产环境还处在大规模使用中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5564100-a9b5-11ec-8d1e-fa163eb4f6be.png">
+<meta property="og:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5776ec0-a9b5-11ec-8d1e-fa163eb4f6be.png">
+<meta property="og:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5a391da-a9b5-11ec-8d1e-fa163eb4f6be.png">
+<meta property="og:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5d008aa-a9b5-11ec-8d1e-fa163eb4f6be.png">
+<meta property="og:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5fc852e-a9b5-11ec-8d1e-fa163eb4f6be.png">
+<meta property="og:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c61d6b68-a9b5-11ec-8d1e-fa163eb4f6be.png">
+<meta property="article:published_time" content="2024-08-08T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.272Z">
+<meta property="article:author" content="All-round">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5564100-a9b5-11ec-8d1e-fa163eb4f6be.png">
+  
+  
+  
+  <title>Ribbon和Spring Cloud Loadbalancer - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Ribbon和Spring Cloud Loadbalancer"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-08 00:00" pubdate>
+          2024年8月8日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          61 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Ribbon和Spring Cloud Loadbalancer</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+转载于：https://www.modb.pro/db/380587
+
+<blockquote>
+<p>2020年以后随着Netflix的相关SpringCloud组件进入停更状态，Cloud吸收前人经验，自己创造了一套相关组件，今天就跟大家揭秘一下客户端负载均衡组件Ribbon和LoadBalancer。</p>
+</blockquote>
+<h1 id="现状大PK"><a href="#现状大PK" class="headerlink" title="现状大PK"></a>现状大PK</h1><h2 id="Ribbon："><a href="#Ribbon：" class="headerlink" title="Ribbon："></a>Ribbon：</h2><blockquote>
+<p>目前处于停更维护阶段，由于Ribbon比较优秀，生命力顽强，在生产环境还处在大规模使用中， 暂时还没有完全被替换，但是在2020年以后的cloud版本中已经删除了Ribbon的依赖。</p>
+</blockquote>
+<h2 id="LoadBalancer："><a href="#LoadBalancer：" class="headerlink" title="LoadBalancer："></a>LoadBalancer：</h2><ul>
+<li><p>cloud正在大规模引入LoadBalancer，还未全部占领高地，随着时间的推移，再加上cloud的大力扶持，未来迟早有一天LoadBalancer会一统江湖。</p>
+</li>
+<li><p>还支持响应式客户端的负载均衡，Spring Cloud LoadBalancer结合Spring Web Flux实现客户端负载均衡调用。即：WebClient。</p>
+</li>
+</ul>
+<p><img src="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5564100-a9b5-11ec-8d1e-fa163eb4f6be.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="Ribbon简介-amp-实战"><a href="#Ribbon简介-amp-实战" class="headerlink" title="Ribbon简介&amp;实战"></a>Ribbon简介&amp;实战</h1><blockquote>
+<p>Ribbon是Netflix发布的开源项目，主要功能是提供客户端的软件负载均衡算法和服务调用。Ribbon客户端组件提供一系列完善的配置项，如连接超时，重试等。简单说，就是在配置文件中列出LoadBalancer（简称LB）后面所有的机器，Ribbon会自动的帮助你基于某种规则（如轮询，随机等）去连接这些机器，很容易使用Ribbon实现自定义的负载均衡算法。</p>
+</blockquote>
+<h2 id="LB负载均衡是什么"><a href="#LB负载均衡是什么" class="headerlink" title="LB负载均衡是什么"></a>LB负载均衡是什么</h2><ul>
+<li><p>我给大家讲一下什么是客户端负载均衡，服务消费者从注册中心拿到服务提供者集群，自己决定使用何种算法找到目标服务，这个过程就是客户端负载均衡，即主动权掌握在自己手里</p>
+</li>
+<li><p>相对客户端负载均衡，服务端负载均衡，就是消费者把请求交给服务端，由服务端来负责找到目标服务提供者，即主动权掌握在被人手里。</p>
+</li>
+<li><p>我看大家还有一种分类方式：集中式LB和进程内LB，都是一个意思。</p>
+</li>
+</ul>
+<h2 id="Ribbon工作流程"><a href="#Ribbon工作流程" class="headerlink" title="Ribbon工作流程"></a>Ribbon工作流程</h2><ol>
+<li><p>从注册中心获取服务列表</p>
+</li>
+<li><p>根据用户指定的策略，找到目标服务提供者</p>
+</li>
+<li><p>通过Feign或者OpenFeign，Web客户端调用工具完成用户请求</p>
+</li>
+</ol>
+<p> </p>
+<h2 id="负载均衡策略"><a href="#负载均衡策略" class="headerlink" title="负载均衡策略"></a>负载均衡策略</h2><ul>
+<li><p><strong>RoundRobinRule：</strong>轮询</p>
+</li>
+<li><p><strong>RandomRule：</strong>随机</p>
+</li>
+<li><p><strong>RetryRule：</strong>先按照轮询策略获取服务，如果获取服务失败则在指定时间内进行重试，获取可用的服务</p>
+</li>
+<li><p><strong>WeightedResponseTimeRule：</strong>对轮询的扩展，响应速度越快的实例选择权重越大，越容易被选择</p>
+</li>
+<li><p><strong>BestAvailableRule：</strong>会先过滤掉由于多次访问故障而处于断路器跳闸状态的服务，然后选择一个并发量最小的服务</p>
+</li>
+<li><p><strong>AvailabiliyFilteringRule：</strong>先过滤掉故障实例，再选择并发较小的实例</p>
+</li>
+<li><p><strong>ZoneAvoidanceRule：</strong>默认规则，复合判断server所在区域的性能和server的可用性选择服务器</p>
+</li>
+</ul>
+<p><img src="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5776ec0-a9b5-11ec-8d1e-fa163eb4f6be.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="自定义负载均衡策略"><a href="#自定义负载均衡策略" class="headerlink" title="自定义负载均衡策略"></a>自定义负载均衡策略</h2><ol>
+<li><h2 id="Ribbon官方明确规定，自动以的配置类，不能放在-ComponentScan所扫描的当前包下以及子包下，否则我们定义的配置类就会被所有的Ribbon客户端所共享，达不到特殊化定制的目的。"><a href="#Ribbon官方明确规定，自动以的配置类，不能放在-ComponentScan所扫描的当前包下以及子包下，否则我们定义的配置类就会被所有的Ribbon客户端所共享，达不到特殊化定制的目的。" class="headerlink" title="Ribbon官方明确规定，自动以的配置类，不能放在@ComponentScan所扫描的当前包下以及子包下，否则我们定义的配置类就会被所有的Ribbon客户端所共享，达不到特殊化定制的目的。"></a>Ribbon官方明确规定，自动以的配置类，不能放在@ComponentScan所扫描的当前包下以及子包下，否则我们定义的配置类就会被所有的Ribbon客户端所共享，达不到特殊化定制的目的。</h2></li>
+<li><p>在某些特殊场景下，我们可能需要targetId相同，所有请求应该落到同一服务上。这个时候随机和轮询都不满足，所以就需要自定义一致性hash算法。</p>
+</li>
+<li><p>在某一个服务中，如果只调用一个服务提供方，可以写在@ComponentScan所扫描的包及子包下。如果是调用多个服务提供方，需要不同的策略，且互不干扰。就需要遵守第一条原则。</p>
+</li>
+<li><p>一般boot工程默认配置了@ComponentScan所扫描的包是启动类Application所在包及子包，所以在有时候我们不配置自动扫描也能正常运行的原因。</p>
+</li>
+</ol>
+<p><img src="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5a391da-a9b5-11ec-8d1e-fa163eb4f6be.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li><strong>自定义配置类，比如使用随机替换默认的轮询</strong></li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyRule</span>&#123;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title class_">IRule</span> <span class="hljs-title function_">myRule</span>(<span class="hljs-params"></span>)&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RandomRule</span>();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>在启动类上使用@RibbonClient注解，设置自定义负载均衡策略使其生效，name是服务名，即调用哪个服务集群的时候使用自定义规则。</strong></li>
+</ul>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@SpringBootApplication</span><br><span class="hljs-variable">@EnableEurekaClient</span><br><span class="hljs-variable">@RibbonClient</span>(name = <span class="hljs-string">&quot;cloud-payment-service&quot;</span>,configuration=MyRule.class)<br>public class Application8080 &#123;<br>    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">static</span> <span class="hljs-selector-tag">void</span> <span class="hljs-selector-tag">main</span>(String[] args) &#123;<br>        <span class="hljs-selector-tag">SpringApplication</span><span class="hljs-selector-class">.run</span>(Application8080.class, args);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="LoadBalancer简介-amp-实战"><a href="#LoadBalancer简介-amp-实战" class="headerlink" title="LoadBalancer简介&amp;实战"></a>LoadBalancer简介&amp;实战</h1><h2 id="LoadBalancer的优势"><a href="#LoadBalancer的优势" class="headerlink" title="LoadBalancer的优势"></a>LoadBalancer的优势</h2><ul>
+<li><p>跟Ribbon一样也支持RestTemplate，使用方法一样，由于cloud的其他组件还在使用Ribbon，所以在使用LoadBalancer的时候要屏蔽Ribbon。</p>
+</li>
+<li><p>LoadBalancer还支持<strong>响应式编程</strong>方式的<strong>异步访问</strong>客户端的负载均衡，依赖Spring Web Flux实现客户端负载均衡调用，底层依赖Netty的<strong>AIO</strong>。</p>
+</li>
+</ul>
+<h2 id="引入LoadBalancer依赖jar包"><a href="#引入LoadBalancer依赖jar包" class="headerlink" title="引入LoadBalancer依赖jar包"></a>引入LoadBalancer依赖jar包</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>     <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.cloud<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-cloud-starter-loadbalancer<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="配置文件application-yml屏蔽Ribbon负载均衡"><a href="#配置文件application-yml屏蔽Ribbon负载均衡" class="headerlink" title="配置文件application.yml屏蔽Ribbon负载均衡"></a>配置文件application.yml屏蔽Ribbon负载均衡</h2><blockquote>
+<p>在Ribbon和LoadBalancer依赖都引入的情况，cloud默认优先启用Ribbon，当我们想使用LoadBalancer的时候就要先屏蔽到Ribbon</p>
+</blockquote>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">cloud:</span><br>    <span class="hljs-attr">loadbalancer:</span><br>      <span class="hljs-attr">ribbon:</span><br>        <span class="hljs-attr">enabled:</span> <span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="业务类和启动类都没有区别，还是使用RestTemplate作为客户端来完成服务调用，此方式跟Ribbon在编码方面没什么区别。是Ribbon还是LoadBalancer，主要体现在jar包引入和yml文件关闭默认Ribbon。"><a href="#业务类和启动类都没有区别，还是使用RestTemplate作为客户端来完成服务调用，此方式跟Ribbon在编码方面没什么区别。是Ribbon还是LoadBalancer，主要体现在jar包引入和yml文件关闭默认Ribbon。" class="headerlink" title="业务类和启动类都没有区别，还是使用RestTemplate作为客户端来完成服务调用，此方式跟Ribbon在编码方面没什么区别。是Ribbon还是LoadBalancer，主要体现在jar包引入和yml文件关闭默认Ribbon。"></a>业务类和启动类都没有区别，还是使用RestTemplate作为客户端来完成服务调用，此方式跟Ribbon在编码方面没什么区别。是Ribbon还是LoadBalancer，主要体现在jar包引入和yml文件关闭默认Ribbon。</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-comment">//配置RestTemplate</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApplicationConfig</span> &#123;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@LoadBalanced</span><br>    <span class="hljs-keyword">public</span> RestTemplate getRestTemplate()&#123;<br>        <span class="hljs-keyword">return</span> new RestTemplate();<br>    &#125;<br><br>&#125;<br><br><span class="hljs-comment">//controller部分</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(<span class="hljs-string">&quot;/consumer&quot;</span>)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsumerCtrol</span> &#123;<br>    <span class="hljs-keyword">private</span> static String PAYMENTURL = <span class="hljs-string">&quot;http://CLOUD-PAYMENT-SERVICE&quot;</span>;<br>    <span class="hljs-meta">@Resource</span><br>    <span class="hljs-keyword">private</span> RestTemplate restTemplate;<br><br>    <span class="hljs-meta">@GetMapping(<span class="hljs-string">&quot;/getPayment/&#123;id&#125;&quot;</span>)</span><br>    <span class="hljs-keyword">public</span> MsgResponseBody getPaymet(<span class="hljs-meta">@PathVariable(<span class="hljs-string">&quot;id&quot;</span>)</span> <span class="hljs-built_in">Long</span> id)&#123;<br>        System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">&quot;adada&quot;</span>);<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(PAYMENTURL+<span class="hljs-string">&quot;/payment/getPayment/&quot;</span>+id+<span class="hljs-string">&quot;?userName=123&quot;</span>, MsgResponseBody.<span class="hljs-keyword">class</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="WebClient方式发起服务调用"><a href="#WebClient方式发起服务调用" class="headerlink" title="WebClient方式发起服务调用"></a>WebClient方式发起服务调用</h2><h3 id="引入webflux的相关依赖"><a href="#引入webflux的相关依赖" class="headerlink" title="引入webflux的相关依赖"></a>引入webflux的相关依赖</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>     <span class="hljs-comment">&lt;!-- Spring Webflux响应式web编程--&gt;</span><br>     <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-webflux<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="配置类中声明要注入的WebClient-Builder，是WebClient的内部类，也是编程的入口"><a href="#配置类中声明要注入的WebClient-Builder，是WebClient的内部类，也是编程的入口" class="headerlink" title="配置类中声明要注入的WebClient.Builder，是WebClient的内部类，也是编程的入口"></a>配置类中声明要注入的WebClient.Builder，是WebClient的内部类，也是编程的入口</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-comment">//配置RestTemplate</span><br><span class="hljs-meta">@Configuration</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ApplicationConfig</span> &#123;<br> <br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@LoadBalanced</span><br>    <span class="hljs-keyword">public</span> RestTemplate getRestTemplate()&#123;<br>        <span class="hljs-keyword">return</span> new RestTemplate();<br>    &#125;<br> <br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-meta">@LoadBalanced</span><br>    <span class="hljs-keyword">public</span> WebClient.Builder builder() &#123;<br>        <span class="hljs-keyword">return</span> WebClient.builder();<br>    &#125;<br> <br>&#125;<br> <br><span class="hljs-comment">//controller部分</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(<span class="hljs-string">&quot;/consumer&quot;</span>)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsumerCtrol</span> &#123;<br>    <span class="hljs-keyword">private</span> static String PAYMENTURL = <span class="hljs-string">&quot;http://CLOUD-PAYMENT-SERVICE&quot;</span>;<br>    <span class="hljs-meta">@Resource</span><br>    <span class="hljs-keyword">private</span> RestTemplate restTemplate;<br> <br>    <span class="hljs-meta">@GetMapping(<span class="hljs-string">&quot;/getPayment/&#123;id&#125;&quot;</span>)</span><br>    <span class="hljs-keyword">public</span> MsgResponseBody getPaymet(<span class="hljs-meta">@PathVariable(<span class="hljs-string">&quot;id&quot;</span>)</span> <span class="hljs-built_in">Long</span> id)&#123;<br>        System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">&quot;adada&quot;</span>);<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(PAYMENTURL+<span class="hljs-string">&quot;/payment/getPayment/&quot;</span>+id+<span class="hljs-string">&quot;?userName=123&quot;</span>, MsgResponseBody.<span class="hljs-keyword">class</span>);<br>    &#125;<br> <br>    <span class="hljs-meta">@GetMapping(<span class="hljs-string">&quot;/getPayment/webClient/&#123;id&#125;&quot;</span>)</span><br>    <span class="hljs-keyword">public</span> Mono&lt;MsgResponseBody&gt; getPaymetByWebClient(<span class="hljs-meta">@PathVariable(<span class="hljs-string">&quot;id&quot;</span>)</span> <span class="hljs-built_in">Long</span> id) &#123;<br>        System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">&quot;bbbbbbb&quot;</span>);<br>        <span class="hljs-comment">//return restTemplate.getForObject(PAYMENTURL + &quot;/payment/getPayment/&quot; + id + &quot;?userName=123&quot;, MsgResponseBody.class);</span><br>        <span class="hljs-keyword">return</span> clientBuilder.baseUrl(PAYMENTURL).build().<span class="hljs-keyword">get</span>().uri(<span class="hljs-string">&quot;/payment/getPayment/&quot;</span> + id + <span class="hljs-string">&quot;?userName=123&quot;</span>).retrieve().bodyToMono(MsgResponseBody.<span class="hljs-keyword">class</span>);<br>    &#125;<br> <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="默认跟Ribbon是一样的，都是轮询策略，自定义配置使用的是-LoadBalancerClient，用法跟Ribbon的-RibbonClient一样。"><a href="#默认跟Ribbon是一样的，都是轮询策略，自定义配置使用的是-LoadBalancerClient，用法跟Ribbon的-RibbonClient一样。" class="headerlink" title="默认跟Ribbon是一样的，都是轮询策略，自定义配置使用的是@LoadBalancerClient，用法跟Ribbon的@RibbonClient一样。"></a>默认跟Ribbon是一样的，都是轮询策略，自定义配置使用的是@LoadBalancerClient，用法跟Ribbon的@RibbonClient一样。</h3><p><img src="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5d008aa-a9b5-11ec-8d1e-fa163eb4f6be.png" srcset="/img/loading.gif" lazyload></p>
+<p>在Springcloud alibaba的2.2.6版本对应的Spring-cloud版本是Hoxton.SR9，而spring-cloud-loadbalancer2.2.6版本负载均衡策略仅支持轮询策略。</p>
+<p><img src="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c5fc852e-a9b5-11ec-8d1e-fa163eb4f6be.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="Hoxton-SR10版本以后增加了随机负载均衡策略"><a href="#Hoxton-SR10版本以后增加了随机负载均衡策略" class="headerlink" title="Hoxton.SR10版本以后增加了随机负载均衡策略"></a>Hoxton.SR10版本以后增加了随机负载均衡策略</h3><p><img src="https://oss-emcsprod-public.modb.pro/wechatSpider/modb_20220322_c61d6b68-a9b5-11ec-8d1e-fa163eb4f6be.png" srcset="/img/loading.gif" lazyload>  </p>
+<h3 id="切换随机负载均衡策略，新建两个Module分别绑定8004和8005端口，服务名是CLOUD-PAYMENT-SERVICE1，使用轮询策略，上面说了，MyLoadBalancerRandomConfig要放在-ComponentScan不能扫描到的package中。"><a href="#切换随机负载均衡策略，新建两个Module分别绑定8004和8005端口，服务名是CLOUD-PAYMENT-SERVICE1，使用轮询策略，上面说了，MyLoadBalancerRandomConfig要放在-ComponentScan不能扫描到的package中。" class="headerlink" title="切换随机负载均衡策略，新建两个Module分别绑定8004和8005端口，服务名是CLOUD-PAYMENT-SERVICE1，使用轮询策略，上面说了，MyLoadBalancerRandomConfig要放在@ComponentScan不能扫描到的package中。"></a>切换随机负载均衡策略，新建两个Module分别绑定8004和8005端口，服务名是CLOUD-PAYMENT-SERVICE1，使用轮询策略，上面说了，MyLoadBalancerRandomConfig要放在@ComponentScan不能扫描到的package中。</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">@<span class="hljs-keyword">Configuration</span><br><span class="hljs-built_in">public</span> <span class="hljs-keyword">class</span> MyLoadBalancerRandomConfig &#123;<br> <br>    @Bean<br>    <span class="hljs-built_in">public</span> ReactorLoadBalancer&lt;ServiceInstance&gt; reactorServiceInstanceLoadBalancer(Environment environment,<br>                                                                                   LoadBalancerClientFactory loadBalancerClientFactory) &#123;<br>        String <span class="hljs-type">name</span> = environment.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">new</span> RandomLoadBalancer(<br>                loadBalancerClientFactory.getLazyProvider(<span class="hljs-type">name</span>, ServiceInstanceListSupplier.<span class="hljs-keyword">class</span>), <span class="hljs-type">name</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="启动类配置-LoadBalancerClient，配置原来的8001和8002，CLOUD-PAYMENT-SERVICE服务使用随机策略"><a href="#启动类配置-LoadBalancerClient，配置原来的8001和8002，CLOUD-PAYMENT-SERVICE服务使用随机策略" class="headerlink" title="启动类配置@LoadBalancerClient，配置原来的8001和8002，CLOUD-PAYMENT-SERVICE服务使用随机策略"></a>启动类配置@LoadBalancerClient，配置原来的8001和8002，CLOUD-PAYMENT-SERVICE服务使用随机策略</h3><figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@SpringBootApplication</span><br><span class="hljs-variable">@EnableEurekaClient</span><br><span class="hljs-variable">@LoadBalancerClient</span>(value = <span class="hljs-string">&quot;CLOUD-PAYMENT-SERVICE&quot;</span>, configuration = MyLoadBalancerRandomConfig.class)<br>public class Application6060 &#123;<br>    <span class="hljs-selector-tag">public</span> <span class="hljs-selector-tag">static</span> <span class="hljs-selector-tag">void</span> <span class="hljs-selector-tag">main</span>(String[] args) &#123;<br>        <span class="hljs-selector-tag">SpringApplication</span><span class="hljs-selector-class">.run</span>(Application6060.class,args);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="controller类的修改，getPayment对应轮询，getPaymentWebClient对应随机"><a href="#controller类的修改，getPayment对应轮询，getPaymentWebClient对应随机" class="headerlink" title="controller类的修改，getPayment对应轮询，getPaymentWebClient对应随机"></a>controller类的修改，getPayment对应轮询，getPaymentWebClient对应随机</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-meta">@RestController</span><br><span class="hljs-meta">@RequestMapping(<span class="hljs-string">&quot;/consumer&quot;</span>)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsumerCtrol</span> &#123;<br>    <span class="hljs-keyword">private</span> static <span class="hljs-keyword">final</span> String PAYMENTURL = <span class="hljs-string">&quot;https://CLOUD-PAYMENT-SERVICE&quot;</span>;<span class="hljs-comment">//随机</span><br>    <span class="hljs-keyword">private</span> static <span class="hljs-keyword">final</span> String PAYMENTURL2 = <span class="hljs-string">&quot;https://CLOUD-PAYMENT-SERVICE1&quot;</span>;<span class="hljs-comment">//轮询</span><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RestTemplate restTemplate;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> WebClient.Builder clientBuilder;<br> <br>    <span class="hljs-meta">@GetMapping(<span class="hljs-string">&quot;/getPayment/&#123;id&#125;&quot;</span>)</span><br>    <span class="hljs-keyword">public</span> MsgResponseBody getPaymet(<span class="hljs-meta">@PathVariable(<span class="hljs-string">&quot;id&quot;</span>)</span> <span class="hljs-built_in">Long</span> id) &#123;<br>        System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">&quot;adada&quot;</span>);<br>        <span class="hljs-keyword">return</span> restTemplate.getForObject(PAYMENTURL2 + <span class="hljs-string">&quot;/payment/getPayment/&quot;</span> + id + <span class="hljs-string">&quot;?userName=123&quot;</span>, MsgResponseBody.<span class="hljs-keyword">class</span>);<br>    &#125;<br> <br>    <span class="hljs-meta">@GetMapping(<span class="hljs-string">&quot;/getPayment/webClient/&#123;id&#125;&quot;</span>)</span><br>    <span class="hljs-keyword">public</span> Mono&lt;MsgResponseBody&gt; getPaymetByWebClient(<span class="hljs-meta">@PathVariable(<span class="hljs-string">&quot;id&quot;</span>)</span> <span class="hljs-built_in">Long</span> id) &#123;<br>        System.<span class="hljs-keyword">out</span>.println(<span class="hljs-string">&quot;bbbbbbb&quot;</span>);<br>        <span class="hljs-comment">//return restTemplate.getForObject(PAYMENTURL + &quot;/payment/getPayment/&quot; + id + &quot;?userName=123&quot;, MsgResponseBody.class);</span><br>        <span class="hljs-keyword">return</span> clientBuilder.baseUrl(PAYMENTURL).build().<span class="hljs-keyword">get</span>().uri(<span class="hljs-string">&quot;/payment/getPayment/&quot;</span> + id + <span class="hljs-string">&quot;?userName=123&quot;</span>).retrieve().bodyToMono(MsgResponseBody.<span class="hljs-keyword">class</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/356b653b.html" title="Feign 和 RestTemplate">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Feign 和 RestTemplate</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/74ef2116.html" title="armbian 定时任务">
+                        <span class="hidden-mobile">armbian 定时任务</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

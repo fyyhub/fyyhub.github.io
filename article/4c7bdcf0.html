@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="# 前言 🚀  由于不可抗力因素,使用了Cloudflare开启小黄云在国内的访问速度十分堪忧,间歇性抽风 在之前我们可以使用cloudflare partner来使访问回源到一个优选过后的IP 但是在去年这个方法已经行不通了, 那么我们这些白嫖玩家又不想对接国内备案实名CDN,同时想要保证国内的高速访问 我们应该怎么做呢? 这就是我们这期要讲的主要内容,Cloudflare SaaS回源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CloudFlare+SaaS回源优选IP使国内用户高速访问网站">
+<meta property="og:url" content="https://fyyhub.github.io/article/4c7bdcf0.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="# 前言 🚀  由于不可抗力因素,使用了Cloudflare开启小黄云在国内的访问速度十分堪忧,间歇性抽风 在之前我们可以使用cloudflare partner来使访问回源到一个优选过后的IP 但是在去年这个方法已经行不通了, 那么我们这些白嫖玩家又不想对接国内备案实名CDN,同时想要保证国内的高速访问 我们应该怎么做呢? 这就是我们这期要讲的主要内容,Cloudflare SaaS回源">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c28e8d95e.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c5ed316f3.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c5010d985.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c6b4281c9.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c753a0a85.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c922e065d.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565c9322b81f.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565ca912e0fd.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565cd52ead7e.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565cea7f34da.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565cf6930430.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565cfc3f3346.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/65660ac867011.webp">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565d0b8e8501.jpg">
+<meta property="og:image" content="https://image.dooo.ng/i/2023/11/28/6565d0ff7ae80.jpg">
+<meta property="article:published_time" content="2024-10-11T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.275Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="CF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://image.dooo.ng/i/2023/11/28/6565c28e8d95e.jpg">
+  
+  
+  
+  <title>CloudFlare+SaaS回源优选IP使国内用户高速访问网站 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CloudFlare+SaaS回源优选IP使国内用户高速访问网站"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-11 00:00" pubdate>
+          2024年10月11日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CloudFlare+SaaS回源优选IP使国内用户高速访问网站</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+# 前言 🚀
+
+<p>由于不可抗力因素,使用了Cloudflare开启小黄云在国内的访问速度十分堪忧,间歇性抽风</p>
+<p>在之前我们可以使用cloudflare partner来使访问回源到一个优选过后的IP</p>
+<p>但是在去年这个方法已经行不通了, 那么我们这些白嫖玩家又不想对接国内备案实名CDN,同时想要保证国内的高速访问</p>
+<p>我们应该怎么做呢?</p>
+<p>这就是我们这期要讲的主要内容,Cloudflare SaaS回源</p>
+<h1 id="什么是SaaS回源-🤔"><a href="#什么是SaaS回源-🤔" class="headerlink" title="什么是SaaS回源? 🤔"></a>什么是SaaS回源? 🤔</h1><h2 id="SaaS回源主要分为两个部分"><a href="#SaaS回源主要分为两个部分" class="headerlink" title="SaaS回源主要分为两个部分"></a>SaaS回源主要分为两个部分</h2><ol>
+<li>自定义主机名 (Custom Hostnames)<ul>
+<li>你可以设置一个自定义主机名,来作为你的访问域名</li>
+</ul>
+</li>
+<li>回源 (Origin Server)<ul>
+<li>当用户请求特定的主机名（如客户自己的域名）时，请求会被转发到SaaS提供商的原始服务器（或称为回源服务器）。</li>
+</ul>
+</li>
+</ol>
+<h1 id="SaaS回源有什么用-🧐"><a href="#SaaS回源有什么用-🧐" class="headerlink" title="SaaS回源有什么用? 🧐"></a>SaaS回源有什么用? 🧐</h1><ul>
+<li><p>可能看到现在大家还是一头雾水,不过没关系,我会给大家根据实例来通俗易懂的解释一下</p>
+</li>
+<li><p>我们可以使用支持分流的DNS解析服务(例如腾讯的DNSPOD),</p>
+<p>将我们需要访问的域名例如 <code>image.dooo.ng</code> 通过CNAME解析到任意一个Cloudflare的节点,</p>
+<p>例如<code>csgo.com</code>, <code>visa.com</code>,而这些域名解析到的CF的IP通常是经过大陆特殊优化的</p>
+<p>有些是优选线路,有些的百度云合作的IP地址</p>
+</li>
+<li><p>将我们的 <code>image.dooo.ng</code> CNAME解析到 <code>csgo.com</code> 之后, 我们访问image.dooo.ng的请求实则是被发送到了</p>
+<p><strong>经过优选后线路较好的Cloudflare IP</strong>上 这个步骤达到了我们优选IP的目的</p>
+</li>
+<li><p>此时Cloudflare的IP收到了我们的访问请求, 会匹配我们访问的域名 <code>image.dooo.ng</code> 在Cloudflare中是否有匹配的 <strong>自定义主机名</strong> 如果有, 它会将我们回源到我们设置的 <strong>回源服务器</strong> 上</p>
+</li>
+<li><p>这里我绘制了一个序列图来帮助大家理解</p>
+<p><img src="https://image.dooo.ng/i/2023/11/28/6565c28e8d95e.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+</ul>
+<h2 id="使用Cloudflare的SaaS回源"><a href="#使用Cloudflare的SaaS回源" class="headerlink" title="使用Cloudflare的SaaS回源"></a>使用Cloudflare的SaaS回源</h2><ul>
+<li>我们可以设置自定义域名（例如 <code>image.dooo.ng</code>）。</li>
+<li>并通过CNAME记录将其解析到另一个域名（例如 <code>csgo.com</code>）。</li>
+<li>这样设置是为了利用Cloudflare的安全和性能特性，如DDoS防护、SSL&#x2F;TLS加密、CDN加速等。</li>
+</ul>
+<h2 id="CNAME解析过程"><a href="#CNAME解析过程" class="headerlink" title="CNAME解析过程"></a>CNAME解析过程</h2><ul>
+<li>访问 <code>image.dooo.ng</code> 时，DNS查询会根据CNAME记录找到它实际指向的 <code>csgo.com</code>。</li>
+<li>由于 <code>csgo.com</code> 已接入Cloudflare CDN，用户的请求会被路由到Cloudflare的边缘节点。</li>
+</ul>
+<h2 id="Cloudflare边缘节点处理"><a href="#Cloudflare边缘节点处理" class="headerlink" title="Cloudflare边缘节点处理"></a>Cloudflare边缘节点处理</h2><ul>
+<li>Cloudflare的边缘节点处理请求，包括应用安全规则、进行缓存等。</li>
+<li>如果请求需要回源（即获取原始内容），Cloudflare会将请求转发到原始的回源服务器。</li>
+</ul>
+<h2 id="访问过程的理解"><a href="#访问过程的理解" class="headerlink" title="访问过程的理解"></a>访问过程的理解</h2><ul>
+<li>用户访问 <code>image.dooo.ng</code> 实际上是在访问Cloudflare的节点。</li>
+<li>然后，根据需要，Cloudflare会从原始的回源服务器获取内容。</li>
+<li>这个过程对用户透明，用户只知道他们访问的是 <code>image.dooo.ng</code>，但实际上得到的内容可能是直接来自Cloudflare的缓存，或者是经过Cloudflare优化处理后的来自原始服务器的内容。</li>
+</ul>
+<h1 id="实际操作-🛠️"><a href="#实际操作-🛠️" class="headerlink" title="实际操作 🛠️"></a>实际操作 🛠️</h1><h2 id="准备域名-🌐"><a href="#准备域名-🌐" class="headerlink" title="准备域名 🌐"></a>准备域名 🌐</h2><ul>
+<li><p>在了解了SaaS回源的相关原理之后, 我们可以进行实操了!</p>
+</li>
+<li><p>首先我们需要准备两个域名</p>
+<ol>
+<li><p><code>tongyi.tw.cn</code> &lt;– 作为 我们的访问域名,也就是自定义主机名,稍后我们访问此域名来访问网站</p>
+</li>
+<li><p><code>fallback.tech</code> &lt;– 作为 我们的回源域名,也就是当我们访问 <code>tongyi.tw.cn</code> 时,cloudflare在内部回源的域名</p>
+</li>
+<li><p>我将<code>tongyi.tw.cn</code> 解析在腾讯的DNSPOD上, 而<code>fallback.tech</code> 解析在Cloudflare上</p>
+<ul>
+<li><p>前者不是必须的,你可以都解析在Cloudflare上,我选择DNSPOD是因为它有免费的分流服务</p>
+<p>可以将境内境外解析到不同的cname上</p>
+</li>
+<li><p>而后者则是必须的! 因为只有解析在cloudflare上的域名才可以启用SaaS回源</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h1 id="设置回源域名-🔄"><a href="#设置回源域名-🔄" class="headerlink" title="设置回源域名 🔄"></a>设置回源域名 🔄</h1><h2 id="添加DNS解析-🧩"><a href="#添加DNS解析-🧩" class="headerlink" title="添加DNS解析 🧩"></a>添加DNS解析 🧩</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565c5ed316f3.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128185020364"></p>
+<ul>
+<li>首先我们先来添加一个DNS解析</li>
+<li>解析到我们的真实服务器IP地址, 正如上面所说的,这是一个回源的域名,也就是说,服务器的IP到底是什么 只有这台回源域名知道,它的工作也只是起到回源的作用</li>
+<li>这里你可以随意填写一级域名或二级域名,我推荐填写二级域名 也就是 <code>origin.fallback.tech</code> 可以随意起名</li>
+<li>因为填写二级域名, 你还可以在DNS中正常解析一级域名,仅将二级域名作为回退源</li>
+</ul>
+<h2 id="添加回退源-🔄"><a href="#添加回退源-🔄" class="headerlink" title="添加回退源 🔄"></a>添加回退源 🔄</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565c5010d985.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128184623739"></p>
+<ul>
+<li>进入到Cloudflare域名管理界面 -&gt; SSL&#x2F;TLS -&gt; 自定义主机名 -&gt; 添加一个回退源</li>
+<li>回退源地址即为我们刚才解析的二级域名</li>
+</ul>
+<p><img src="https://image.dooo.ng/i/2023/11/28/6565c6b4281c9.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128185339266"></p>
+<h2 id="检查回退源是否有效-✔️"><a href="#检查回退源是否有效-✔️" class="headerlink" title="检查回退源是否有效 ✔️"></a>检查回退源是否有效 ✔️</h2><ul>
+<li>回退源状态: <code>有效</code> 即代表回退源添加成功,现在访问 <code>origin.fallback.tech</code> 你应该会看到如下界面</li>
+</ul>
+<p><img src="https://image.dooo.ng/i/2023/11/28/6565c753a0a85.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128185618750"></p>
+<ul>
+<li>这是因为虽然设置了回退源,但是我们并没有设置自定义主机名,也就是回退源并不知道要将哪个主机名回源到我们的服务器IP</li>
+</ul>
+<h1 id="设置自定义主机名-🏠"><a href="#设置自定义主机名-🏠" class="headerlink" title="设置自定义主机名 🏠"></a>设置自定义主机名 🏠</h1><h2 id="添加自定义主机名-🌐"><a href="#添加自定义主机名-🌐" class="headerlink" title="添加自定义主机名 🌐"></a>添加自定义主机名 🌐</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565c922e065d.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128190401927"></p>
+<h2 id="设置主机名信息-🛠️"><a href="#设置主机名信息-🛠️" class="headerlink" title="设置主机名信息 🛠️"></a>设置主机名信息 🛠️</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565c9322b81f.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128190417387"></p>
+<ul>
+<li><p>自定义主机名: 填写你要解析的域名, 可以为一级或者二级均可,这里我填写 <code>tongyi.tw.cn</code></p>
+</li>
+<li><p>TLS版本默认填写1.0即可</p>
+</li>
+<li><p>证书验证方法填写TXT验证</p>
+</li>
+</ul>
+<h2 id="验证域名所有权-📋"><a href="#验证域名所有权-📋" class="headerlink" title="验证域名所有权 📋"></a>验证域名所有权 📋</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565ca912e0fd.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128191006506"></p>
+<ul>
+<li><p>这里我们需要验证我们域名的所有权和证书验证</p>
+</li>
+<li><p>去到你的DNS解析面板添加这两个TXT解析</p>
+</li>
+<li><p>值得注意的是你的两个TXT验证名称应该不包含主域名, 例如直接复制下来是<code>_acme-challenge.tongyi.tw.cn</code> 你应该删去 <code>tongyi.tw.cn</code> 即为 <code>_acme-challenge</code> 因为它给你的是验证的完整地址,你的解析已经包括<code>tongyi.tw.cn</code></p>
+</li>
+<li><p>二级域名同理,例如 <code>_acme-challenge.1.tongyi.tw.cn</code> 你应该改为 <code>_acme-challenge.1</code></p>
+</li>
+<li><p>添加好之后稍等片刻,等待CF服务器去验证</p>
+</li>
+</ul>
+<h1 id="设置优选IP-🚀"><a href="#设置优选IP-🚀" class="headerlink" title="设置优选IP 🚀"></a>设置优选IP 🚀</h1><p>经过我们一番折腾,最好玩的部分来了</p>
+<h2 id="设置分流-🛣️"><a href="#设置分流-🛣️" class="headerlink" title="设置分流 🛣️"></a>设置分流 🛣️</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565cd52ead7e.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128192154083"></p>
+<ul>
+<li><p>添加两个二级域名记录,一个<code>线路</code>选择<code>境内</code>,另一个选择<code>境外</code></p>
+</li>
+<li><p>境外我们直接解析到 <code>1.0.0.5</code></p>
+</li>
+<li><p>境内我们CNAME解析到 <code>csgo.com</code> 你还可以选择很多,只要是国内访问速度不错,使用Cloudflare CDN的,你都可以cname解析上去</p>
+<h3 id="可使用的CNAME优选域名参考-🌐"><a href="#可使用的CNAME优选域名参考-🌐" class="headerlink" title="可使用的CNAME优选域名参考 🌐"></a>可使用的CNAME优选域名参考 🌐</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">Qatar2022</span><span class="hljs-params">(SAN JOSE IP)</span></span> : <br>www<span class="hljs-selector-class">.qatar2022</span><span class="hljs-selector-class">.qa</span><br><br>IP查询 : <br>ip<span class="hljs-selector-class">.skk</span><span class="hljs-selector-class">.moe</span><br>ping<span class="hljs-selector-class">.pe</span><br><br>政府网站:<br>乌克兰🇺🇦政府<br>www<span class="hljs-selector-class">.gov</span><span class="hljs-selector-class">.ua</span><br><br>泰国🇹🇭政府<br>www<span class="hljs-selector-class">.thaigov</span><span class="hljs-selector-class">.go</span><span class="hljs-selector-class">.th</span><br><br>卡塔尔🇶🇦政府<br>www<span class="hljs-selector-class">.gco</span><span class="hljs-selector-class">.gov</span><span class="hljs-selector-class">.qa</span><br><br>瑞典🇸🇪政府<br>www<span class="hljs-selector-class">.gov</span><span class="hljs-selector-class">.se</span><br><br>美国🇺🇸FBI:<br>FBI<span class="hljs-selector-class">.GOV</span><br><br>商业网站：<br>CSGO官方网站<br>(Cloudflare LONDON ASN)：<br>CSGO<span class="hljs-selector-class">.COM</span><br><br>DigitalOcean<br>digitalocean<span class="hljs-selector-class">.com</span><br><br>VISA官方网站：<br>(格式： VISA.国家顶级域名)<br>VISA<span class="hljs-selector-class">.COM</span><br>VISA<span class="hljs-selector-class">.CN</span><br>VISA<span class="hljs-selector-class">.FI</span><br>VISA<span class="hljs-selector-class">.HK</span><br><br>伪AMEX:<br>AMEX<span class="hljs-selector-class">.COM</span><br><br><span class="hljs-function"><span class="hljs-title">SHOPIFY</span><span class="hljs-params">(推荐)</span></span>:<br>SHOPIFY<span class="hljs-selector-class">.COM</span><br><br>域名注册商：<br>Dynadot<span class="hljs-selector-class">.COM</span><br><br>其它网站：<br>SINGAPORE<span class="hljs-selector-class">.COM</span><br>JAPAN<span class="hljs-selector-class">.COM</span><br>BRAZIL<span class="hljs-selector-class">.COM</span><br>MALAYSIA<span class="hljs-selector-class">.COM</span><br>RUSSIA.COM<br></code></pre></td></tr></table></figure>
+
+<p>Makefile</p>
+</li>
+</ul>
+<h2 id="添加解析-🧩"><a href="#添加解析-🧩" class="headerlink" title="添加解析 🧩"></a>添加解析 🧩</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565cea7f34da.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128192733483"></p>
+<ul>
+<li>再将我们要访问的域名,CNAME解析到我们的CDN记录上即可,</li>
+</ul>
+<h1 id="排查错误-🔍"><a href="#排查错误-🔍" class="headerlink" title="排查错误 🔍"></a>排查错误 🔍</h1><ul>
+<li><p>注意如果要访问,我们的站点必须开启SSL证书和HTTPS访问,不然会直接404,因为回源只回源到443端口</p>
+</li>
+<li><p>现在我们打开网站测试下能否正常访问</p>
+</li>
+</ul>
+<h2 id="重定向次数过多"><a href="#重定向次数过多" class="headerlink" title="重定向次数过多"></a>重定向次数过多</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565cf6930430.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128193047979"></p>
+<p>提示我们重定向过多,这是因为HTTPS加密的问题,我们进入Cloudflare后台 -&gt; SSL&#x2F;TLS -&gt; 概述</p>
+<p>​ <img src="https://image.dooo.ng/i/2023/11/28/6565cfc3f3346.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128193218725"></p>
+<p>将SSL&#x2F;TLS加密模式改为 “完全” 再次尝试访问</p>
+<h2 id="Invalid-SSL-Certificate"><a href="#Invalid-SSL-Certificate" class="headerlink" title="Invalid SSL Certificate"></a>Invalid SSL Certificate</h2><p><img src="https://image.dooo.ng/i/2023/11/28/65660ac867011.webp" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>出现此问题是因为我们的回源域名 <code>fallback.tech</code> 在进行回源时,访问的是 <code>tongyi.tw.cn</code></li>
+<li>虽然我们在验证所有权时申请了一个证书,但那个证书是用于回源之后呈现给用户端的, 在回源过程中不会生效</li>
+<li>所以我们需要给 <code>tongyi.tw.cn</code> 申请一个证书, 可以通过宝塔面板,NPM等等方式,只要申请一个证书并配置即可解决此问题</li>
+</ul>
+<h1 id="结果测试-🧪"><a href="#结果测试-🧪" class="headerlink" title="结果测试 🧪"></a>结果测试 🧪</h1><p><img src="https://image.dooo.ng/i/2023/11/28/6565d0b8e8501.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>网站访问成功! 我们去itdog Ping一下试试看</p>
+<h2 id="Ping-测试"><a href="#Ping-测试" class="headerlink" title="Ping 测试"></a>Ping 测试</h2><p><img src="https://image.dooo.ng/i/2023/11/28/6565d0ff7ae80.jpg" srcset="/img/loading.gif" lazyload alt="image-20231128193734518"></p>
+<ul>
+<li>可以看到我们的网址是经过csgo.com同款的Cloudflare ASN进行解析的</li>
+<li>海外是通过 1.0.0.5 进行解析的</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<p>通过这种方法,我们可以实现几乎国内全绿<br>Cloudflare + SaaS还有很多玩法,自建Cloudflare节点等等</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CF/">#CF</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/c172ae43.html" title="Docker学习之一：离线安装Docker步骤">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Docker学习之一：离线安装Docker步骤</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/7ec68bf.html" title="go windows环境下编译成 linux可执行文件">
+                        <span class="hidden-mobile">go windows环境下编译成 linux可执行文件</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

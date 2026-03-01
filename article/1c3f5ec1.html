@@ -1,0 +1,718 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Redis 是一种广泛应用的高性能内存数据库，常用于缓存场景以提升系统性能和用户体验。然而，使用 Redis 缓存时，可能会遇到一些经典问题，比如一致性问题、缓存穿击、缓存穿透、缓存雪崩，以及缓存污染等。这些问题如果不加以有效处理，可能导致系统性能下降，甚至引发服务不可用的严重后果。  本文主要探讨 Redis 作为缓存，在实践中可能会有哪些问题。 本文目录：  为什么要理解 Redis 缓">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 经典缓存问题：一致性、穿透、击穿、雪崩与污染">
+<meta property="og:url" content="https://fyyhub.github.io/article/1c3f5ec1.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="Redis 是一种广泛应用的高性能内存数据库，常用于缓存场景以提升系统性能和用户体验。然而，使用 Redis 缓存时，可能会遇到一些经典问题，比如一致性问题、缓存穿击、缓存穿透、缓存雪崩，以及缓存污染等。这些问题如果不加以有效处理，可能导致系统性能下降，甚至引发服务不可用的严重后果。  本文主要探讨 Redis 作为缓存，在实践中可能会有哪些问题。 本文目录：  为什么要理解 Redis 缓">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/c2f99605-adfa-4d4b-b592-9abb4171a039.jpg">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/c65e3f89-d69d-4d6b-9755-617e6e79042a.jpg">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/593a4a05-b12c-457d-adba-49a08df485c1.png">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/20d818ae-56f8-4670-b615-864d84a706d2.jpg">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/16a0b50a-e17d-426f-b208-0455c31f055c.jpg">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/466f5442-daac-413d-a1c1-84380bc348cf.jpg">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/0699db42-903c-4de3-9d41-03e66c80bc8e.jpg">
+<meta property="og:image" content="https://oscimg.oschina.net/oscnet/45ef7f3f-0832-46c1-84f5-65a58ae0aacf.jpg">
+<meta property="article:published_time" content="2025-01-23T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.274Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oscimg.oschina.net/oscnet/c2f99605-adfa-4d4b-b592-9abb4171a039.jpg">
+  
+  
+  
+  <title>Redis 经典缓存问题：一致性、穿透、击穿、雪崩与污染 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Redis 经典缓存问题：一致性、穿透、击穿、雪崩与污染"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-23 00:00" pubdate>
+          2025年1月23日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis 经典缓存问题：一致性、穿透、击穿、雪崩与污染</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+
+<p>Redis 是一种广泛应用的高性能内存数据库，常用于缓存场景以提升系统性能和用户体验。然而，使用 Redis 缓存时，可能会遇到一些经典问题，比如一致性问题、缓存穿击、缓存穿透、缓存雪崩，以及缓存污染等。这些问题如果不加以有效处理，可能导致系统性能下降，甚至引发服务不可用的严重后果。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/c2f99605-adfa-4d4b-b592-9abb4171a039.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>本文主要探讨 Redis 作为缓存，在实践中可能会有哪些问题。</p>
+<p><strong>本文目录：</strong></p>
+<ul>
+<li><p>为什么要理解 Redis 缓存问题</p>
+</li>
+<li><p>缓存穿透</p>
+</li>
+<li><p>缓存击穿</p>
+</li>
+<li><p>缓存雪崩</p>
+</li>
+<li><p>缓存污染</p>
+</li>
+<li><p>数据库和缓存一致性</p>
+</li>
+</ul>
+<p> <strong>1. 为什么要理解 Redis 缓存问题</strong></p>
+<hr>
+<p>Redis 缓存能够显著提升数据访问速度，但其问题常与实际业务场景相关。深入理解这些问题及其解决方案，能够帮助开发者设计更加健壮和高效的系统架构。</p>
+<p>在高并发的业务场景下，数据库大多数情况都是用户并发访问最薄弱的环节。所以，就需要使用 redis 做一个缓冲操作，让请求先访问到 redis，而不是直接访问 Mysql 等数据库。这样可以大大缓解数据库的压力。</p>
+<p>当缓存库出现时，必须要考虑如下问题：</p>
+<ul>
+<li><p>缓存穿透</p>
+</li>
+<li><p>缓存穿击</p>
+</li>
+<li><p>缓存雪崩</p>
+</li>
+<li><p>缓存污染</p>
+</li>
+<li><p>缓存和数据库一致性</p>
+</li>
+</ul>
+<p><strong>2. 缓存穿透</strong></p>
+<hr>
+<h3 id="问题定义："><a href="#问题定义：" class="headerlink" title="问题定义："></a><strong>问题定义：</strong></h3><p>缓存穿透指的是客户端频繁请求数据库中根本不存在的键，由于缓存中无法命中（因为数据不存在，无法写入缓存），每次请求都会直接访问数据库，导致数据库负载增加。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/c65e3f89-d69d-4d6b-9755-617e6e79042a.jpg" srcset="/img/loading.gif" lazyload></p>
+<h4 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h4><ol>
+<li><p><strong>布隆过滤器</strong></p>
+<p>在缓存层增加布隆过滤器，将可能的合法数据提前存储在布隆过滤器中，拦截非法请求。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/593a4a05-b12c-457d-adba-49a08df485c1.png" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><strong>缓存空值</strong></p>
+<p>对于不存在的键，也将其值设置为  <code>null</code>  并缓存一定时间，但需要注意避免缓存污染（详见后文）。</p>
+</li>
+</ol>
+<p><strong>3. 缓存击穿</strong></p>
+<hr>
+<h3 id="问题定义：-1"><a href="#问题定义：-1" class="headerlink" title="问题定义："></a><strong>问题定义：</strong></h3><p>缓存击穿发生在某个热点缓存键过期时，大量请求同时涌向数据库，造成数据库瞬时压力过高。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/20d818ae-56f8-4670-b615-864d84a706d2.jpg" srcset="/img/loading.gif" lazyload></p>
+<h4 id="解决方法：-1"><a href="#解决方法：-1" class="headerlink" title="解决方法："></a>解决方法：</h4><ol>
+<li><p><strong>设置热点数据不过期</strong></p>
+<p>将热点数据的过期时间设置为极长，或者动态更新热点数据的过期时间。</p>
+</li>
+<li><p><strong>互斥锁</strong></p>
+<p>对访问过期缓存的请求加锁，只有获取锁的请求可以加载数据并更新缓存，其余请求等待。</p>
+</li>
+</ol>
+<p><strong>4. 缓存雪崩</strong></p>
+<hr>
+<h3 id="问题定义：-2"><a href="#问题定义：-2" class="headerlink" title="问题定义："></a>问题定义：</h3><p>缓存雪崩指的是大量缓存数据在同一时间段失效，导致所有请求都涌向数据库，引发数据库崩溃。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/16a0b50a-e17d-426f-b208-0455c31f055c.jpg" srcset="/img/loading.gif" lazyload></p>
+<h4 id="解决方法：-2"><a href="#解决方法：-2" class="headerlink" title="解决方法："></a>解决方法：</h4><ol>
+<li><p><strong>缓存过期时间分布化</strong></p>
+<p>为不同的缓存键设置随机过期时间，避免同一时间大批量缓存失效。</p>
+</li>
+<li><p><strong>多级缓存</strong></p>
+<p>在 Redis 缓存前增加本地缓存层，减轻数据库直接压力。</p>
+</li>
+<li><p><strong>降级限流</strong></p>
+<p>在数据库压力过大时，开启服务降级或请求限流机制。</p>
+</li>
+</ol>
+<p><strong>5. 缓存污染</strong></p>
+<hr>
+<h3 id="问题定义：-3"><a href="#问题定义：-3" class="headerlink" title="问题定义："></a>问题定义：</h3><p>缓存污染是指缓存中存储了低命中率或无意义的数据，占用了大量内存资源，降低缓存效率。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/466f5442-daac-413d-a1c1-84380bc348cf.jpg" srcset="/img/loading.gif" lazyload></p>
+<h4 id="解决方法：-3"><a href="#解决方法：-3" class="headerlink" title="解决方法："></a>解决方法：</h4><ol>
+<li><p><strong>设置缓存淘汰策略</strong></p>
+<p>根据业务需求选择合适的淘汰策略（如 LRU、LFU）。</p>
+</li>
+<li><p><strong>过滤低价值数据</strong></p>
+<p>对可能影响缓存效率的数据进行预处理，避免写入缓存。</p>
+</li>
+</ol>
+<p><strong>6. 数据库和缓存一致性</strong></p>
+<hr>
+<h3 id="问题定义：-4"><a href="#问题定义：-4" class="headerlink" title="问题定义："></a>问题定义：</h3><p>Redis 缓存和数据库中的数据可能出现不一致的问题，尤其是在数据更新时，可能导致缓存中的数据陈旧。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/0699db42-903c-4de3-9d41-03e66c80bc8e.jpg" srcset="/img/loading.gif" lazyload></p>
+<h4 id="解决方法：-4"><a href="#解决方法：-4" class="headerlink" title="解决方法："></a>解决方法：</h4><ol>
+<li><p><strong>删除缓存策略</strong></p>
+<p>在更新数据库后立即删除缓存，使下一次访问重新加载最新数据。</p>
+<p>注意，我们的更新是先更新数据库，成功后，让缓存失效。</p>
+</li>
+<li><p><strong>延时双删策略</strong></p>
+<p>在更新数据库后，删除缓存，并在一定延时后再次删除缓存，确保缓存数据更新。</p>
+<p><img src="https://oscimg.oschina.net/oscnet/45ef7f3f-0832-46c1-84f5-65a58ae0aacf.jpg" srcset="/img/loading.gif" lazyload></p>
+</li>
+<li><p><strong>订阅通知</strong></p>
+<p>通过 Redis 的 Pub&#x2F;Sub 功能或类似工具（如 Canal）监听数据库变更并同步更新缓存。</p>
+</li>
+</ol>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a><strong>结语</strong></h3><hr>
+<p>Redis 是一个强大的缓存工具，但在高并发场景中，缓存相关问题如穿透、击穿和雪崩可能严重影响系统的稳定性。了解这些问题并采用合适的解决方案，是设计高性能系统的关键。希望本文能为您解决实际问题提供帮助！</p>
+<hr>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Redis/">#Redis</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/3214cdba.html" title="事务回滚后，自增ID仍然增加">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">事务回滚后，自增ID仍然增加</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/e0bb1c9a.html" title="@Transactional 失效场景">
+                        <span class="hidden-mobile">@Transactional 失效场景</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

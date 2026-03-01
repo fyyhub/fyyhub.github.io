@@ -1,0 +1,633 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="正文 一、场景现在有服务器A和服务器B ，由于业务需要，要求把服务器A上mq的数据迁移到服务器B上，rabbitmq的数据包括元数据（RabbitMQ用户、vhost、队列、交换和绑定）和消息数据，而消息数据存储在单独的消息存储库中。 A:192.168.2.58 B:192.168.1.60 二、元数据备份和还原1、操作在服务B上搭建rabbitmq服务，注意，主机名最好和A上的MQ保持一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rabbitmq数据备份与还原">
+<meta property="og:url" content="https://fyyhub.github.io/article/1530782b.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="正文 一、场景现在有服务器A和服务器B ，由于业务需要，要求把服务器A上mq的数据迁移到服务器B上，rabbitmq的数据包括元数据（RabbitMQ用户、vhost、队列、交换和绑定）和消息数据，而消息数据存储在单独的消息存储库中。 A:192.168.2.58 B:192.168.1.60 二、元数据备份和还原1、操作在服务B上搭建rabbitmq服务，注意，主机名最好和A上的MQ保持一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150136499-1626013564.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150535198-1111324964.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150932480-1733657491.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618154433737-1219710096.png">
+<meta property="article:published_time" content="2024-06-20T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.274Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Rabbitmq">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150136499-1626013564.png">
+  
+  
+  
+  <title>rabbitmq数据备份与还原 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="rabbitmq数据备份与还原"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-20 00:00" pubdate>
+          2024年6月20日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">rabbitmq数据备份与还原</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+
+<p><strong>正文</strong></p>
+<h2 id="一、场景"><a href="#一、场景" class="headerlink" title="一、场景"></a>一、场景</h2><p>现在有服务器A和服务器B ，由于业务需要，要求把服务器A上mq的数据迁移到服务器B上，rabbitmq的数据包括元数据（RabbitMQ用户、vhost、队列、交换和绑定）和消息数据，而消息数据存储在单独的消息存储库中。</p>
+<p>A:192.168.2.58</p>
+<p>B:192.168.1.60</p>
+<h2 id="二、元数据备份和还原"><a href="#二、元数据备份和还原" class="headerlink" title="二、元数据备份和还原"></a>二、元数据备份和还原</h2><h3 id="1、操作"><a href="#1、操作" class="headerlink" title="1、操作"></a>1、操作</h3><p>在服务B上搭建rabbitmq服务，注意，主机名最好和A上的MQ保持一致。避免后面的数据存储节点名不一致，导致启动失败</p>
+<p>安装过程详见：</p>
+<h3 id="2、导出数据"><a href="#2、导出数据" class="headerlink" title="2、导出数据"></a>2、导出数据</h3><p>用管理员账号登录到A服务器上的管理后台</p>
+<p><a href="http://192.168.2.58:15672，按如下所示把备份的数据下载到本地">http://192.168.2.58:15672，按如下所示把备份的数据下载到本地</a></p>
+<p><img src="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150136499-1626013564.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="3、导入数据"><a href="#3、导入数据" class="headerlink" title="3、导入数据"></a>3、导入数据</h3><p>登录到B服务器上的MQ管理后台</p>
+<p><a href="http://192.168.1.60:15672,进入如下图所示的位置，导入数据，大概10秒钟左右。">http://192.168.1.60:15672,进入如下图所示的位置，导入数据，大概10秒钟左右。</a></p>
+<p><img src="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150535198-1111324964.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4、验证数据"><a href="#4、验证数据" class="headerlink" title="4、验证数据"></a>4、验证数据</h3><p>刷新页面，查看用户、队列、vhost 等信息是否存在</p>
+<p><img src="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618150932480-1733657491.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="三、消息数据备份和还原"><a href="#三、消息数据备份和还原" class="headerlink" title="三、消息数据备份和还原"></a>三、消息数据备份和还原</h2><h3 id="1、确定数据目录"><a href="#1、确定数据目录" class="headerlink" title="1、确定数据目录"></a>1、确定数据目录</h3><p>登录到A服务器，执行如下命令，确定消息数据存储目：</p>
+<p>[root@rabbitmq-ipr-service-test opt]# rabbitmqctl eval ‘rabbit_mnesia:dir().’<br>“&#x2F;var&#x2F;lib&#x2F;rabbitmq&#x2F;mnesia&#x2F;rabbit@rabbitmq-ipr-service-test”</p>
+<h3 id="2、为避免数据的一致性，需先停掉服务"><a href="#2、为避免数据的一致性，需先停掉服务" class="headerlink" title="2、为避免数据的一致性，需先停掉服务"></a>2、为避免数据的一致性，需先停掉服务</h3><p>service rabbitmq-server stop</p>
+<h3 id="3、备份数据目录"><a href="#3、备份数据目录" class="headerlink" title="3、备份数据目录"></a>3、备份数据目录</h3><p>tar  -zcvf <a href="mailto:&#114;&#x61;&#98;&#98;&#105;&#116;&#64;&#x72;&#x61;&#x62;&#x62;&#x69;&#116;&#109;&#113;&#45;&#105;&#x70;&#x72;&#x2d;&#115;&#x65;&#114;&#118;&#105;&#x63;&#x65;&#x2d;&#116;&#x65;&#115;&#116;&#x2e;&#x74;&#x61;&#114;&#46;&#103;&#x7a;">&#114;&#x61;&#98;&#98;&#105;&#116;&#64;&#x72;&#x61;&#x62;&#x62;&#x69;&#116;&#109;&#113;&#45;&#105;&#x70;&#x72;&#x2d;&#115;&#x65;&#114;&#118;&#105;&#x63;&#x65;&#x2d;&#116;&#x65;&#115;&#116;&#x2e;&#x74;&#x61;&#114;&#46;&#103;&#x7a;</a>  rabbit@rabbitmq-ipr-service-test</p>
+<h3 id="4、还原数据"><a href="#4、还原数据" class="headerlink" title="4、还原数据"></a>4、还原数据</h3><p>登录到B服务器上，<strong>先备份原来的数据目录，</strong>上传到备份数据到对应目录，并解压</p>
+<p>tar  -zxvf  <a href="mailto:&#114;&#x61;&#x62;&#98;&#x69;&#x74;&#64;&#x72;&#97;&#x62;&#98;&#105;&#x74;&#x6d;&#113;&#x2d;&#105;&#x70;&#114;&#45;&#115;&#101;&#114;&#118;&#105;&#99;&#101;&#45;&#116;&#x65;&#115;&#x74;&#x2e;&#116;&#x61;&#x72;&#46;&#103;&#122;">&#114;&#x61;&#x62;&#98;&#x69;&#x74;&#64;&#x72;&#97;&#x62;&#98;&#105;&#x74;&#x6d;&#113;&#x2d;&#105;&#x70;&#114;&#45;&#115;&#101;&#114;&#118;&#105;&#99;&#101;&#45;&#116;&#x65;&#115;&#x74;&#x2e;&#116;&#x61;&#x72;&#46;&#103;&#122;</a> </p>
+<h3 id="5、修改数据目录权限"><a href="#5、修改数据目录权限" class="headerlink" title="5、修改数据目录权限"></a>5、修改数据目录权限</h3><p>chown  -R rabbitmq:rabbitmq  rabbit@rabbitmq-ipr-service-test</p>
+<h3 id="6、启动B服务器上rabbitmq服务"><a href="#6、启动B服务器上rabbitmq服务" class="headerlink" title="6、启动B服务器上rabbitmq服务"></a>6、启动B服务器上rabbitmq服务</h3><p>service rabbitmq-server satrt</p>
+<h3 id="7、验证消息数据是否还原成功"><a href="#7、验证消息数据是否还原成功" class="headerlink" title="7、验证消息数据是否还原成功"></a>7、验证消息数据是否还原成功</h3><p><img src="https://img2018.cnblogs.com/blog/1291340/201906/1291340-20190618154433737-1219710096.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="四、注意"><a href="#四、注意" class="headerlink" title="四、注意"></a>四、注意</h2><p>内部节点数据库在某些记录中存储节点的名称，如果节点名称发生更改，则必须首先使用以下rabbitmqctl命令更新数据库以便更改：</p>
+<p>rabbitmqctl rename_cluster_node <oldnode> <newnode></p>
+<p>当新节点以备份目录和匹配的节点名称启动时，它会根据需要执行升级步骤并继续引导。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Rabbitmq/">#Rabbitmq</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/f5d79d26.html" title="rabbitmqctl 命令指南">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">rabbitmqctl 命令指南</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/f66f6b4.html" title="sessionid怎么生成的">
+                        <span class="hidden-mobile">sessionid怎么生成的</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

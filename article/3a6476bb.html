@@ -1,0 +1,639 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Spring中的spring.factories文件用法(Spring如何加载第三方Bean)Spring的spring.factories文件用法在springBoot中，它自动扫描包的时候，只会扫描自己模块下的类。 问题如果我们不想被Spring容器管理的Bean的路径下不再SpringBoot的包扫描路径下，怎么办呢？如何加载别的第三方Bean呢？ 解决首先我们创建一个工程，另外创建一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring中的spring.factories文件用法(Spring如何加载第三方Bean)">
+<meta property="og:url" content="https://fyyhub.github.io/article/3a6476bb.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="Spring中的spring.factories文件用法(Spring如何加载第三方Bean)Spring的spring.factories文件用法在springBoot中，它自动扫描包的时候，只会扫描自己模块下的类。 问题如果我们不想被Spring容器管理的Bean的路径下不再SpringBoot的包扫描路径下，怎么办呢？如何加载别的第三方Bean呢？ 解决首先我们创建一个工程，另外创建一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://static.codebaoku.com/pics/97/6e/976efb625c23672b1b419bda66f5a3d8.jpg">
+<meta property="og:image" content="http://static.codebaoku.com/pics/a9/ec/a9ec44cb943700b06a9262946e9dea16.png">
+<meta property="og:image" content="http://static.codebaoku.com/pics/50/b7/50b74d796aece01582e75f41f6f16a75.jpg">
+<meta property="article:published_time" content="2024-03-18T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.272Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://static.codebaoku.com/pics/97/6e/976efb625c23672b1b419bda66f5a3d8.jpg">
+  
+  
+  
+  <title>Spring中的spring.factories文件用法(Spring如何加载第三方Bean) - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Spring中的spring.factories文件用法(Spring如何加载第三方Bean)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-18 00:00" pubdate>
+          2024年3月18日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Spring中的spring.factories文件用法(Spring如何加载第三方Bean)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+
+<h1 id="Spring中的spring-factories文件用法-Spring如何加载第三方Bean"><a href="#Spring中的spring-factories文件用法-Spring如何加载第三方Bean" class="headerlink" title="Spring中的spring.factories文件用法(Spring如何加载第三方Bean)"></a>Spring中的spring.factories文件用法(Spring如何加载第三方Bean)</h1><h2 id="Spring的spring-factories文件用法"><a href="#Spring的spring-factories文件用法" class="headerlink" title="Spring的spring.factories文件用法"></a>Spring的spring.factories文件用法</h2><p>在springBoot中，它自动扫描包的时候，只会扫描自己模块下的类。</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>如果我们不想被Spring容器管理的Bean的路径下不再SpringBoot的包扫描路径下，怎么办呢？如何加载别的第三方Bean呢？</p>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先我们创建一个工程，另外创建一个与启动类不在一个级别的目录。</p>
+<p><strong>第一种方法就是使用在启动类上加上@Import注解。</strong></p>
+<p>@Import(value &#x3D; {Test.class})</p>
+<p><strong>第二种方法就是创建spring.factories文件</strong></p>
+<p>现在我们将其改造一下，采用spring.factories的方式去加载Test类，在resources目录下新建一个META-INF的目录，然后再新建一个spring.factories文件，文件内容为：</p>
+<p>下面第二条就是我们自己的类的路径。</p>
+<p>org.springframework.boot.autoconfigure.EnableAutoConfiguration&#x3D;&#x2F;<br>com.huawei.it.config.Test</p>
+<p>然后在springBoot中的启动类中将@Import注释掉，启动一下，在控制台上就会发现，我们自己的配置类已经加载到Spring容器中去了，所以Spring可以加载一个工程下的任意一下工程类了。</p>
+<p>应用</p>
+<p>下面就是我在Nacos源码中看到的，可以看到spring.factories文件中内容，与我们自己类加载到Spring容器中是一样的道理。</p>
+<p><img src="http://static.codebaoku.com/pics/97/6e/976efb625c23672b1b419bda66f5a3d8.jpg" srcset="/img/loading.gif" lazyload></p>
+<h2 id="SpringBoot的扩展机制之Spring-Factories"><a href="#SpringBoot的扩展机制之Spring-Factories" class="headerlink" title="SpringBoot的扩展机制之Spring Factories"></a>SpringBoot的扩展机制之Spring Factories</h2><p>写在前面：Spring Boot中有一种非常解耦的扩展机制：Spring Factories。这种扩展机制实际上是仿照Java中的SPI扩展机制来实现的。</p>
+<h3 id="什么是-SPI机制"><a href="#什么是-SPI机制" class="headerlink" title="什么是 SPI机制"></a>什么是 SPI机制</h3><p>SPI的全名为Service Provider Interface.大多数开发人员可能不熟悉，因为这个是针对厂商或者插件的。在java.util.ServiceLoader的文档里有比较详细的介绍。</p>
+<p>简单的总结下java SPI机制的思想。我们系统里抽象的各个模块，往往有很多不同的实现方案，比如日志模块的方案，xml解析模块、jdbc模块的方案等。面向的对象的设计里，我们一般推荐模块之间基于接口编程，模块之间不对实现类进行硬编码。一旦代码里涉及具体的实现类，就违反了可拔插的原则，如果需要替换一种实现，就需要修改代码。为了实现在模块装配的时候能不在程序里动态指明，这就需要一种服务发现机制。</p>
+<p>java SPI就是提供这样的一个机制：为某个接口寻找服务实现的机制。有点类似IOC的思想，就是将装配的控制权移到程序之外，在模块化设计中这个机制尤其重要。</p>
+<h3 id="Spring-Boot中的SPI机制"><a href="#Spring-Boot中的SPI机制" class="headerlink" title="Spring Boot中的SPI机制"></a>Spring Boot中的SPI机制</h3><p>在Spring中也有一种类似与Java SPI的加载机制。它在META-INF&#x2F;spring.factories文件中配置接口的实现类名称，然后在程序中读取这些配置文件并实例化。</p>
+<p>这种自定义的SPI机制是Spring Boot Starter实现的基础。</p>
+<p><img src="http://static.codebaoku.com/pics/a9/ec/a9ec44cb943700b06a9262946e9dea16.png" srcset="/img/loading.gif" lazyload alt="这里写图片描述"></p>
+<h3 id="Spring-Factories实现原理是什么"><a href="#Spring-Factories实现原理是什么" class="headerlink" title="Spring Factories实现原理是什么"></a>Spring Factories实现原理是什么</h3><p>spring-core包里定义了SpringFactoriesLoader类，这个类实现了检索META-INF&#x2F;spring.factories文件，并获取指定接口的配置的功能。在这个类中定义了两个对外的方法：</p>
+<p><strong>loadFactories</strong> 根据接口类获取其实现类的实例，这个方法返回的是对象列表。</p>
+<p><strong>loadFactoryNames</strong> 根据接口获取其接口类的名称，这个方法返回的是类名的列表。</p>
+<p>上面的两个方法的关键都是从指定的ClassLoader中获取<strong>spring.factories</strong>文件，并解析得到类名列表，具体代码如下↓</p>
+<p>public static List<String> loadFactoryNames(Class&lt;?&gt; factoryClass, ClassLoader classLoader) {<br>  String factoryClassName &#x3D; factoryClass.getName();<br>  try {<br>      Enumeration<URL> urls &#x3D; (classLoader !&#x3D; null ? classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :<br>              ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));<br>      List<String> result &#x3D; new ArrayList<String>();<br>      while (urls.hasMoreElements()) {<br>          URL url &#x3D; urls.nextElement();<br>          Properties properties &#x3D; PropertiesLoaderUtils.loadProperties(new UrlResource(url));<br>          String factoryClassNames &#x3D; properties.getProperty(factoryClassName);<br>          result.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(factoryClassNames)));<br>      }<br>      return result;<br>  }<br>  catch (IOException ex) {<br>      throw new IllegalArgumentException(“Unable to load [“ + factoryClass.getName() +<br>              “] factories from location [“ + FACTORIES_RESOURCE_LOCATION + “]“, ex);<br>  }<br>}</p>
+<p>从代码中我们可以知道，在这个方法中会遍历整个ClassLoader中所有jar包下的spring.factories文件。也就是说我们可以在自己的jar中配置spring.factories文件，不会影响到其它地方的配置，也不会被别人的配置覆盖。</p>
+<p>spring.factories的是通过Properties解析得到的，所以我们在写文件中的内容都是安装下面这种方式配置的：</p>
+<blockquote>
+<p>com.xxx.interface&#x3D;com.xxx.classname</p>
+</blockquote>
+<p>如果一个接口希望配置多个实现类，可以使用’,’进行分割。</p>
+<h3 id="Spring-Factories在Spring-Boot中的应用"><a href="#Spring-Factories在Spring-Boot中的应用" class="headerlink" title="Spring Factories在Spring Boot中的应用"></a>Spring Factories在Spring Boot中的应用</h3><p>在Spring Boot的很多包中都能够找到spring.factories文件，接下来我们以spring-boot包为例进行介绍</p>
+<p><img src="http://static.codebaoku.com/pics/50/b7/50b74d796aece01582e75f41f6f16a75.jpg" srcset="/img/loading.gif" lazyload></p>
+<p>在日常工作中，我们可能需要实现一些SDK或者Spring Boot Starter给被人使用时， 我们就可以使用Factories机制。Factories机制可以让SDK或者Starter的使用只需要很少或者不需要进行配置，只需要在服务中引入我们的jar包即可。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Spring/">#Spring</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/ce91021a.html" title="@ControllerAdvice 的介绍及三种用法(转载)">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">@ControllerAdvice 的介绍及三种用法(转载)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/fbe35e53.html" title="全国电信光猫抓包获取超级密码教程亲测可用">
+                        <span class="hidden-mobile">全国电信光猫抓包获取超级密码教程亲测可用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

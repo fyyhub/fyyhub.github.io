@@ -1,0 +1,644 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="# 解密   拿到文件很晕，都是乱码，应该不是常规的混淆，大概率是通过so来解密，先找到php目录 12[root@acmepbx:&#x2F;opt&#x2F;bin]#find &#x2F; -name php.ini&#x2F;opt&#x2F;php&#x2F;etc&#x2F;php.ini  Shell 找到扩展配置目录   tonyenc.ini这个文件很可疑内容为 1extension&#x3D;tonyenc.so  Shell 网上搜了一下这个so的文">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tonyenc php解密">
+<meta property="og:url" content="https://fyyhub.github.io/article/2c3e9697.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="# 解密   拿到文件很晕，都是乱码，应该不是常规的混淆，大概率是通过so来解密，先找到php目录 12[root@acmepbx:&#x2F;opt&#x2F;bin]#find &#x2F; -name php.ini&#x2F;opt&#x2F;php&#x2F;etc&#x2F;php.ini  Shell 找到扩展配置目录   tonyenc.ini这个文件很可疑内容为 1extension&#x3D;tonyenc.so  Shell 网上搜了一下这个so的文">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-11T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.271Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="PHP">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>tonyenc php解密 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="tonyenc php解密"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-11 00:00" pubdate>
+          2024年1月11日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          34 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">tonyenc php解密</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+# 解密
+
+
+<p>拿到文件很晕，都是乱码，应该不是常规的混淆，大概率是通过so来解密，先找到php目录</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">[root@acmepbx:<span class="hljs-regexp">/opt/</span>bin]<span class="hljs-comment">#find / -name php.ini</span><br><span class="hljs-regexp">/opt/</span>php<span class="hljs-regexp">/etc/</span>php.ini<br></code></pre></td></tr></table></figure>
+
+<p>Shell</p>
+<p>找到扩展配置目录  </p>
+<p>tonyenc.ini这个文件很可疑<br>内容为</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">extension</span><span class="hljs-operator">=</span>tonyenc.so<br></code></pre></td></tr></table></figure>
+
+<p>Shell</p>
+<p><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/163031832.png"></a><br>网上搜了一下这个so的文件名，直接搜到了加密项目<br><a target="_blank" rel="noopener" href="https://github.com/lihancong/tonyenc">https://github.com/lihancong/tonyenc</a><br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/293100129.png"></a><br>这个密钥很关键，我们可以在ida进行查找<br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/141066593.png"></a><br>在解密之前我们需要确认github这个项目和目标so的逻辑是否相同，直接把正确的key修改，根据文档在Linux下编译替换原有的so，打开网页测试代码是否正常运行，或者可以调用enc方法加密同一个文件测试。<br>经过测试，我编译的so可以正常使用，这样的话直接用github的解密方法吧<br>解密逻辑比较简单，我们可以直接单独写个程序解密<br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/3039153348.png"></a><br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/3764255853.png"></a><br>完整代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-type">char</span> tonyenc_header[] = &#123;<br>        <span class="hljs-number">0x16</span>, <span class="hljs-number">0x88</span>, <span class="hljs-number">0x6f</span>, <span class="hljs-number">0x4f</span>,<br>        <span class="hljs-number">0x68</span>, <span class="hljs-number">0x46</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x36</span>,<br>        <span class="hljs-number">0x91</span>, <span class="hljs-number">0x61</span>, <span class="hljs-number">0x76</span>, <span class="hljs-number">0x88</span>,<br>&#125;;<br><span class="hljs-type">char</span> tonyenc_key[] = &#123;<br>        <span class="hljs-number">0x8F</span>, <span class="hljs-number">0x49</span>, <span class="hljs-number">0x52</span>, <span class="hljs-number">0x00</span>,<br>        <span class="hljs-number">0x58</span>, <span class="hljs-number">0x9f</span>, <span class="hljs-number">0x6f</span>, <span class="hljs-number">0x93</span>,<br>        <span class="hljs-number">0x3e</span>, <span class="hljs-number">0x2e</span>, <span class="hljs-number">0x7a</span>, <span class="hljs-number">0xfa</span>,<br>        <span class="hljs-number">0xa6</span>, <span class="hljs-number">0x33</span>, <span class="hljs-number">0xf3</span>, <span class="hljs-number">0xb6</span>,<br>&#125;;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">write_change_policy</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* filename, <span class="hljs-type">char</span>* buf_policy)</span></span><br><span class="hljs-function"></span>&#123;<br>    FILE* fp = <span class="hljs-literal">NULL</span>;<br>    fp = <span class="hljs-built_in">fopen</span>(filename, <span class="hljs-string">&quot;w+&quot;</span>);<br>    <span class="hljs-keyword">if</span> (!fp) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">fwrite</span>(buf_policy, <span class="hljs-number">1</span>, <span class="hljs-built_in">strlen</span>(buf_policy), fp) &lt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>        <span class="hljs-built_in">fclose</span>(fp);<br>    &#125;<br>    <span class="hljs-built_in">fclose</span>(fp);<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">tonyenc_decode</span><span class="hljs-params">(<span class="hljs-type">char</span>* data, <span class="hljs-type">size_t</span> len)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">size_t</span> i, p = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; len; ++i) &#123;<br>        <span class="hljs-keyword">if</span> (i &amp; <span class="hljs-number">1</span>) &#123;<br>            p += tonyenc_key[p] + i;<br>            p %= <span class="hljs-built_in">sizeof</span>(tonyenc_key);<br>            <span class="hljs-type">char</span> t = tonyenc_key[p];<br>            data[i] = ~data[i] ^ t;<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">tonyenc_ext_fopen</span><span class="hljs-params">(FILE* fp, <span class="hljs-keyword">struct</span> stat* stat_buf,<span class="hljs-type">char</span>* outname)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">char</span>* p_data;<br>    <span class="hljs-type">size_t</span> data_len;<br>    <span class="hljs-type">size_t</span> write_len;<br>    data_len = stat_buf-&gt;st_size - <span class="hljs-built_in">sizeof</span>(tonyenc_header);<br>    p_data = (<span class="hljs-type">char</span>*)<span class="hljs-built_in">malloc</span>(data_len);<br>    <span class="hljs-built_in">fseek</span>(fp, <span class="hljs-built_in">sizeof</span>(tonyenc_header), SEEK_SET);<br>    <span class="hljs-built_in">fread</span>(p_data, data_len, <span class="hljs-number">1</span>, fp);<br>    <span class="hljs-built_in">fclose</span>(fp);<br>    <span class="hljs-built_in">tonyenc_decode</span>(p_data, data_len);<br>    <span class="hljs-built_in">write_change_policy</span>(outname, p_data);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc,<span class="hljs-type">char</span>* argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">stat</span> stat_buf;<br>    <span class="hljs-type">int</span> data_len;<br>    <span class="hljs-type">char</span>* filename;<br>    FILE* fp;<br>    filename = argv[<span class="hljs-number">1</span>];<br>    <span class="hljs-comment">//printf(argv[1]);</span><br>    fp = <span class="hljs-built_in">fopen</span>(filename, <span class="hljs-string">&quot;rb&quot;</span>);<br>    <span class="hljs-built_in">fstat</span>(<span class="hljs-built_in">fileno</span>(fp), &amp;stat_buf);<br>    data_len = stat_buf.st_size;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;data_lenth:%d&quot;</span>, data_len);<br>    <span class="hljs-built_in">tonyenc_ext_fopen</span>(fp, &amp;stat_buf, <span class="hljs-built_in">strcat</span>(filename , <span class="hljs-string">&quot;.dec&quot;</span>));<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>C</p>
+<p>成功解密:<br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/1202843109.png"></a><br>写了个python批量调用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> codecs<br><span class="hljs-keyword">import</span> time<br><span class="hljs-keyword">import</span> frida<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">findfile</span>(<span class="hljs-params">target_dir, target_suffix=<span class="hljs-string">&quot;php&quot;</span></span>):<br>    find_res = []<br>    target_suffix_dot = <span class="hljs-string">&quot;.&quot;</span> + target_suffix<br>    walk_generator = os.walk(target_dir)<br>    <span class="hljs-keyword">for</span> root_path, dirs, files <span class="hljs-keyword">in</span> walk_generator:<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(files) &lt; <span class="hljs-number">1</span>:<br>            <span class="hljs-keyword">continue</span><br>        <span class="hljs-keyword">for</span> file <span class="hljs-keyword">in</span> files:<br>            file_name, suffix_name = os.path.splitext(file)<br>            <span class="hljs-keyword">if</span> target_suffix==<span class="hljs-string">&quot;all&quot;</span>:<br>                find_res.append(os.path.join(root_path, file))<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">if</span> suffix_name == target_suffix_dot:<br>                    find_res.append(os.path.join(root_path, file))<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">list</span>(<span class="hljs-built_in">set</span>(find_res))<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">read_hex</span>(<span class="hljs-params">filename</span>):<br>    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(filename, <span class="hljs-string">&#x27;rb&#x27;</span>) <span class="hljs-keyword">as</span> f:<br>        file_hex = f.read().<span class="hljs-built_in">hex</span>()<br>    f.close()<br>    <span class="hljs-keyword">return</span> file_hex<br><br>rlist=[]<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getfile</span>():<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> findfile(<span class="hljs-string">r&quot;J:\phpstudy_pro\WWW&quot;</span>):<br>        <span class="hljs-keyword">if</span> read_hex(i)[<span class="hljs-number">0</span>:<span class="hljs-number">6</span>]==<span class="hljs-string">&quot;16886f&quot;</span>:<br>            rlist.append(i)<br>getfile()<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> rlist:<br>    <span class="hljs-built_in">print</span>(i)<br>    os.system(<span class="hljs-string">&quot;dec.exe %s&quot;</span>%i)<br></code></pre></td></tr></table></figure>
+
+<p>Python</p>
+<p>全解开后破解授权验证就很简单了<br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/712484247.png"></a></p>
+<h1 id="重新加密"><a href="#重新加密" class="headerlink" title="重新加密"></a>重新加密</h1><p><a target="_blank" rel="noopener" href="https://windows.php.net/downloads/releases/archives/">https://windows.php.net/downloads/releases/archives/</a><br><a target="_blank" rel="noopener" href="https://www.darkin.cn/usr/uploads/2023/04/1180440772.png"></a></p>
+<blockquote>
+<p>转载<a target="_blank" rel="noopener" href="https://www.leolei.cn/archives/20.html">https://www.leolei.cn/archives/20.html</a></p>
+</blockquote>
+<p>说明：7.2使用VC15编译，本文以PHP7.0.26举例 使用Visual Studio 2017</p>
+<p>需要从 官网 下载 PHP7.0.26 的源代码包和已编译的 PHP 程序，再分别解压，得到两个目录(假设在 C 盘)：</p>
+<p>C:\php-7.0.26-src</p>
+<p>C:\php-7.0.26-nts-Win32-VC14-x64</p>
+<p>如何编译</p>
+<p>1）拿到要编译的代码，在 VS 2017 菜单中选择「文件」-「新建」-「从现有代码创建项目」，然后在弹出窗口中选择你要编译的代码，类型选择「动态库(dll)」。</p>
+<p>2）此时 VS 2017 打开了项目，把工具栏中的「Debug」改为「Release」，「x86」改为「x64」，在菜单中选择「项目」-「属性」。然后在弹出窗口的左侧「常规」栏目下，「配置类型」选择为「动态库(.dll)」：</p>
+<p>3）然后在左侧「C&#x2F;C++」-「常规」栏目下，「附加包含目录」中，加入：</p>
+<p>C:\php-7.0.26-src<br>C:\php-7.0.26-src\main<br>C:\php-7.0.26-src\TSRM<br>C:\php-7.0.26-src\Zend</p>
+<p>4）接着在左侧「C&#x2F;C++」-「预处理器」栏目下，「预处理器定义」中，加入：</p>
+<p>ZEND_DEBUG&#x3D;0<br>PHP_EXTENSION<br>PHP_WIN32<br>ZEND_WIN32<br>HAVE_XXX&#x3D;1<br>COMPILE_DL_XXX<br>ZTS</p>
+<p>注意，要把上面的 XXX 改为大写的扩展名 (如扩展叫 tonyenc 就把 XXX 改成 TONYENC)，否则 PHP 将无法识别扩展。ZTS用于告诉编译器开启线程安全（如果去掉就是不开启）。注意，线程安全的开启与否，取决于前面下载到的 C:\php-7.0.26-nts-Win32-VC14-x64，它如果启用了线程安全编译，这里就开启线程安全。</p>
+<p>5）在左侧「链接器」-「输入」栏目下，「附加依赖项」中，加入：C:\php-7.0.26-nts-Win32-VC14-x64\dev\php7.lib，即前面下载得到的已编译的 PHP 程序。</p>
+<p>6）点确定，然后菜单中选择「生成」-「生成解决方案」，恭喜你，编译器报错：无法打开包括文件 ..&#x2F;main&#x2F;config.w32.h，这时把 C:\php-7.0.26-src\win32\build\config.w32.h.in 复制到 C:\php-7.0.26-src\main\config.w32.h (注意没有了后面的 in)，然后在 config.w32.h 中加入：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PHP_COMPILER_ID <span class="hljs-string">&quot;VC14&quot;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>Dos</p>
+<p>这将指明运行库是 VC14，与前面下载到的已编译 PHP 程序匹配，重新生成下解决方案，这样就能成功编译了！</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/PHP/">#PHP</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/1b5d87d5.html" title="rabbitmq 节点重新加入集群">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">rabbitmq 节点重新加入集群</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/a4d9967a.html" title="JAVA 进行AES加密">
+                        <span class="hidden-mobile">JAVA 进行AES加密</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

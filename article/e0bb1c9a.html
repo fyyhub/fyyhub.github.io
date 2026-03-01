@@ -1,0 +1,1134 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在某些业务场景下，如果一个请求中，需要同时写入多张表的数据或者执行多条sql。为了保证操作的原子性（要么同时成功，要么同时失败），避免数据不一致的情况，我们一般都会用到spring事务。  一 、事务不生效【七种】1.访问权限问题 (只有public方法会生效)众所周知，java的访问权限主要有四种：private、default、protected、public，它们的权限从左到右，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="@Transactional 失效场景">
+<meta property="og:url" content="https://fyyhub.github.io/article/e0bb1c9a.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="在某些业务场景下，如果一个请求中，需要同时写入多张表的数据或者执行多条sql。为了保证操作的原子性（要么同时成功，要么同时失败），避免数据不一致的情况，我们一般都会用到spring事务。  一 、事务不生效【七种】1.访问权限问题 (只有public方法会生效)众所周知，java的访问权限主要有四种：private、default、protected、public，它们的权限从左到右，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/reprint.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png">
+<meta property="og:image" content="https://devpress.csdnimg.cn/8bc8dd1a2bc24184a16a142654c4a49e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/columns/default/20201014180756928.png?x-oss-process=image/resize,m_fixed,h_224,w_224">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newArrowDown1White.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/columns/default/20201014180756780.png?x-oss-process=image/resize,m_fixed,h_224,w_224">
+<meta property="og:image" content="https://img-home.csdnimg.cn/images/20240711042549.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/reprint.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png">
+<meta property="og:image" content="https://devpress.csdnimg.cn/8bc8dd1a2bc24184a16a142654c4a49e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/columns/default/20201014180756928.png?x-oss-process=image/resize,m_fixed,h_224,w_224">
+<meta property="og:image" content="https://csdnimg.cn/release/blogv2/dist/pc/img/newArrowDown1White.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/columns/default/20201014180756780.png?x-oss-process=image/resize,m_fixed,h_224,w_224">
+<meta property="og:image" content="https://img-home.csdnimg.cn/images/20240711042549.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png">
+<meta property="article:published_time" content="2025-01-15T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.272Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png">
+  
+  
+  
+  <title>@Transactional 失效场景 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="@Transactional 失效场景"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-01-15 00:00" pubdate>
+          2025年1月15日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          39k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          329 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">@Transactional 失效场景</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+
+  
+<p>在某些业务场景下，如果一个请求中，需要同时写入多张表的数据或者执行多条sql。为了保证操作的原子性（要么同时成功，要么同时失败），避免数据不一致的情况，我们一般都会用到spring事务。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png" srcset="/img/loading.gif" lazyload alt="强大的spring框架，为我们提供了一个简单的注解：@Transactional，就能轻松搞定事务，一直用一直爽啊！！"></p>
+<h2 id="一-、事务不生效【七种】"><a href="#一-、事务不生效【七种】" class="headerlink" title="一 、事务不生效【七种】"></a>一 、事务不生效【七种】</h2><h3 id="1-访问权限问题-只有public方法会生效"><a href="#1-访问权限问题-只有public方法会生效" class="headerlink" title="1.访问权限问题 (只有public方法会生效)"></a>1.访问权限问题 (只有public方法会生效)</h3><p>众所周知，java的访问权限主要有四种：private、default、protected、public，它们的权限从左到右，依次变大。</p>
+<p>但如果我们在开发过程中，把有某些事务方法，定义了错误的访问权限，就会导致事务功能出问题，例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    private void add(UserModel userModel) &#123;<br>         <span class="hljs-built_in">saveData</span>(userModel);<br>         <span class="hljs-built_in">updateData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法的访问权限被定义成了private，这样会导致事务失效，spring要求被代理方法必须得是public的。</p>
+<p>说白了，在AbstractFallbackTransactionAttributeSource类的computeTransactionAttribute方法中有个判断，<strong>如果目标方法不是public</strong>，则TransactionAttribute返回null，即不支持事务。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">protected TransactionAttribute compute<span class="hljs-constructor">TransactionAttribute(Method <span class="hljs-params">method</span>, @Nullable Class&lt;?&gt; <span class="hljs-params">targetClass</span>)</span> &#123;<br>    <span class="hljs-comment">// Don&#x27;t allow no-public methods as required.可以看到， 这里不支持public类型的方法</span><br>    <span class="hljs-keyword">if</span> (allow<span class="hljs-constructor">PublicMethodsOnly()</span><span class="hljs-operator"> &amp;&amp; </span>!<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Modifier</span>.</span></span>is<span class="hljs-constructor">Public(<span class="hljs-params">method</span>.<span class="hljs-params">getModifiers</span>()</span>)) &#123;<br>      return null;<br>    &#125;<br><br>    <span class="hljs-comment">// The method may be on an interface, but we need attributes from the target class.</span><br>    <span class="hljs-comment">// If the target class is null, the method will be unchanged.</span><br>    Method specificMethod = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AopUtils</span>.</span></span>get<span class="hljs-constructor">MostSpecificMethod(<span class="hljs-params">method</span>, <span class="hljs-params">targetClass</span>)</span>;<br><br>    <span class="hljs-comment">// First try is the method in the target class.</span><br>    TransactionAttribute txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">specificMethod</span>)</span>;<br>    <span class="hljs-keyword">if</span> (txAttr != null) &#123;<br>      return txAttr;<br>    &#125;<br><br>    <span class="hljs-comment">// Second try is the transaction attribute on the target class.</span><br>    txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">specificMethod</span>.<span class="hljs-params">getDeclaringClass</span>()</span>);<br>    <span class="hljs-keyword">if</span> (txAttr != null<span class="hljs-operator"> &amp;&amp; </span><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ClassUtils</span>.</span></span>is<span class="hljs-constructor">UserLevelMethod(<span class="hljs-params">method</span>)</span>) &#123;<br>      return txAttr;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (specificMethod != <span class="hljs-keyword">method</span>) &#123;<br>      <span class="hljs-comment">// Fallback is to look at the original method.</span><br>      txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">method</span>)</span>;<br>      <span class="hljs-keyword">if</span> (txAttr != null) &#123;<br>        return txAttr;<br>      &#125;<br>      <span class="hljs-comment">// Last fallback is the class of the original method.</span><br>      txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">method</span>.<span class="hljs-params">getDeclaringClass</span>()</span>);<br>      <span class="hljs-keyword">if</span> (txAttr != null<span class="hljs-operator"> &amp;&amp; </span><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ClassUtils</span>.</span></span>is<span class="hljs-constructor">UserLevelMethod(<span class="hljs-params">method</span>)</span>) &#123;<br>        return txAttr;<br>      &#125;<br>    &#125;<br>    return null;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<p>也就是说，如果我们自定义的事务方法（即目标方法），它的访问权限不是public，而是private、default或protected的话，spring则不会提供事务功能。</p>
+<h3 id="2-方法用final修饰，不会生效"><a href="#2-方法用final修饰，不会生效" class="headerlink" title="2.方法用final修饰，不会生效"></a>2.方法用final修饰，不会生效</h3><p>有时候，某个方法不想被子类重新，这时可以将该方法定义成final的。普通方法这样定义是没问题的，但如果将事务方法定义成final，例如：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span></span>&#123;<br>        saveData(userModel);<br>        updateData(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法被定义成了final的，这样会导致<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88&spm=1001.2101.3001.7020">事务失效</a>。</p>
+<p>为什么？</p>
+<p>如果你看过<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=spring%E4%BA%8B%E5%8A%A1&spm=1001.2101.3001.7020">spring事务</a>的源码，可能会知道spring事务底层使用了aop，也就是通过jdk动态代理或者cglib，帮我们生成了代理类，在代理类中实现的事务功能。<strong>但如果某个方法用final修饰了，那么在它的代理类中，就无法重写该方法</strong>，而添加事务功能。</p>
+<p>注意：如果某个方法是static的，同样无法通过动态代理，变成事务方法。</p>
+<h3 id="3-同一个类中的方法直接内部调用，会导致事务失效"><a href="#3-同一个类中的方法直接内部调用，会导致事务失效" class="headerlink" title="3.同一个类中的方法直接内部调用，会导致事务失效"></a>3.同一个类中的方法直接内部调用，会导致事务失效</h3><p>有时候我们需要在某个Service类的某个方法中，调用另外一个事务方法，比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-title class_">UserMapper</span> userMapper;<br><br>  <br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>        userMapper.<span class="hljs-title function_">insertUser</span>(userModel);<br>        <span class="hljs-title function_">updateStatus</span>(userModel);<br>    &#125;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">updateStatus</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>        <span class="hljs-title function_">doSameThing</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们看到在事务方法add中，直接调用事务方法updateStatus。从前面介绍的内容可以知道，updateStatus方法拥有事务的能力是因为spring aop生成代理了对象，但是这种方法直接调用了this对象的方法，所以updateStatus方法不会生成事务。<a target="_blank" rel="noopener" href="https://blog.csdn.net/yyoc97/article/details/81911744">根本原因</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124578233">根本原因2</a></p>
+<p>由此可见，在同一个类中的方法直接内部调用，会导致事务失效。</p>
+<p>那么问题来了，如果有些场景，确实想在同一个类的某个方法中，调用它自己的另外一个方法，该怎么办呢？</p>
+<h4 id="3-1-新加一个Service方法"><a href="#3-1-新加一个Service方法" class="headerlink" title="3.1 新加一个Service方法"></a>3.1 新加一个Service方法</h4><p>这个方法非常简单，只需要新加一个Service方法，把@Transactional注解加到新Service方法上，把需要事务执行的代码移到新方法中。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br>   <span class="hljs-keyword">@Autowired</span><br>   prvate ServiceB serviceB;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         serviceB<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br> &#125;<br><br> <span class="hljs-keyword">@Servcie</span><br> public class ServiceB &#123;<br><br>    <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>    public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br><br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-在该Service类中注入自己"><a href="#3-2-在该Service类中注入自己" class="headerlink" title="3.2 在该Service类中注入自己"></a>3.2 在该Service类中注入自己</h4><p>如果不想再新加一个Service类，在该Service类中注入自己也是一种选择。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br>   <span class="hljs-keyword">@Autowired</span><br>   prvate ServiceA serviceA;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         serviceA<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br><br>   <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>   public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>可能有些人可能会有这样的疑问：这种做法会不会出现循环依赖问题？</p>
+<p>答案：不会。</p>
+<p>其实spring ioc内部的<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/116403266">三级缓存</a>保证了它，不会出现循环依赖问题。</p>
+<h4 id="3-3-通过AopContent类"><a href="#3-3-通过AopContent类" class="headerlink" title="3.3 通过AopContent类"></a>3.3 通过AopContent类</h4><p>在该Service类中使用AopContext.currentProxy()获取代理对象</p>
+<p>上面的方法2确实可以解决问题，但是代码看起来并不直观，还可以通过在该Service类中使用AOPProxy获取代理对象，实现相同的功能。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         ((ServiceA)AopContext<span class="hljs-selector-class">.currentProxy</span>())<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br><br>   <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>   public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-类本身-未被spring管理"><a href="#4-类本身-未被spring管理" class="headerlink" title="4.(类本身) 未被spring管理"></a>4.(类本身) 未被spring管理</h3><p>在我们平时开发过程中，有个细节很容易被忽略。即使用spring事务的前提是：对象要被spring管理，需要创建bean实例。</p>
+<p>通常情况下，我们通过@Controller、@Service、@Component、@Repository等注解，可以自动实现bean实例化和依赖注入的功能。当然创建bean实例的方法还有很多，不一一说了。有兴趣的小伙伴可以参考这篇文章：@Autowired的这些骚操作，你都知道吗？</p>
+<p>如下所示, 开发了一个Service类，但忘了加@Service注解，比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-comment">//@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>         <span class="hljs-title function_">saveData</span>(userModel);<br>         <span class="hljs-title function_">updateData</span>(userModel);<br>    &#125;    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的例子，我们可以看到UserService类没有加@Service注解，那么该类不会交给spring管理，所以它的add方法也不会生成事务。</p>
+<h3 id="5-多线程调用"><a href="#5-多线程调用" class="headerlink" title="5.多线程调用"></a>5.多线程调用</h3><p>在实际项目开发中，多线程的使用场景还是挺多的。如果spring事务用在多线程场景中，会有问题吗？</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Slf</span>4j<br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserMapper userMapper;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleService roleService;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>        userMapper.insertUser(userModel);<br>        <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            roleService.doOtherThing();<br>        &#125;).start();<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RoleService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">doOtherThing</span><span class="hljs-params">()</span> </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;保存role表数据&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的例子中，我们可以看到事务方法add中，调用了事务方法doOtherThing，但是事务方法doOtherThing是在另外一个线程中调用的。</p>
+<p>这样会导致两个方法不在同一个线程中，获取到的数据库连接不一样，从而是两个不同的事务。如果想doOtherThing方法中抛了异常，add方法也回滚是不可能的。</p>
+<p>如果看过spring事务源码的朋友，可能会知道spring的事务是通过数据库连接来实现的。当前线程中保存了一个map，key是数据源，value是数据库连接。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dart">private <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadLocal&lt;<span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">Object</span>, <span class="hljs-built_in">Object</span>&gt;&gt; resources =<br><br>  <span class="hljs-keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="hljs-string">&quot;Transactional resources&quot;</span>);<br><br></code></pre></td></tr></table></figure>
+
+<p>我们说的同一个事务，其实是指同一个数据库连接，只有拥有同一个数据库连接才能同时提交和回滚。如果在不同的线程，拿到的数据库连接肯定是不一样的，所以是不同的事务。</p>
+<h3 id="6-存储引擎-表不支持事务"><a href="#6-存储引擎-表不支持事务" class="headerlink" title="6.(存储引擎)表不支持事务"></a>6.(存储引擎)表不支持事务</h3><p>周所周知，在mysql5之前，默认的数据库引擎是myisam。</p>
+<p>它的好处就不用多说了：索引文件和数据文件是分开存储的，对于查多写少的单表操作，性能比innodb更好。</p>
+<p>有些老项目中，可能还在用它。</p>
+<p>在创建表的时候，只需要把ENGINE参数设置成MyISAM即可：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `category` (<br>  `id` <span class="hljs-type">bigint</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>  `one_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `two_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `three_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `four_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  <span class="hljs-keyword">PRIMARY</span> KEY (`id`)<br>) ENGINE<span class="hljs-operator">=</span>MyISAM AUTO_INCREMENT<span class="hljs-operator">=</span><span class="hljs-number">4</span> <span class="hljs-keyword">DEFAULT</span> CHARSET<span class="hljs-operator">=</span>utf8mb4 <span class="hljs-keyword">COLLATE</span><span class="hljs-operator">=</span>utf8mb4_bin<br></code></pre></td></tr></table></figure>
+
+<p>myisam好用，但有个很致命的问题是：<strong>不支持事务</strong>。</p>
+<p>如果只是单表操作还好，不会出现太大的问题。但如果需要跨多张表操作，由于其不支持事务，数据极有可能会出现不完整的情况。</p>
+<p>此外，myisam还不支持行锁和外键。</p>
+<p>所以在实际业务场景中，myisam使用的并不多。在mysql5以后，myisam已经逐渐退出了历史的舞台，取而代之的是innodb。</p>
+<p>有时候我们在开发的过程中，发现某张表的事务一直都没有生效，那不一定是spring事务的锅，最好确认一下你使用的那张表，是否支持事务。</p>
+<h3 id="7-未开启事务"><a href="#7-未开启事务" class="headerlink" title="7.未开启事务"></a>7.未开启事务</h3><p>有时候，事务没有生效的根本原因是没有开启事务。</p>
+<p>你看到这句话可能会觉得好笑。</p>
+<p>开启事务不是一个项目中，最最最基本的功能吗？</p>
+<p>为什么还会没有开启事务？</p>
+<p>没错，如果项目已经搭建好了，事务功能肯定是有的。</p>
+<p>但如果你是在搭建项目demo的时候，只有一张表，而这张表的事务没有生效。那么会是什么原因造成的呢？</p>
+<p>当然原因有很多，但没有开启事务，这个原因极其容易被忽略。</p>
+<p>如果你使用的是springboot项目，那么你很幸运。因为springboot通过DataSourceTransactionManagerAutoConfiguration类，已经默默的帮你开启了事务。</p>
+<p>你所要做的事情很简单，只需要配置spring.datasource相关参数即可。</p>
+<p>但如果你使用的还是传统的spring项目，则需要在applicationContext.xml文件中，手动配置事务相关参数。如果忘了配置，事务肯定是不会生效的。</p>
+<p>具体配置如下信息：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 配置事务管理器 --&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">bean</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;transactionManager&quot;</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;dataSource&quot;</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">&quot;dataSource&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">bean</span>&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">tx:advice</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;advice&quot;</span> <span class="hljs-attr">transaction-manager</span>=<span class="hljs-string">&quot;transactionManager&quot;</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">tx:attributes</span>&gt;</span> <br>        <span class="hljs-tag">&lt;<span class="hljs-name">tx:method</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;*&quot;</span> <span class="hljs-attr">propagation</span>=<span class="hljs-string">&quot;REQUIRED&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">tx:attributes</span>&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">tx:advice</span>&gt;</span> <br><span class="hljs-comment">&lt;!-- 用切点把事务切进去 --&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">aop:config</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">aop:pointcut</span> <span class="hljs-attr">expression</span>=<span class="hljs-string">&quot;execution(* com.susan.*.*(..))&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;pointcut&quot;</span>/&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">aop:advisor</span> <span class="hljs-attr">advice-ref</span>=<span class="hljs-string">&quot;advice&quot;</span> <span class="hljs-attr">pointcut-ref</span>=<span class="hljs-string">&quot;pointcut&quot;</span>/&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">aop:config</span>&gt;</span> <br><br></code></pre></td></tr></table></figure>
+
+<p>默默的说一句，如果在pointcut标签中的切入点匹配规则，配错了的话，有些类的事务也不会生效。</p>
+<h2 id="二、事务不回滚【五种】"><a href="#二、事务不回滚【五种】" class="headerlink" title="二、事务不回滚【五种】"></a>二、事务不回滚【五种】</h2><h3 id="1-错误的传播特性"><a href="#1-错误的传播特性" class="headerlink" title="1.错误的传播特性"></a>1.错误的传播特性</h3><p>其实，我们在使用@Transactional注解时，是可以指定propagation参数的。</p>
+<p>该参数的作用是指定事务的传播特性，spring目前支持7种传播特性：</p>
+<p>REQUIRED 如果当前上下文中存在事务，那么加入该事务，如果不存在事务，创建一个事务，这是默认的传播属性值。<br>SUPPORTS 如果当前上下文存在事务，则支持事务加入事务，如果不存在事务，则使用非事务的方式执行。<br>MANDATORY 如果当前上下文中存在事务，否则抛出异常。<br>REQUIRES_NEW 每次都会新建一个事务，并且同时将上下文中的事务挂起，执行当前新建事务完成以后，上下文事务恢复再执行。<br>NOT_SUPPORTED 如果当前上下文中存在事务，则挂起当前事务，然后新的方法在没有事务的环境中执行。<br>NEVER 如果当前上下文中存在事务，则抛出异常，否则在无事务环境上执行代码。<br>NESTED 如果当前上下文中存在事务，则嵌套事务执行，如果不存在事务，则新建事务。<br>如果我们在手动设置propagation参数的时候，把传播特性设置错了，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NEVER)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(UserModel userModel)</span> &#123;<br>        saveData(userModel);<br>        updateData(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法的事务传播特性定义成了Propagation.NEVER，这种类型的传播特性不支持事务，如果有事务则会抛异常。</p>
+<p>目前只有这三种传播特性才会创建新事务：REQUIRED，REQUIRES_NEW，NESTED。</p>
+<h3 id="2-自己吞了异常"><a href="#2-自己吞了异常" class="headerlink" title="2.自己吞了异常"></a>2.自己吞了异常</h3><p>事务不会回滚，最常见的问题是：开发者在代码中手动try…catch了异常。比如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-variable">@Transactional</span><br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) &#123;<br>        <span class="hljs-selector-tag">try</span> &#123;<br>            <span class="hljs-selector-tag">saveData</span>(userModel);<br>            <span class="hljs-selector-tag">updateData</span>(userModel);<br>        &#125; <span class="hljs-selector-tag">catch</span> (Exception e) &#123;<br>            <span class="hljs-selector-tag">log</span><span class="hljs-selector-class">.error</span>(e.<span class="hljs-built_in">getMessage</span>(), e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种情况下spring事务当然不会回滚，因为开发者<strong>自己捕获了异常</strong>，又没有手动抛出，换句话说就是把异常吞掉了。</p>
+<p>如果想要spring事务能够正常回滚，必须抛出它能够处理的异常。如果没有抛异常，则spring认为程序是正常的。</p>
+<h3 id="3-手动抛了别的异常"><a href="#3-手动抛了别的异常" class="headerlink" title="3.手动抛了别的异常"></a>3.手动抛了别的异常</h3><p>即使开发者没有手动捕获异常，但如果抛的异常不正确，spring事务也不会回滚。</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Slf</span>4j<br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>             saveData(userModel);<br>             updateData(userModel);<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            log.<span class="hljs-keyword">error</span>(e.getMessage(), e);<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Exception(e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面的这种情况，开发人员自己捕获了异常，又手动抛出了异常：Exception，事务同样不会回滚。  </p>
+<p>因为spring事务，默认情况下只会回滚RuntimeException（运行时异常）和Error（错误），对于普通的Exception（<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/51579425?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165164871416780357228953%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&request_id=165164871416780357228953&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-1-51579425.nonecase&utm_term=error&spm=1018.2226.3001.4450">非运行时异常</a>），它不会回滚。比如常见的IOExeption和SQLException</p>
+<h3 id="4-自定义了回滚异常"><a href="#4-自定义了回滚异常" class="headerlink" title="4.自定义了回滚异常"></a>4.自定义了回滚异常</h3><p>在使用@Transactional注解声明事务时，有时我们想自定义回滚的异常，spring也是支持的。可以通过设置rollbackFor参数，来完成这个功能。</p>
+<p>但如果这个参数的值设置错了，就会引出一些莫名其妙的问题，例如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-variable">@Transactional</span>(rollbackFor = BusinessException.class)<br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-selector-tag">saveData</span>(userModel);<br>       <span class="hljs-selector-tag">updateData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果在执行上面这段代码，保存和更新数据时，程序报错了，抛了SqlException、DuplicateKeyException等异常。而BusinessException是我们自定义的异常，报错的异常不属于BusinessException，所以事务也不会回滚。</p>
+<p>即使rollbackFor有默认值，但阿里巴巴开发者规范中，还是要求开发者重新指定该参数。</p>
+<p>这是为什么呢？</p>
+<p>因为如果使用默认值，一旦程序抛出了Exception，事务不会回滚，这会出现很大的bug。所以，建议一般情况下，将该参数设置成：Exception或Throwable。</p>
+<h3 id="5-嵌套事务回滚多了"><a href="#5-嵌套事务回滚多了" class="headerlink" title="5.嵌套事务回滚多了"></a>5.嵌套事务回滚多了</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserMapper userMapper;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleService roleService;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        userMapper.insertUser(userModel);<br>        roleService.doOtherThing();<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoleService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NESTED)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doOtherThing</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;保存role表数据&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种情况使用了嵌套的内部事务，原本是希望调用roleService.doOtherThing方法时，如果出现了异常，只回滚doOtherThing方法里的内容，不回滚 userMapper.insertUser里的内容，即回滚保存点。但事实是，insertUser也回滚了。</p>
+<p>why?</p>
+<p>因为doOtherThing方法出现了异常，<strong>没有手动捕获</strong>，会继续往上抛，到外层add方法的代理方法中捕获了异常。所以，这种情况是直接回滚了整个事务，不只回滚单个保存点。</p>
+<p>怎么样才能只回滚保存点呢？</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br><br>    <span class="hljs-variable">@Autowired</span><br>    private UserMapper userMapper;<br><br>    <span class="hljs-variable">@Autowired</span><br>    private RoleService roleService;<br><br>    <span class="hljs-variable">@Transactional</span><br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) throws Exception &#123;<br><br>        <span class="hljs-selector-tag">userMapper</span><span class="hljs-selector-class">.insertUser</span>(userModel);<br>        <span class="hljs-selector-tag">try</span> &#123;<br>            <span class="hljs-selector-tag">roleService</span><span class="hljs-selector-class">.doOtherThing</span>();<br>        &#125; <span class="hljs-selector-tag">catch</span> (Exception e) &#123;<br>            <span class="hljs-selector-tag">log</span><span class="hljs-selector-class">.error</span>(e.<span class="hljs-built_in">getMessage</span>(), e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以将内部嵌套事务放在try&#x2F;catch中，并且不继续往上抛异常。这样就能保证，如果内部嵌套事务中出现异常，只回滚内部事务，而不影响外部事务。</p>
+<h2 id="三、大事务与编程式事务"><a href="#三、大事务与编程式事务" class="headerlink" title="三、大事务与编程式事务"></a>三、大事务与编程式事务</h2><h3 id="1-大事务问题"><a href="#1-大事务问题" class="headerlink" title="1. 大事务问题"></a>1. 大事务问题</h3><p>在使用spring事务时，有个让人非常头疼的问题，就是大事务问题。<br>关于大事务可参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124560532">大事务问题</a></p>
+<p>通常情况下，我们会在方法上@Transactional注解，填加事务功能，比如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-keyword">@Autowired</span> <br>    private RoleService roleService;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    public void add(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-built_in">query1</span>();<br>       <span class="hljs-built_in">query2</span>();<br>       <span class="hljs-built_in">query3</span>();<br>       roleService<span class="hljs-selector-class">.save</span>(userModel);<br>       <span class="hljs-built_in">update</span>(userModel);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-keyword">@Service</span><br>public class RoleService &#123;<br>    <br>    <span class="hljs-keyword">@Autowired</span> <br>    private RoleService roleService;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    public void save(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-built_in">query4</span>();<br>       <span class="hljs-built_in">query5</span>();<br>       <span class="hljs-built_in">query6</span>();<br>       <span class="hljs-built_in">saveData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>但@Transactional注解，如果被加到方法上，有个缺点就是整个方法都包含在事务当中了。</p>
+<p>上面的这个例子中，在UserService类中，其实只有这两行才需要事务：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss">roleService<span class="hljs-selector-class">.save</span>(userModel);<br><span class="hljs-built_in">update</span>(userModel);<br></code></pre></td></tr></table></figure>
+
+<p>在RoleService类中，只有这一行需要事务：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">save<span class="hljs-constructor">Data(<span class="hljs-params">userModel</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>现在的这种写法，会导致所有的query方法也被包含在同一个事务当中。</p>
+<p>如果query方法非常多，调用层级很深，而且有部分查询方法比较耗时的话，会造成整个事务非常耗时，而从造成大事务问题。</p>
+<h3 id="2-编程式事务"><a href="#2-编程式事务" class="headerlink" title="2. 编程式事务"></a>2. 编程式事务</h3><p>上面的这些内容都是基于@Transactional注解的，主要讲的是它的事务问题，我们把这种事务叫做：声明式事务。</p>
+<p>其实，spring还提供了另外一种创建事务的方式，即通过手动编写代码实现的事务，我们把这种事务叫做：编程式事务。例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Autowired</span><br>private TransactionTemplate transactionTemplate;<br><br>public void <span class="hljs-built_in">save</span>(final User user) &#123;<br>      <span class="hljs-built_in">queryData1</span>();<br>      <span class="hljs-built_in">queryData2</span>();<br>      transactionTemplate<span class="hljs-selector-class">.execute</span>(transactionStatus -&gt; &#123;<br>         addData1();<br>         <span class="hljs-built_in">updateData2</span>();<br>         return Boolean<span class="hljs-selector-class">.TRUE</span>;<br>     &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在spring中为了支持编程式事务，专门提供了一个类：TransactionTemplate，在它的execute方法中，就实现了事务的功能。</p>
+<p>相较于@Transactional注解声明式事务，更建议大家使用，基于TransactionTemplate的编程式事务。主要原因如下：</p>
+<p>避免由于spring aop问题，导致事务失效的问题。<br>能够更小粒度的控制事务的范围，更直观。<br>建议在项目中少使用@Transactional注解开启事务。但并不是说一定不能用它，如果项目中有些业务逻辑比较简单，而且不经常变动，使用@Transactional注解开启事务开启事务也无妨，因为它更简单，开发效率更高，但是千万要小心事务失效的问题。</p>
+<p>参考:<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/wang/_luwei/article/details/121549005">https://blog.csdn.net/wang\_luwei/article/details/121549005</a> (spring事务（注解 @Transactional ）失效的12种场景)<br><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1fR4y1u7N8?spm%5C_id%5C_from=333.337.search-card.all.click(%E5%88%86%E6%9E%90spring%E4%BA%8B%E5%8A%A1@Transactional%E6%B3%A8%E8%A7%A3,%E4%BA%8B%E5%8A%A1%E4%B8%8D%E7%94%9F%E6%95%88%E7%9A%84%E5%9C%BA%E6%99%AF%E5%8F%8A%E5%8E%9F%E5%9B%A0%EF%BC%8C%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88)">https://www.bilibili.com/video/BV1fR4y1u7N8?spm\_id\_from=333.337.search-card.all.click(分析spring事务@Transactional注解,事务不生效的场景及原因，和解决方案)</a></p>
+<p>   </p>
+<p>显示推荐内容# spring事务（注解 @Transactional ）失效的12种场景</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/reprint.png" srcset="/img/loading.gif" lazyload></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234" title="春天的早晨">春天的早晨</a> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png" srcset="/img/loading.gif" lazyload> 已于 2022-05-04 21:52:01 修改</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png" srcset="/img/loading.gif" lazyload> 阅读量3.4w <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png" srcset="/img/loading.gif" lazyload> 收藏 788</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png" srcset="/img/loading.gif" lazyload> 点赞数 104</p>
+<p>分类专栏： <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_8743333.html">面试</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_6432539.html">Spring</a> 文章标签： <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=spring&t=all&o=vip&s=&l=&f=&viparticle=&from_tracking_code=tag_word&from_code=app_blog_art">spring</a> <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=%E4%BA%8B%E5%8A%A1&t=all&o=vip&s=&l=&f=&viparticle=&from_tracking_code=tag_word&from_code=app_blog_art">事务</a></p>
+<p>于 2022-05-04 15:57:04 首次发布</p>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/wang_luwei/article/details/121549005">https://blog.csdn.net/wang_luwei&#x2F;article&#x2F;details&#x2F;121549005</a></p>
+<p>版权</p>
+<p> <a href="javascript:;" title="GitCode 开源社区"><img src="https://devpress.csdnimg.cn/8bc8dd1a2bc24184a16a142654c4a49e.png" srcset="/img/loading.gif" lazyload> GitCode 开源社区 文章已被社区收录</a></p>
+<p>加入社区</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_8743333.html" title="面试"><img src="https://i-blog.csdnimg.cn/columns/default/20201014180756928.png?x-oss-process=image/resize,m_fixed,h_224,w_224" srcset="/img/loading.gif" lazyload> 面试 同时被 2 个专栏收录<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newArrowDown1White.png" srcset="/img/loading.gif" lazyload></a></p>
+<p>57 篇文章 4 订阅</p>
+<p>订阅专栏</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_6432539.html" title="Spring"><img src="https://i-blog.csdnimg.cn/columns/default/20201014180756780.png?x-oss-process=image/resize,m_fixed,h_224,w_224" srcset="/img/loading.gif" lazyload> Spring</a></p>
+<p>31 篇文章 1 订阅</p>
+<p>订阅专栏</p>
+<p><img src="https://img-home.csdnimg.cn/images/20240711042549.png" srcset="/img/loading.gif" lazyload> 本文详细分析了Spring事务管理中@Transactional注解失效的七种情况，包括访问权限、final修饰、内部调用、未被管理、多线程、存储引擎不支持事务以及未开启事务。同时，探讨了事务不回滚的五种原因，如错误的传播特性、异常处理不当等。最后，讨论了大事务问题和编程式事务的优势，强调了如何更好地控制事务范围和避免大事务问题。</p>
+<p>摘要由CSDN通过智能技术生成</p>
+<h4 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#__6">一 、事务不生效【七种】</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#1_public_7">1.访问权限问题 (只有public方法会生效)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#2final_65">2.方法用final修饰，不会生效</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#3_86">3.同一个类中的方法直接内部调用，会导致事务失效</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#31_Service_113">3.1 新加一个Service方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#32_Service_139">3.2 在该Service类中注入自己</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#33_AopContent_166">3.3 通过AopContent类</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#4_spring_187">4.(类本身) 未被spring管理</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#5_206">5.多线程调用</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#6_249">6.(存储引擎)表不支持事务</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#7_277">7.未开启事务</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#_318">二、事务不回滚【五种】</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#1_319">1.错误的传播特性</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#2_347">2.自己吞了异常</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#3_369">3.手动抛了别的异常</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#4_392">4.自定义了回滚异常</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#5_416">5.嵌套事务回滚多了</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#_474">三、大事务与编程式事务</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#1__475">1. 大事务问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#2__528">2. 编程式事务</a></li>
+</ul>
+</li>
+</ul>
+<p>在某些业务场景下，如果一个请求中，需要同时写入多张表的数据或者执行多条sql。为了保证操作的原子性（要么同时成功，要么同时失败），避免数据不一致的情况，我们一般都会用到spring事务。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png" srcset="/img/loading.gif" lazyload alt="强大的spring框架，为我们提供了一个简单的注解：@Transactional，就能轻松搞定事务，一直用一直爽啊！！"></p>
+<h2 id="一-、事务不生效【七种】-1"><a href="#一-、事务不生效【七种】-1" class="headerlink" title="一 、事务不生效【七种】"></a>一 、事务不生效【七种】</h2><h3 id="1-访问权限问题-只有public方法会生效-1"><a href="#1-访问权限问题-只有public方法会生效-1" class="headerlink" title="1.访问权限问题 (只有public方法会生效)"></a>1.访问权限问题 (只有public方法会生效)</h3><p>众所周知，java的访问权限主要有四种：private、default、protected、public，它们的权限从左到右，依次变大。</p>
+<p>但如果我们在开发过程中，把有某些事务方法，定义了错误的访问权限，就会导致事务功能出问题，例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    private void add(UserModel userModel) &#123;<br>         <span class="hljs-built_in">saveData</span>(userModel);<br>         <span class="hljs-built_in">updateData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法的访问权限被定义成了private，这样会导致事务失效，spring要求被代理方法必须得是public的。</p>
+<p>说白了，在AbstractFallbackTransactionAttributeSource类的computeTransactionAttribute方法中有个判断，<strong>如果目标方法不是public</strong>，则TransactionAttribute返回null，即不支持事务。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">protected TransactionAttribute compute<span class="hljs-constructor">TransactionAttribute(Method <span class="hljs-params">method</span>, @Nullable Class&lt;?&gt; <span class="hljs-params">targetClass</span>)</span> &#123;<br>    <span class="hljs-comment">// Don&#x27;t allow no-public methods as required.可以看到， 这里不支持public类型的方法</span><br>    <span class="hljs-keyword">if</span> (allow<span class="hljs-constructor">PublicMethodsOnly()</span><span class="hljs-operator"> &amp;&amp; </span>!<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Modifier</span>.</span></span>is<span class="hljs-constructor">Public(<span class="hljs-params">method</span>.<span class="hljs-params">getModifiers</span>()</span>)) &#123;<br>      return null;<br>    &#125;<br><br>    <span class="hljs-comment">// The method may be on an interface, but we need attributes from the target class.</span><br>    <span class="hljs-comment">// If the target class is null, the method will be unchanged.</span><br>    Method specificMethod = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AopUtils</span>.</span></span>get<span class="hljs-constructor">MostSpecificMethod(<span class="hljs-params">method</span>, <span class="hljs-params">targetClass</span>)</span>;<br><br>    <span class="hljs-comment">// First try is the method in the target class.</span><br>    TransactionAttribute txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">specificMethod</span>)</span>;<br>    <span class="hljs-keyword">if</span> (txAttr != null) &#123;<br>      return txAttr;<br>    &#125;<br><br>    <span class="hljs-comment">// Second try is the transaction attribute on the target class.</span><br>    txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">specificMethod</span>.<span class="hljs-params">getDeclaringClass</span>()</span>);<br>    <span class="hljs-keyword">if</span> (txAttr != null<span class="hljs-operator"> &amp;&amp; </span><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ClassUtils</span>.</span></span>is<span class="hljs-constructor">UserLevelMethod(<span class="hljs-params">method</span>)</span>) &#123;<br>      return txAttr;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (specificMethod != <span class="hljs-keyword">method</span>) &#123;<br>      <span class="hljs-comment">// Fallback is to look at the original method.</span><br>      txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">method</span>)</span>;<br>      <span class="hljs-keyword">if</span> (txAttr != null) &#123;<br>        return txAttr;<br>      &#125;<br>      <span class="hljs-comment">// Last fallback is the class of the original method.</span><br>      txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">method</span>.<span class="hljs-params">getDeclaringClass</span>()</span>);<br>      <span class="hljs-keyword">if</span> (txAttr != null<span class="hljs-operator"> &amp;&amp; </span><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ClassUtils</span>.</span></span>is<span class="hljs-constructor">UserLevelMethod(<span class="hljs-params">method</span>)</span>) &#123;<br>        return txAttr;<br>      &#125;<br>    &#125;<br>    return null;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<p>也就是说，如果我们自定义的事务方法（即目标方法），它的访问权限不是public，而是private、default或protected的话，spring则不会提供事务功能。</p>
+<h3 id="2-方法用final修饰，不会生效-1"><a href="#2-方法用final修饰，不会生效-1" class="headerlink" title="2.方法用final修饰，不会生效"></a>2.方法用final修饰，不会生效</h3><p>有时候，某个方法不想被子类重新，这时可以将该方法定义成final的。普通方法这样定义是没问题的，但如果将事务方法定义成final，例如：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span></span>&#123;<br>        saveData(userModel);<br>        updateData(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法被定义成了final的，这样会导致<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88&spm=1001.2101.3001.7020">事务失效</a>。</p>
+<p>为什么？</p>
+<p>如果你看过<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=spring%E4%BA%8B%E5%8A%A1&spm=1001.2101.3001.7020">spring事务</a>的源码，可能会知道spring事务底层使用了aop，也就是通过jdk动态代理或者cglib，帮我们生成了代理类，在代理类中实现的事务功能。<strong>但如果某个方法用final修饰了，那么在它的代理类中，就无法重写该方法</strong>，而添加事务功能。</p>
+<p>注意：如果某个方法是static的，同样无法通过动态代理，变成事务方法。</p>
+<h3 id="3-同一个类中的方法直接内部调用，会导致事务失效-1"><a href="#3-同一个类中的方法直接内部调用，会导致事务失效-1" class="headerlink" title="3.同一个类中的方法直接内部调用，会导致事务失效"></a>3.同一个类中的方法直接内部调用，会导致事务失效</h3><p>有时候我们需要在某个Service类的某个方法中，调用另外一个事务方法，比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-title class_">UserMapper</span> userMapper;<br><br>  <br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>        userMapper.<span class="hljs-title function_">insertUser</span>(userModel);<br>        <span class="hljs-title function_">updateStatus</span>(userModel);<br>    &#125;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">updateStatus</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>        <span class="hljs-title function_">doSameThing</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们看到在事务方法add中，直接调用事务方法updateStatus。从前面介绍的内容可以知道，updateStatus方法拥有事务的能力是因为spring aop生成代理了对象，但是这种方法直接调用了this对象的方法，所以updateStatus方法不会生成事务。<a target="_blank" rel="noopener" href="https://blog.csdn.net/yyoc97/article/details/81911744">根本原因</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124578233">根本原因2</a></p>
+<p>由此可见，在同一个类中的方法直接内部调用，会导致事务失效。</p>
+<p>那么问题来了，如果有些场景，确实想在同一个类的某个方法中，调用它自己的另外一个方法，该怎么办呢？</p>
+<h4 id="3-1-新加一个Service方法-1"><a href="#3-1-新加一个Service方法-1" class="headerlink" title="3.1 新加一个Service方法"></a>3.1 新加一个Service方法</h4><p>这个方法非常简单，只需要新加一个Service方法，把@Transactional注解加到新Service方法上，把需要事务执行的代码移到新方法中。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br>   <span class="hljs-keyword">@Autowired</span><br>   prvate ServiceB serviceB;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         serviceB<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br> &#125;<br><br> <span class="hljs-keyword">@Servcie</span><br> public class ServiceB &#123;<br><br>    <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>    public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br><br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-在该Service类中注入自己-1"><a href="#3-2-在该Service类中注入自己-1" class="headerlink" title="3.2 在该Service类中注入自己"></a>3.2 在该Service类中注入自己</h4><p>如果不想再新加一个Service类，在该Service类中注入自己也是一种选择。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br>   <span class="hljs-keyword">@Autowired</span><br>   prvate ServiceA serviceA;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         serviceA<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br><br>   <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>   public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>可能有些人可能会有这样的疑问：这种做法会不会出现循环依赖问题？</p>
+<p>答案：不会。</p>
+<p>其实spring ioc内部的<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/116403266">三级缓存</a>保证了它，不会出现循环依赖问题。</p>
+<h4 id="3-3-通过AopContent类-1"><a href="#3-3-通过AopContent类-1" class="headerlink" title="3.3 通过AopContent类"></a>3.3 通过AopContent类</h4><p>在该Service类中使用AopContext.currentProxy()获取代理对象</p>
+<p>上面的方法2确实可以解决问题，但是代码看起来并不直观，还可以通过在该Service类中使用AOPProxy获取代理对象，实现相同的功能。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         ((ServiceA)AopContext<span class="hljs-selector-class">.currentProxy</span>())<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br><br>   <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>   public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-类本身-未被spring管理-1"><a href="#4-类本身-未被spring管理-1" class="headerlink" title="4.(类本身) 未被spring管理"></a>4.(类本身) 未被spring管理</h3><p>在我们平时开发过程中，有个细节很容易被忽略。即使用spring事务的前提是：对象要被spring管理，需要创建bean实例。</p>
+<p>通常情况下，我们通过@Controller、@Service、@Component、@Repository等注解，可以自动实现bean实例化和依赖注入的功能。当然创建bean实例的方法还有很多，不一一说了。有兴趣的小伙伴可以参考这篇文章：@Autowired的这些骚操作，你都知道吗？</p>
+<p>如下所示, 开发了一个Service类，但忘了加@Service注解，比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-comment">//@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>         <span class="hljs-title function_">saveData</span>(userModel);<br>         <span class="hljs-title function_">updateData</span>(userModel);<br>    &#125;    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的例子，我们可以看到UserService类没有加@Service注解，那么该类不会交给spring管理，所以它的add方法也不会生成事务。</p>
+<h3 id="5-多线程调用-1"><a href="#5-多线程调用-1" class="headerlink" title="5.多线程调用"></a>5.多线程调用</h3><p>在实际项目开发中，多线程的使用场景还是挺多的。如果spring事务用在多线程场景中，会有问题吗？</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Slf</span>4j<br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserMapper userMapper;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleService roleService;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>        userMapper.insertUser(userModel);<br>        <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            roleService.doOtherThing();<br>        &#125;).start();<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RoleService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">doOtherThing</span><span class="hljs-params">()</span> </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;保存role表数据&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的例子中，我们可以看到事务方法add中，调用了事务方法doOtherThing，但是事务方法doOtherThing是在另外一个线程中调用的。</p>
+<p>这样会导致两个方法不在同一个线程中，获取到的数据库连接不一样，从而是两个不同的事务。如果想doOtherThing方法中抛了异常，add方法也回滚是不可能的。</p>
+<p>如果看过spring事务源码的朋友，可能会知道spring的事务是通过数据库连接来实现的。当前线程中保存了一个map，key是数据源，value是数据库连接。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dart">private <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadLocal&lt;<span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">Object</span>, <span class="hljs-built_in">Object</span>&gt;&gt; resources =<br><br>  <span class="hljs-keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="hljs-string">&quot;Transactional resources&quot;</span>);<br><br></code></pre></td></tr></table></figure>
+
+<p>我们说的同一个事务，其实是指同一个数据库连接，只有拥有同一个数据库连接才能同时提交和回滚。如果在不同的线程，拿到的数据库连接肯定是不一样的，所以是不同的事务。</p>
+<h3 id="6-存储引擎-表不支持事务-1"><a href="#6-存储引擎-表不支持事务-1" class="headerlink" title="6.(存储引擎)表不支持事务"></a>6.(存储引擎)表不支持事务</h3><p>周所周知，在mysql5之前，默认的数据库引擎是myisam。</p>
+<p>它的好处就不用多说了：索引文件和数据文件是分开存储的，对于查多写少的单表操作，性能比innodb更好。</p>
+<p>有些老项目中，可能还在用它。</p>
+<p>在创建表的时候，只需要把ENGINE参数设置成MyISAM即可：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `category` (<br>  `id` <span class="hljs-type">bigint</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>  `one_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `two_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `three_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `four_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  <span class="hljs-keyword">PRIMARY</span> KEY (`id`)<br>) ENGINE<span class="hljs-operator">=</span>MyISAM AUTO_INCREMENT<span class="hljs-operator">=</span><span class="hljs-number">4</span> <span class="hljs-keyword">DEFAULT</span> CHARSET<span class="hljs-operator">=</span>utf8mb4 <span class="hljs-keyword">COLLATE</span><span class="hljs-operator">=</span>utf8mb4_bin<br></code></pre></td></tr></table></figure>
+
+<p>myisam好用，但有个很致命的问题是：<strong>不支持事务</strong>。</p>
+<p>如果只是单表操作还好，不会出现太大的问题。但如果需要跨多张表操作，由于其不支持事务，数据极有可能会出现不完整的情况。</p>
+<p>此外，myisam还不支持行锁和外键。</p>
+<p>所以在实际业务场景中，myisam使用的并不多。在mysql5以后，myisam已经逐渐退出了历史的舞台，取而代之的是innodb。</p>
+<p>有时候我们在开发的过程中，发现某张表的事务一直都没有生效，那不一定是spring事务的锅，最好确认一下你使用的那张表，是否支持事务。</p>
+<h3 id="7-未开启事务-1"><a href="#7-未开启事务-1" class="headerlink" title="7.未开启事务"></a>7.未开启事务</h3><p>有时候，事务没有生效的根本原因是没有开启事务。</p>
+<p>你看到这句话可能会觉得好笑。</p>
+<p>开启事务不是一个项目中，最最最基本的功能吗？</p>
+<p>为什么还会没有开启事务？</p>
+<p>没错，如果项目已经搭建好了，事务功能肯定是有的。</p>
+<p>但如果你是在搭建项目demo的时候，只有一张表，而这张表的事务没有生效。那么会是什么原因造成的呢？</p>
+<p>当然原因有很多，但没有开启事务，这个原因极其容易被忽略。</p>
+<p>如果你使用的是springboot项目，那么你很幸运。因为springboot通过DataSourceTransactionManagerAutoConfiguration类，已经默默的帮你开启了事务。</p>
+<p>你所要做的事情很简单，只需要配置spring.datasource相关参数即可。</p>
+<p>但如果你使用的还是传统的spring项目，则需要在applicationContext.xml文件中，手动配置事务相关参数。如果忘了配置，事务肯定是不会生效的。</p>
+<p>具体配置如下信息：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 配置事务管理器 --&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">bean</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;transactionManager&quot;</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;dataSource&quot;</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">&quot;dataSource&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">bean</span>&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">tx:advice</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;advice&quot;</span> <span class="hljs-attr">transaction-manager</span>=<span class="hljs-string">&quot;transactionManager&quot;</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">tx:attributes</span>&gt;</span> <br>        <span class="hljs-tag">&lt;<span class="hljs-name">tx:method</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;*&quot;</span> <span class="hljs-attr">propagation</span>=<span class="hljs-string">&quot;REQUIRED&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">tx:attributes</span>&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">tx:advice</span>&gt;</span> <br><span class="hljs-comment">&lt;!-- 用切点把事务切进去 --&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">aop:config</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">aop:pointcut</span> <span class="hljs-attr">expression</span>=<span class="hljs-string">&quot;execution(* com.susan.*.*(..))&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;pointcut&quot;</span>/&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">aop:advisor</span> <span class="hljs-attr">advice-ref</span>=<span class="hljs-string">&quot;advice&quot;</span> <span class="hljs-attr">pointcut-ref</span>=<span class="hljs-string">&quot;pointcut&quot;</span>/&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">aop:config</span>&gt;</span> <br><br></code></pre></td></tr></table></figure>
+
+<p>默默的说一句，如果在pointcut标签中的切入点匹配规则，配错了的话，有些类的事务也不会生效。</p>
+<h2 id="二、事务不回滚【五种】-1"><a href="#二、事务不回滚【五种】-1" class="headerlink" title="二、事务不回滚【五种】"></a>二、事务不回滚【五种】</h2><h3 id="1-错误的传播特性-1"><a href="#1-错误的传播特性-1" class="headerlink" title="1.错误的传播特性"></a>1.错误的传播特性</h3><p>其实，我们在使用@Transactional注解时，是可以指定propagation参数的。</p>
+<p>该参数的作用是指定事务的传播特性，spring目前支持7种传播特性：</p>
+<p>REQUIRED 如果当前上下文中存在事务，那么加入该事务，如果不存在事务，创建一个事务，这是默认的传播属性值。<br>SUPPORTS 如果当前上下文存在事务，则支持事务加入事务，如果不存在事务，则使用非事务的方式执行。<br>MANDATORY 如果当前上下文中存在事务，否则抛出异常。<br>REQUIRES_NEW 每次都会新建一个事务，并且同时将上下文中的事务挂起，执行当前新建事务完成以后，上下文事务恢复再执行。<br>NOT_SUPPORTED 如果当前上下文中存在事务，则挂起当前事务，然后新的方法在没有事务的环境中执行。<br>NEVER 如果当前上下文中存在事务，则抛出异常，否则在无事务环境上执行代码。<br>NESTED 如果当前上下文中存在事务，则嵌套事务执行，如果不存在事务，则新建事务。<br>如果我们在手动设置propagation参数的时候，把传播特性设置错了，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NEVER)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(UserModel userModel)</span> &#123;<br>        saveData(userModel);<br>        updateData(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法的事务传播特性定义成了Propagation.NEVER，这种类型的传播特性不支持事务，如果有事务则会抛异常。</p>
+<p>目前只有这三种传播特性才会创建新事务：REQUIRED，REQUIRES_NEW，NESTED。</p>
+<h3 id="2-自己吞了异常-1"><a href="#2-自己吞了异常-1" class="headerlink" title="2.自己吞了异常"></a>2.自己吞了异常</h3><p>事务不会回滚，最常见的问题是：开发者在代码中手动try…catch了异常。比如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-variable">@Transactional</span><br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) &#123;<br>        <span class="hljs-selector-tag">try</span> &#123;<br>            <span class="hljs-selector-tag">saveData</span>(userModel);<br>            <span class="hljs-selector-tag">updateData</span>(userModel);<br>        &#125; <span class="hljs-selector-tag">catch</span> (Exception e) &#123;<br>            <span class="hljs-selector-tag">log</span><span class="hljs-selector-class">.error</span>(e.<span class="hljs-built_in">getMessage</span>(), e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种情况下spring事务当然不会回滚，因为开发者<strong>自己捕获了异常</strong>，又没有手动抛出，换句话说就是把异常吞掉了。</p>
+<p>如果想要spring事务能够正常回滚，必须抛出它能够处理的异常。如果没有抛异常，则spring认为程序是正常的。</p>
+<h3 id="3-手动抛了别的异常-1"><a href="#3-手动抛了别的异常-1" class="headerlink" title="3.手动抛了别的异常"></a>3.手动抛了别的异常</h3><p>即使开发者没有手动捕获异常，但如果抛的异常不正确，spring事务也不会回滚。</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Slf</span>4j<br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>             saveData(userModel);<br>             updateData(userModel);<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            log.<span class="hljs-keyword">error</span>(e.getMessage(), e);<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Exception(e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面的这种情况，开发人员自己捕获了异常，又手动抛出了异常：Exception，事务同样不会回滚。  </p>
+<p>因为spring事务，默认情况下只会回滚RuntimeException（运行时异常）和Error（错误），对于普通的Exception（<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/51579425?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165164871416780357228953%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&request_id=165164871416780357228953&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-1-51579425.nonecase&utm_term=error&spm=1018.2226.3001.4450">非运行时异常</a>），它不会回滚。比如常见的IOExeption和SQLException</p>
+<h3 id="4-自定义了回滚异常-1"><a href="#4-自定义了回滚异常-1" class="headerlink" title="4.自定义了回滚异常"></a>4.自定义了回滚异常</h3><p>在使用@Transactional注解声明事务时，有时我们想自定义回滚的异常，spring也是支持的。可以通过设置rollbackFor参数，来完成这个功能。</p>
+<p>但如果这个参数的值设置错了，就会引出一些莫名其妙的问题，例如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-variable">@Transactional</span>(rollbackFor = BusinessException.class)<br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-selector-tag">saveData</span>(userModel);<br>       <span class="hljs-selector-tag">updateData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果在执行上面这段代码，保存和更新数据时，程序报错了，抛了SqlException、DuplicateKeyException等异常。而BusinessException是我们自定义的异常，报错的异常不属于BusinessException，所以事务也不会回滚。</p>
+<p>即使rollbackFor有默认值，但阿里巴巴开发者规范中，还是要求开发者重新指定该参数。</p>
+<p>这是为什么呢？</p>
+<p>因为如果使用默认值，一旦程序抛出了Exception，事务不会回滚，这会出现很大的bug。所以，建议一般情况下，将该参数设置成：Exception或Throwable。</p>
+<h3 id="5-嵌套事务回滚多了-1"><a href="#5-嵌套事务回滚多了-1" class="headerlink" title="5.嵌套事务回滚多了"></a>5.嵌套事务回滚多了</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserMapper userMapper;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleService roleService;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        userMapper.insertUser(userModel);<br>        roleService.doOtherThing();<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoleService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NESTED)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doOtherThing</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;保存role表数据&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种情况使用了嵌套的内部事务，原本是希望调用roleService.doOtherThing方法时，如果出现了异常，只回滚doOtherThing方法里的内容，不回滚 userMapper.insertUser里的内容，即回滚保存点。但事实是，insertUser也回滚了。</p>
+<p>why?</p>
+<p>因为doOtherThing方法出现了异常，<strong>没有手动捕获</strong>，会继续往上抛，到外层add方法的代理方法中捕获了异常。所以，这种情况是直接回滚了整个事务，不只回滚单个保存点。</p>
+<p>怎么样才能只回滚保存点呢？</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br><br>    <span class="hljs-variable">@Autowired</span><br>    private UserMapper userMapper;<br><br>    <span class="hljs-variable">@Autowired</span><br>    private RoleService roleService;<br><br>    <span class="hljs-variable">@Transactional</span><br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) throws Exception &#123;<br><br>        <span class="hljs-selector-tag">userMapper</span><span class="hljs-selector-class">.insertUser</span>(userModel);<br>        <span class="hljs-selector-tag">try</span> &#123;<br>            <span class="hljs-selector-tag">roleService</span><span class="hljs-selector-class">.doOtherThing</span>();<br>        &#125; <span class="hljs-selector-tag">catch</span> (Exception e) &#123;<br>            <span class="hljs-selector-tag">log</span><span class="hljs-selector-class">.error</span>(e.<span class="hljs-built_in">getMessage</span>(), e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以将内部嵌套事务放在try&#x2F;catch中，并且不继续往上抛异常。这样就能保证，如果内部嵌套事务中出现异常，只回滚内部事务，而不影响外部事务。</p>
+<h2 id="三、大事务与编程式事务-1"><a href="#三、大事务与编程式事务-1" class="headerlink" title="三、大事务与编程式事务"></a>三、大事务与编程式事务</h2><h3 id="1-大事务问题-1"><a href="#1-大事务问题-1" class="headerlink" title="1. 大事务问题"></a>1. 大事务问题</h3><p>在使用spring事务时，有个让人非常头疼的问题，就是大事务问题。<br>关于大事务可参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124560532">大事务问题</a></p>
+<p>通常情况下，我们会在方法上@Transactional注解，填加事务功能，比如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-keyword">@Autowired</span> <br>    private RoleService roleService;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    public void add(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-built_in">query1</span>();<br>       <span class="hljs-built_in">query2</span>();<br>       <span class="hljs-built_in">query3</span>();<br>       roleService<span class="hljs-selector-class">.save</span>(userModel);<br>       <span class="hljs-built_in">update</span>(userModel);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-keyword">@Service</span><br>public class RoleService &#123;<br>    <br>    <span class="hljs-keyword">@Autowired</span> <br>    private RoleService roleService;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    public void save(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-built_in">query4</span>();<br>       <span class="hljs-built_in">query5</span>();<br>       <span class="hljs-built_in">query6</span>();<br>       <span class="hljs-built_in">saveData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>但@Transactional注解，如果被加到方法上，有个缺点就是整个方法都包含在事务当中了。</p>
+<p>上面的这个例子中，在UserService类中，其实只有这两行才需要事务：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss">roleService<span class="hljs-selector-class">.save</span>(userModel);<br><span class="hljs-built_in">update</span>(userModel);<br></code></pre></td></tr></table></figure>
+
+<p>在RoleService类中，只有这一行需要事务：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">save<span class="hljs-constructor">Data(<span class="hljs-params">userModel</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>现在的这种写法，会导致所有的query方法也被包含在同一个事务当中。</p>
+<p>如果query方法非常多，调用层级很深，而且有部分查询方法比较耗时的话，会造成整个事务非常耗时，而从造成大事务问题。</p>
+<h3 id="2-编程式事务-1"><a href="#2-编程式事务-1" class="headerlink" title="2. 编程式事务"></a>2. 编程式事务</h3><p>上面的这些内容都是基于@Transactional注解的，主要讲的是它的事务问题，我们把这种事务叫做：声明式事务。</p>
+<p>其实，spring还提供了另外一种创建事务的方式，即通过手动编写代码实现的事务，我们把这种事务叫做：编程式事务。例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Autowired</span><br>private TransactionTemplate transactionTemplate;<br><br>public void <span class="hljs-built_in">save</span>(final User user) &#123;<br>      <span class="hljs-built_in">queryData1</span>();<br>      <span class="hljs-built_in">queryData2</span>();<br>      transactionTemplate<span class="hljs-selector-class">.execute</span>(transactionStatus -&gt; &#123;<br>         addData1();<br>         <span class="hljs-built_in">updateData2</span>();<br>         return Boolean<span class="hljs-selector-class">.TRUE</span>;<br>     &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在spring中为了支持编程式事务，专门提供了一个类：TransactionTemplate，在它的execute方法中，就实现了事务的功能。</p>
+<p>相较于@Transactional注解声明式事务，更建议大家使用，基于TransactionTemplate的编程式事务。主要原因如下：</p>
+<p>避免由于spring aop问题，导致事务失效的问题。<br>能够更小粒度的控制事务的范围，更直观。<br>建议在项目中少使用@Transactional注解开启事务。但并不是说一定不能用它，如果项目中有些业务逻辑比较简单，而且不经常变动，使用@Transactional注解开启事务开启事务也无妨，因为它更简单，开发效率更高，但是千万要小心事务失效的问题。</p>
+<p>参考:<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/wang/_luwei/article/details/121549005">https://blog.csdn.net/wang\_luwei/article/details/121549005</a> (spring事务（注解 @Transactional ）失效的12种场景)<br><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1fR4y1u7N8?spm%5C_id%5C_from=333.337.search-card.all.click(%E5%88%86%E6%9E%90spring%E4%BA%8B%E5%8A%A1@Transactional%E6%B3%A8%E8%A7%A3,%E4%BA%8B%E5%8A%A1%E4%B8%8D%E7%94%9F%E6%95%88%E7%9A%84%E5%9C%BA%E6%99%AF%E5%8F%8A%E5%8E%9F%E5%9B%A0%EF%BC%8C%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88)">https://www.bilibili.com/video/BV1fR4y1u7N8?spm\_id\_from=333.337.search-card.all.click(分析spring事务@Transactional注解,事务不生效的场景及原因，和解决方案)</a></p>
+<p>   </p>
+<p>显示推荐内容# spring事务（注解 @Transactional ）失效的12种场景</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/reprint.png" srcset="/img/loading.gif" lazyload></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234" title="春天的早晨">春天的早晨</a> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newUpTime2.png" srcset="/img/loading.gif" lazyload> 已于 2022-05-04 21:52:01 修改</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/articleReadEyes2.png" srcset="/img/loading.gif" lazyload> 阅读量3.4w <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollect2.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/tobarCollectionActive2.png" srcset="/img/loading.gif" lazyload> 收藏 788</p>
+<p><img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Active.png" srcset="/img/loading.gif" lazyload> <img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newHeart2023Black.png" srcset="/img/loading.gif" lazyload> 点赞数 104</p>
+<p>分类专栏： <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_8743333.html">面试</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_6432539.html">Spring</a> 文章标签： <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=spring&t=all&o=vip&s=&l=&f=&viparticle=&from_tracking_code=tag_word&from_code=app_blog_art">spring</a> <a target="_blank" rel="noopener" href="https://so.csdn.net/so/search/s.do?q=%E4%BA%8B%E5%8A%A1&t=all&o=vip&s=&l=&f=&viparticle=&from_tracking_code=tag_word&from_code=app_blog_art">事务</a></p>
+<p>于 2022-05-04 15:57:04 首次发布</p>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://blog.csdn.net/wang_luwei/article/details/121549005">https://blog.csdn.net/wang_luwei&#x2F;article&#x2F;details&#x2F;121549005</a></p>
+<p>版权</p>
+<p> <a href="javascript:;" title="GitCode 开源社区"><img src="https://devpress.csdnimg.cn/8bc8dd1a2bc24184a16a142654c4a49e.png" srcset="/img/loading.gif" lazyload> GitCode 开源社区 文章已被社区收录</a></p>
+<p>加入社区</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_8743333.html" title="面试"><img src="https://i-blog.csdnimg.cn/columns/default/20201014180756928.png?x-oss-process=image/resize,m_fixed,h_224,w_224" srcset="/img/loading.gif" lazyload> 面试 同时被 2 个专栏收录<img src="https://csdnimg.cn/release/blogv2/dist/pc/img/newArrowDown1White.png" srcset="/img/loading.gif" lazyload></a></p>
+<p>57 篇文章 4 订阅</p>
+<p>订阅专栏</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/category_6432539.html" title="Spring"><img src="https://i-blog.csdnimg.cn/columns/default/20201014180756780.png?x-oss-process=image/resize,m_fixed,h_224,w_224" srcset="/img/loading.gif" lazyload> Spring</a></p>
+<p>31 篇文章 1 订阅</p>
+<p>订阅专栏</p>
+<p><img src="https://img-home.csdnimg.cn/images/20240711042549.png" srcset="/img/loading.gif" lazyload> 本文详细分析了Spring事务管理中@Transactional注解失效的七种情况，包括访问权限、final修饰、内部调用、未被管理、多线程、存储引擎不支持事务以及未开启事务。同时，探讨了事务不回滚的五种原因，如错误的传播特性、异常处理不当等。最后，讨论了大事务问题和编程式事务的优势，强调了如何更好地控制事务范围和避免大事务问题。</p>
+<p>摘要由CSDN通过智能技术生成</p>
+<h4 id="文章目录-1"><a href="#文章目录-1" class="headerlink" title="文章目录"></a>文章目录</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#__6">一 、事务不生效【七种】</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#1_public_7">1.访问权限问题 (只有public方法会生效)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#2final_65">2.方法用final修饰，不会生效</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#3_86">3.同一个类中的方法直接内部调用，会导致事务失效</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#31_Service_113">3.1 新加一个Service方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#32_Service_139">3.2 在该Service类中注入自己</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#33_AopContent_166">3.3 通过AopContent类</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#4_spring_187">4.(类本身) 未被spring管理</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#5_206">5.多线程调用</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#6_249">6.(存储引擎)表不支持事务</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#7_277">7.未开启事务</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#_318">二、事务不回滚【五种】</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#1_319">1.错误的传播特性</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#2_347">2.自己吞了异常</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#3_369">3.手动抛了别的异常</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#4_392">4.自定义了回滚异常</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#5_416">5.嵌套事务回滚多了</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#_474">三、大事务与编程式事务</a></li>
+<li><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#1__475">1. 大事务问题</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124571619#2__528">2. 编程式事务</a></li>
+</ul>
+</li>
+</ul>
+<p>在某些业务场景下，如果一个请求中，需要同时写入多张表的数据或者执行多条sql。为了保证操作的原子性（要么同时成功，要么同时失败），避免数据不一致的情况，我们一般都会用到spring事务。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/cd5de7a66d2a919e9210b222a7dce169.png" srcset="/img/loading.gif" lazyload alt="强大的spring框架，为我们提供了一个简单的注解：@Transactional，就能轻松搞定事务，一直用一直爽啊！！"></p>
+<h2 id="一-、事务不生效【七种】-2"><a href="#一-、事务不生效【七种】-2" class="headerlink" title="一 、事务不生效【七种】"></a>一 、事务不生效【七种】</h2><h3 id="1-访问权限问题-只有public方法会生效-2"><a href="#1-访问权限问题-只有public方法会生效-2" class="headerlink" title="1.访问权限问题 (只有public方法会生效)"></a>1.访问权限问题 (只有public方法会生效)</h3><p>众所周知，java的访问权限主要有四种：private、default、protected、public，它们的权限从左到右，依次变大。</p>
+<p>但如果我们在开发过程中，把有某些事务方法，定义了错误的访问权限，就会导致事务功能出问题，例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    private void add(UserModel userModel) &#123;<br>         <span class="hljs-built_in">saveData</span>(userModel);<br>         <span class="hljs-built_in">updateData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法的访问权限被定义成了private，这样会导致事务失效，spring要求被代理方法必须得是public的。</p>
+<p>说白了，在AbstractFallbackTransactionAttributeSource类的computeTransactionAttribute方法中有个判断，<strong>如果目标方法不是public</strong>，则TransactionAttribute返回null，即不支持事务。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">protected TransactionAttribute compute<span class="hljs-constructor">TransactionAttribute(Method <span class="hljs-params">method</span>, @Nullable Class&lt;?&gt; <span class="hljs-params">targetClass</span>)</span> &#123;<br>    <span class="hljs-comment">// Don&#x27;t allow no-public methods as required.可以看到， 这里不支持public类型的方法</span><br>    <span class="hljs-keyword">if</span> (allow<span class="hljs-constructor">PublicMethodsOnly()</span><span class="hljs-operator"> &amp;&amp; </span>!<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Modifier</span>.</span></span>is<span class="hljs-constructor">Public(<span class="hljs-params">method</span>.<span class="hljs-params">getModifiers</span>()</span>)) &#123;<br>      return null;<br>    &#125;<br><br>    <span class="hljs-comment">// The method may be on an interface, but we need attributes from the target class.</span><br>    <span class="hljs-comment">// If the target class is null, the method will be unchanged.</span><br>    Method specificMethod = <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">AopUtils</span>.</span></span>get<span class="hljs-constructor">MostSpecificMethod(<span class="hljs-params">method</span>, <span class="hljs-params">targetClass</span>)</span>;<br><br>    <span class="hljs-comment">// First try is the method in the target class.</span><br>    TransactionAttribute txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">specificMethod</span>)</span>;<br>    <span class="hljs-keyword">if</span> (txAttr != null) &#123;<br>      return txAttr;<br>    &#125;<br><br>    <span class="hljs-comment">// Second try is the transaction attribute on the target class.</span><br>    txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">specificMethod</span>.<span class="hljs-params">getDeclaringClass</span>()</span>);<br>    <span class="hljs-keyword">if</span> (txAttr != null<span class="hljs-operator"> &amp;&amp; </span><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ClassUtils</span>.</span></span>is<span class="hljs-constructor">UserLevelMethod(<span class="hljs-params">method</span>)</span>) &#123;<br>      return txAttr;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (specificMethod != <span class="hljs-keyword">method</span>) &#123;<br>      <span class="hljs-comment">// Fallback is to look at the original method.</span><br>      txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">method</span>)</span>;<br>      <span class="hljs-keyword">if</span> (txAttr != null) &#123;<br>        return txAttr;<br>      &#125;<br>      <span class="hljs-comment">// Last fallback is the class of the original method.</span><br>      txAttr = find<span class="hljs-constructor">TransactionAttribute(<span class="hljs-params">method</span>.<span class="hljs-params">getDeclaringClass</span>()</span>);<br>      <span class="hljs-keyword">if</span> (txAttr != null<span class="hljs-operator"> &amp;&amp; </span><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">ClassUtils</span>.</span></span>is<span class="hljs-constructor">UserLevelMethod(<span class="hljs-params">method</span>)</span>) &#123;<br>        return txAttr;<br>      &#125;<br>    &#125;<br>    return null;<br>  &#125;<br></code></pre></td></tr></table></figure>
+
+<p>也就是说，如果我们自定义的事务方法（即目标方法），它的访问权限不是public，而是private、default或protected的话，spring则不会提供事务功能。</p>
+<h3 id="2-方法用final修饰，不会生效-2"><a href="#2-方法用final修饰，不会生效-2" class="headerlink" title="2.方法用final修饰，不会生效"></a>2.方法用final修饰，不会生效</h3><p>有时候，某个方法不想被子类重新，这时可以将该方法定义成final的。普通方法这样定义是没问题的，但如果将事务方法定义成final，例如：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span></span>&#123;<br>        saveData(userModel);<br>        updateData(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法被定义成了final的，这样会导致<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E4%BA%8B%E5%8A%A1%E5%A4%B1%E6%95%88&spm=1001.2101.3001.7020">事务失效</a>。</p>
+<p>为什么？</p>
+<p>如果你看过<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=spring%E4%BA%8B%E5%8A%A1&spm=1001.2101.3001.7020">spring事务</a>的源码，可能会知道spring事务底层使用了aop，也就是通过jdk动态代理或者cglib，帮我们生成了代理类，在代理类中实现的事务功能。<strong>但如果某个方法用final修饰了，那么在它的代理类中，就无法重写该方法</strong>，而添加事务功能。</p>
+<p>注意：如果某个方法是static的，同样无法通过动态代理，变成事务方法。</p>
+<h3 id="3-同一个类中的方法直接内部调用，会导致事务失效-2"><a href="#3-同一个类中的方法直接内部调用，会导致事务失效-2" class="headerlink" title="3.同一个类中的方法直接内部调用，会导致事务失效"></a>3.同一个类中的方法直接内部调用，会导致事务失效</h3><p>有时候我们需要在某个Service类的某个方法中，调用另外一个事务方法，比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-title class_">UserMapper</span> userMapper;<br><br>  <br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>        userMapper.<span class="hljs-title function_">insertUser</span>(userModel);<br>        <span class="hljs-title function_">updateStatus</span>(userModel);<br>    &#125;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">updateStatus</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>        <span class="hljs-title function_">doSameThing</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们看到在事务方法add中，直接调用事务方法updateStatus。从前面介绍的内容可以知道，updateStatus方法拥有事务的能力是因为spring aop生成代理了对象，但是这种方法直接调用了this对象的方法，所以updateStatus方法不会生成事务。<a target="_blank" rel="noopener" href="https://blog.csdn.net/yyoc97/article/details/81911744">根本原因</a> <a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124578233">根本原因2</a></p>
+<p>由此可见，在同一个类中的方法直接内部调用，会导致事务失效。</p>
+<p>那么问题来了，如果有些场景，确实想在同一个类的某个方法中，调用它自己的另外一个方法，该怎么办呢？</p>
+<h4 id="3-1-新加一个Service方法-2"><a href="#3-1-新加一个Service方法-2" class="headerlink" title="3.1 新加一个Service方法"></a>3.1 新加一个Service方法</h4><p>这个方法非常简单，只需要新加一个Service方法，把@Transactional注解加到新Service方法上，把需要事务执行的代码移到新方法中。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br>   <span class="hljs-keyword">@Autowired</span><br>   prvate ServiceB serviceB;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         serviceB<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br> &#125;<br><br> <span class="hljs-keyword">@Servcie</span><br> public class ServiceB &#123;<br><br>    <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>    public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br><br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-在该Service类中注入自己-2"><a href="#3-2-在该Service类中注入自己-2" class="headerlink" title="3.2 在该Service类中注入自己"></a>3.2 在该Service类中注入自己</h4><p>如果不想再新加一个Service类，在该Service类中注入自己也是一种选择。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br>   <span class="hljs-keyword">@Autowired</span><br>   prvate ServiceA serviceA;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         serviceA<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br><br>   <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>   public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p>可能有些人可能会有这样的疑问：这种做法会不会出现循环依赖问题？</p>
+<p>答案：不会。</p>
+<p>其实spring ioc内部的<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/116403266">三级缓存</a>保证了它，不会出现循环依赖问题。</p>
+<h4 id="3-3-通过AopContent类-2"><a href="#3-3-通过AopContent类-2" class="headerlink" title="3.3 通过AopContent类"></a>3.3 通过AopContent类</h4><p>在该Service类中使用AopContext.currentProxy()获取代理对象</p>
+<p>上面的方法2确实可以解决问题，但是代码看起来并不直观，还可以通过在该Service类中使用AOPProxy获取代理对象，实现相同的功能。具体代码如下：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Servcie</span><br>public class ServiceA &#123;<br><br>   public void <span class="hljs-built_in">save</span>(User user) &#123;<br>         <span class="hljs-built_in">queryData1</span>();<br>         <span class="hljs-built_in">queryData2</span>();<br>         ((ServiceA)AopContext<span class="hljs-selector-class">.currentProxy</span>())<span class="hljs-selector-class">.doSave</span>(user);<br>   &#125;<br><br>   <span class="hljs-keyword">@Transactional</span>(rollbackFor=Exception.class)<br>   public void doSave(User user) &#123;<br>       <span class="hljs-built_in">addData1</span>();<br>       <span class="hljs-built_in">updateData2</span>();<br>    &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-类本身-未被spring管理-2"><a href="#4-类本身-未被spring管理-2" class="headerlink" title="4.(类本身) 未被spring管理"></a>4.(类本身) 未被spring管理</h3><p>在我们平时开发过程中，有个细节很容易被忽略。即使用spring事务的前提是：对象要被spring管理，需要创建bean实例。</p>
+<p>通常情况下，我们通过@Controller、@Service、@Component、@Repository等注解，可以自动实现bean实例化和依赖注入的功能。当然创建bean实例的方法还有很多，不一一说了。有兴趣的小伙伴可以参考这篇文章：@Autowired的这些骚操作，你都知道吗？</p>
+<p>如下所示, 开发了一个Service类，但忘了加@Service注解，比如：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-comment">//@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">add</span>(<span class="hljs-params">UserModel userModel</span>) &#123;<br>         <span class="hljs-title function_">saveData</span>(userModel);<br>         <span class="hljs-title function_">updateData</span>(userModel);<br>    &#125;    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的例子，我们可以看到UserService类没有加@Service注解，那么该类不会交给spring管理，所以它的add方法也不会生成事务。</p>
+<h3 id="5-多线程调用-2"><a href="#5-多线程调用-2" class="headerlink" title="5.多线程调用"></a>5.多线程调用</h3><p>在实际项目开发中，多线程的使用场景还是挺多的。如果spring事务用在多线程场景中，会有问题吗？</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Slf</span>4j<br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserMapper userMapper;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleService roleService;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>        userMapper.insertUser(userModel);<br>        <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            roleService.doOtherThing();<br>        &#125;).start();<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RoleService</span> </span>&#123;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">doOtherThing</span><span class="hljs-params">()</span> </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;保存role表数据&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从上面的例子中，我们可以看到事务方法add中，调用了事务方法doOtherThing，但是事务方法doOtherThing是在另外一个线程中调用的。</p>
+<p>这样会导致两个方法不在同一个线程中，获取到的数据库连接不一样，从而是两个不同的事务。如果想doOtherThing方法中抛了异常，add方法也回滚是不可能的。</p>
+<p>如果看过spring事务源码的朋友，可能会知道spring的事务是通过数据库连接来实现的。当前线程中保存了一个map，key是数据源，value是数据库连接。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs dart">private <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> ThreadLocal&lt;<span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">Object</span>, <span class="hljs-built_in">Object</span>&gt;&gt; resources =<br><br>  <span class="hljs-keyword">new</span> NamedThreadLocal&lt;&gt;(<span class="hljs-string">&quot;Transactional resources&quot;</span>);<br><br></code></pre></td></tr></table></figure>
+
+<p>我们说的同一个事务，其实是指同一个数据库连接，只有拥有同一个数据库连接才能同时提交和回滚。如果在不同的线程，拿到的数据库连接肯定是不一样的，所以是不同的事务。</p>
+<h3 id="6-存储引擎-表不支持事务-2"><a href="#6-存储引擎-表不支持事务-2" class="headerlink" title="6.(存储引擎)表不支持事务"></a>6.(存储引擎)表不支持事务</h3><p>周所周知，在mysql5之前，默认的数据库引擎是myisam。</p>
+<p>它的好处就不用多说了：索引文件和数据文件是分开存储的，对于查多写少的单表操作，性能比innodb更好。</p>
+<p>有些老项目中，可能还在用它。</p>
+<p>在创建表的时候，只需要把ENGINE参数设置成MyISAM即可：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> `category` (<br>  `id` <span class="hljs-type">bigint</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> AUTO_INCREMENT,<br>  `one_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `two_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `three_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  `four_category` <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">COLLATE</span> utf8mb4_bin <span class="hljs-keyword">DEFAULT</span> <span class="hljs-keyword">NULL</span>,<br>  <span class="hljs-keyword">PRIMARY</span> KEY (`id`)<br>) ENGINE<span class="hljs-operator">=</span>MyISAM AUTO_INCREMENT<span class="hljs-operator">=</span><span class="hljs-number">4</span> <span class="hljs-keyword">DEFAULT</span> CHARSET<span class="hljs-operator">=</span>utf8mb4 <span class="hljs-keyword">COLLATE</span><span class="hljs-operator">=</span>utf8mb4_bin<br></code></pre></td></tr></table></figure>
+
+<p>myisam好用，但有个很致命的问题是：<strong>不支持事务</strong>。</p>
+<p>如果只是单表操作还好，不会出现太大的问题。但如果需要跨多张表操作，由于其不支持事务，数据极有可能会出现不完整的情况。</p>
+<p>此外，myisam还不支持行锁和外键。</p>
+<p>所以在实际业务场景中，myisam使用的并不多。在mysql5以后，myisam已经逐渐退出了历史的舞台，取而代之的是innodb。</p>
+<p>有时候我们在开发的过程中，发现某张表的事务一直都没有生效，那不一定是spring事务的锅，最好确认一下你使用的那张表，是否支持事务。</p>
+<h3 id="7-未开启事务-2"><a href="#7-未开启事务-2" class="headerlink" title="7.未开启事务"></a>7.未开启事务</h3><p>有时候，事务没有生效的根本原因是没有开启事务。</p>
+<p>你看到这句话可能会觉得好笑。</p>
+<p>开启事务不是一个项目中，最最最基本的功能吗？</p>
+<p>为什么还会没有开启事务？</p>
+<p>没错，如果项目已经搭建好了，事务功能肯定是有的。</p>
+<p>但如果你是在搭建项目demo的时候，只有一张表，而这张表的事务没有生效。那么会是什么原因造成的呢？</p>
+<p>当然原因有很多，但没有开启事务，这个原因极其容易被忽略。</p>
+<p>如果你使用的是springboot项目，那么你很幸运。因为springboot通过DataSourceTransactionManagerAutoConfiguration类，已经默默的帮你开启了事务。</p>
+<p>你所要做的事情很简单，只需要配置spring.datasource相关参数即可。</p>
+<p>但如果你使用的还是传统的spring项目，则需要在applicationContext.xml文件中，手动配置事务相关参数。如果忘了配置，事务肯定是不会生效的。</p>
+<p>具体配置如下信息：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-comment">&lt;!-- 配置事务管理器 --&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">bean</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;transactionManager&quot;</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">property</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;dataSource&quot;</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">&quot;dataSource&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">property</span>&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">bean</span>&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">tx:advice</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;advice&quot;</span> <span class="hljs-attr">transaction-manager</span>=<span class="hljs-string">&quot;transactionManager&quot;</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">tx:attributes</span>&gt;</span> <br>        <span class="hljs-tag">&lt;<span class="hljs-name">tx:method</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;*&quot;</span> <span class="hljs-attr">propagation</span>=<span class="hljs-string">&quot;REQUIRED&quot;</span>/&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">tx:attributes</span>&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">tx:advice</span>&gt;</span> <br><span class="hljs-comment">&lt;!-- 用切点把事务切进去 --&gt;</span> <br><span class="hljs-tag">&lt;<span class="hljs-name">aop:config</span>&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">aop:pointcut</span> <span class="hljs-attr">expression</span>=<span class="hljs-string">&quot;execution(* com.susan.*.*(..))&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;pointcut&quot;</span>/&gt;</span> <br>    <span class="hljs-tag">&lt;<span class="hljs-name">aop:advisor</span> <span class="hljs-attr">advice-ref</span>=<span class="hljs-string">&quot;advice&quot;</span> <span class="hljs-attr">pointcut-ref</span>=<span class="hljs-string">&quot;pointcut&quot;</span>/&gt;</span> <br><span class="hljs-tag">&lt;/<span class="hljs-name">aop:config</span>&gt;</span> <br><br></code></pre></td></tr></table></figure>
+
+<p>默默的说一句，如果在pointcut标签中的切入点匹配规则，配错了的话，有些类的事务也不会生效。</p>
+<h2 id="二、事务不回滚【五种】-2"><a href="#二、事务不回滚【五种】-2" class="headerlink" title="二、事务不回滚【五种】"></a>二、事务不回滚【五种】</h2><h3 id="1-错误的传播特性-2"><a href="#1-错误的传播特性-2" class="headerlink" title="1.错误的传播特性"></a>1.错误的传播特性</h3><p>其实，我们在使用@Transactional注解时，是可以指定propagation参数的。</p>
+<p>该参数的作用是指定事务的传播特性，spring目前支持7种传播特性：</p>
+<p>REQUIRED 如果当前上下文中存在事务，那么加入该事务，如果不存在事务，创建一个事务，这是默认的传播属性值。<br>SUPPORTS 如果当前上下文存在事务，则支持事务加入事务，如果不存在事务，则使用非事务的方式执行。<br>MANDATORY 如果当前上下文中存在事务，否则抛出异常。<br>REQUIRES_NEW 每次都会新建一个事务，并且同时将上下文中的事务挂起，执行当前新建事务完成以后，上下文事务恢复再执行。<br>NOT_SUPPORTED 如果当前上下文中存在事务，则挂起当前事务，然后新的方法在没有事务的环境中执行。<br>NEVER 如果当前上下文中存在事务，则抛出异常，否则在无事务环境上执行代码。<br>NESTED 如果当前上下文中存在事务，则嵌套事务执行，如果不存在事务，则新建事务。<br>如果我们在手动设置propagation参数的时候，把传播特性设置错了，比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NEVER)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(UserModel userModel)</span> &#123;<br>        saveData(userModel);<br>        updateData(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们可以看到add方法的事务传播特性定义成了Propagation.NEVER，这种类型的传播特性不支持事务，如果有事务则会抛异常。</p>
+<p>目前只有这三种传播特性才会创建新事务：REQUIRED，REQUIRES_NEW，NESTED。</p>
+<h3 id="2-自己吞了异常-2"><a href="#2-自己吞了异常-2" class="headerlink" title="2.自己吞了异常"></a>2.自己吞了异常</h3><p>事务不会回滚，最常见的问题是：开发者在代码中手动try…catch了异常。比如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-variable">@Transactional</span><br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) &#123;<br>        <span class="hljs-selector-tag">try</span> &#123;<br>            <span class="hljs-selector-tag">saveData</span>(userModel);<br>            <span class="hljs-selector-tag">updateData</span>(userModel);<br>        &#125; <span class="hljs-selector-tag">catch</span> (Exception e) &#123;<br>            <span class="hljs-selector-tag">log</span><span class="hljs-selector-class">.error</span>(e.<span class="hljs-built_in">getMessage</span>(), e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种情况下spring事务当然不会回滚，因为开发者<strong>自己捕获了异常</strong>，又没有手动抛出，换句话说就是把异常吞掉了。</p>
+<p>如果想要spring事务能够正常回滚，必须抛出它能够处理的异常。如果没有抛异常，则spring认为程序是正常的。</p>
+<h3 id="3-手动抛了别的异常-2"><a href="#3-手动抛了别的异常-2" class="headerlink" title="3.手动抛了别的异常"></a>3.手动抛了别的异常</h3><p>即使开发者没有手动捕获异常，但如果抛的异常不正确，spring事务也不会回滚。</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@Slf</span>4j<br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserService</span> </span>&#123;<br>    <br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>             saveData(userModel);<br>             updateData(userModel);<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            log.<span class="hljs-keyword">error</span>(e.getMessage(), e);<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Exception(e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面的这种情况，开发人员自己捕获了异常，又手动抛出了异常：Exception，事务同样不会回滚。  </p>
+<p>因为spring事务，默认情况下只会回滚RuntimeException（运行时异常）和Error（错误），对于普通的Exception（<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/51579425?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522165164871416780357228953%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fblog.%2522%257D&request_id=165164871416780357228953&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~blog~first_rank_ecpm_v1~rank_v31_ecpm-1-51579425.nonecase&utm_term=error&spm=1018.2226.3001.4450">非运行时异常</a>），它不会回滚。比如常见的IOExeption和SQLException</p>
+<h3 id="4-自定义了回滚异常-2"><a href="#4-自定义了回滚异常-2" class="headerlink" title="4.自定义了回滚异常"></a>4.自定义了回滚异常</h3><p>在使用@Transactional注解声明事务时，有时我们想自定义回滚的异常，spring也是支持的。可以通过设置rollbackFor参数，来完成这个功能。</p>
+<p>但如果这个参数的值设置错了，就会引出一些莫名其妙的问题，例如：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-variable">@Transactional</span>(rollbackFor = BusinessException.class)<br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-selector-tag">saveData</span>(userModel);<br>       <span class="hljs-selector-tag">updateData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果在执行上面这段代码，保存和更新数据时，程序报错了，抛了SqlException、DuplicateKeyException等异常。而BusinessException是我们自定义的异常，报错的异常不属于BusinessException，所以事务也不会回滚。</p>
+<p>即使rollbackFor有默认值，但阿里巴巴开发者规范中，还是要求开发者重新指定该参数。</p>
+<p>这是为什么呢？</p>
+<p>因为如果使用默认值，一旦程序抛出了Exception，事务不会回滚，这会出现很大的bug。所以，建议一般情况下，将该参数设置成：Exception或Throwable。</p>
+<h3 id="5-嵌套事务回滚多了-2"><a href="#5-嵌套事务回滚多了-2" class="headerlink" title="5.嵌套事务回滚多了"></a>5.嵌套事务回滚多了</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserMapper userMapper;<br><br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> RoleService roleService;<br><br>    <span class="hljs-meta">@Transactional</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">add</span><span class="hljs-params">(UserModel userModel)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        userMapper.insertUser(userModel);<br>        roleService.doOtherThing();<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">@Service</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RoleService</span> &#123;<br><br>    <span class="hljs-meta">@Transactional(propagation = Propagation.NESTED)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doOtherThing</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;保存role表数据&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种情况使用了嵌套的内部事务，原本是希望调用roleService.doOtherThing方法时，如果出现了异常，只回滚doOtherThing方法里的内容，不回滚 userMapper.insertUser里的内容，即回滚保存点。但事实是，insertUser也回滚了。</p>
+<p>why?</p>
+<p>因为doOtherThing方法出现了异常，<strong>没有手动捕获</strong>，会继续往上抛，到外层add方法的代理方法中捕获了异常。所以，这种情况是直接回滚了整个事务，不只回滚单个保存点。</p>
+<p>怎么样才能只回滚保存点呢？</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@Slf4j</span><br><span class="hljs-variable">@Service</span><br>public class UserService &#123;<br><br>    <span class="hljs-variable">@Autowired</span><br>    private UserMapper userMapper;<br><br>    <span class="hljs-variable">@Autowired</span><br>    private RoleService roleService;<br><br>    <span class="hljs-variable">@Transactional</span><br>    public void <span class="hljs-built_in">add</span>(UserModel userModel) throws Exception &#123;<br><br>        <span class="hljs-selector-tag">userMapper</span><span class="hljs-selector-class">.insertUser</span>(userModel);<br>        <span class="hljs-selector-tag">try</span> &#123;<br>            <span class="hljs-selector-tag">roleService</span><span class="hljs-selector-class">.doOtherThing</span>();<br>        &#125; <span class="hljs-selector-tag">catch</span> (Exception e) &#123;<br>            <span class="hljs-selector-tag">log</span><span class="hljs-selector-class">.error</span>(e.<span class="hljs-built_in">getMessage</span>(), e);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以将内部嵌套事务放在try&#x2F;catch中，并且不继续往上抛异常。这样就能保证，如果内部嵌套事务中出现异常，只回滚内部事务，而不影响外部事务。</p>
+<h2 id="三、大事务与编程式事务-2"><a href="#三、大事务与编程式事务-2" class="headerlink" title="三、大事务与编程式事务"></a>三、大事务与编程式事务</h2><h3 id="1-大事务问题-2"><a href="#1-大事务问题-2" class="headerlink" title="1. 大事务问题"></a>1. 大事务问题</h3><p>在使用spring事务时，有个让人非常头疼的问题，就是大事务问题。<br>关于大事务可参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/mccand1234/article/details/124560532">大事务问题</a></p>
+<p>通常情况下，我们会在方法上@Transactional注解，填加事务功能，比如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Service</span><br>public class UserService &#123;<br>    <br>    <span class="hljs-keyword">@Autowired</span> <br>    private RoleService roleService;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    public void add(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-built_in">query1</span>();<br>       <span class="hljs-built_in">query2</span>();<br>       <span class="hljs-built_in">query3</span>();<br>       roleService<span class="hljs-selector-class">.save</span>(userModel);<br>       <span class="hljs-built_in">update</span>(userModel);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-keyword">@Service</span><br>public class RoleService &#123;<br>    <br>    <span class="hljs-keyword">@Autowired</span> <br>    private RoleService roleService;<br>    <br>    <span class="hljs-keyword">@Transactional</span><br>    public void save(UserModel userModel) throws Exception &#123;<br>       <span class="hljs-built_in">query4</span>();<br>       <span class="hljs-built_in">query5</span>();<br>       <span class="hljs-built_in">query6</span>();<br>       <span class="hljs-built_in">saveData</span>(userModel);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>但@Transactional注解，如果被加到方法上，有个缺点就是整个方法都包含在事务当中了。</p>
+<p>上面的这个例子中，在UserService类中，其实只有这两行才需要事务：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss">roleService<span class="hljs-selector-class">.save</span>(userModel);<br><span class="hljs-built_in">update</span>(userModel);<br></code></pre></td></tr></table></figure>
+
+<p>在RoleService类中，只有这一行需要事务：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">save<span class="hljs-constructor">Data(<span class="hljs-params">userModel</span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>现在的这种写法，会导致所有的query方法也被包含在同一个事务当中。</p>
+<p>如果query方法非常多，调用层级很深，而且有部分查询方法比较耗时的话，会造成整个事务非常耗时，而从造成大事务问题。</p>
+<h3 id="2-编程式事务-2"><a href="#2-编程式事务-2" class="headerlink" title="2. 编程式事务"></a>2. 编程式事务</h3><p>上面的这些内容都是基于@Transactional注解的，主要讲的是它的事务问题，我们把这种事务叫做：声明式事务。</p>
+<p>其实，spring还提供了另外一种创建事务的方式，即通过手动编写代码实现的事务，我们把这种事务叫做：编程式事务。例如：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Autowired</span><br>private TransactionTemplate transactionTemplate;<br><br>public void <span class="hljs-built_in">save</span>(final User user) &#123;<br>      <span class="hljs-built_in">queryData1</span>();<br>      <span class="hljs-built_in">queryData2</span>();<br>      transactionTemplate<span class="hljs-selector-class">.execute</span>(transactionStatus -&gt; &#123;<br>         addData1();<br>         <span class="hljs-built_in">updateData2</span>();<br>         return Boolean<span class="hljs-selector-class">.TRUE</span>;<br>     &#125;);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在spring中为了支持编程式事务，专门提供了一个类：TransactionTemplate，在它的execute方法中，就实现了事务的功能。</p>
+<p>相较于@Transactional注解声明式事务，更建议大家使用，基于TransactionTemplate的编程式事务。主要原因如下：</p>
+<p>避免由于spring aop问题，导致事务失效的问题。<br>能够更小粒度的控制事务的范围，更直观。<br>建议在项目中少使用@Transactional注解开启事务。但并不是说一定不能用它，如果项目中有些业务逻辑比较简单，而且不经常变动，使用@Transactional注解开启事务开启事务也无妨，因为它更简单，开发效率更高，但是千万要小心事务失效的问题。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Spring/">#Spring</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/1c3f5ec1.html" title="Redis 经典缓存问题：一致性、穿透、击穿、雪崩与污染">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis 经典缓存问题：一致性、穿透、击穿、雪崩与污染</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/77f73530.html" title="mysql索引失效场景">
+                        <span class="hidden-mobile">mysql索引失效场景</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

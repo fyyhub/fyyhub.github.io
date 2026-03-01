@@ -1,0 +1,638 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="知识货栈">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="obsidian中使用网页剪报 - 哔哩哔哩 Excerpt背景：平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录## 插件下载：obsidian插件：advanced obsidian uri这个插件用来控制obsidian uri相关操作。markdownload这个插件用来将浏览器中的内容剪切为markdown格式。#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="obsidian中使用网页剪报 - 哔哩哔哩">
+<meta property="og:url" content="https://fyyhub.github.io/article/2e271d30.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="obsidian中使用网页剪报 - 哔哩哔哩 Excerpt背景：平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录## 插件下载：obsidian插件：advanced obsidian uri这个插件用来控制obsidian uri相关操作。markdownload这个插件用来将浏览器中的内容剪切为markdown格式。#">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/157fe16638857a03442126c65b7039507f55b83e.png@1256w_1142h_!web-article-pic.avif">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/f40d3bd258ea67975bece878517d8ec3ea313ab3.png@1256w_1144h_!web-article-pic.avif">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/2b45f85d31b050823b7b5595e80aef10fabe1703.png@1256w_894h_!web-article-pic.avif">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/218db792a3e7b644cad53833f2c9f1e259a201cf.png@1256w_402h_!web-article-pic.avif">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/2fdf96490624ffbde9e02fd324ae507977020b44.png@1256w_296h_!web-article-pic.avif">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/9664d263fda3f792c495434ab6da496df10e697a.png@1256w_1308h_!web-article-pic.avif">
+<meta property="og:image" content="https://i0.hdslb.com/bfs/article/c7040b64297097656d88a088b7cf1f611374267f.png@1256w_1062h_!web-article-pic.avif">
+<meta property="article:published_time" content="2023-11-14T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.271Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="MARKDOWN">
+<meta property="article:tag" content="插件下载">
+<meta property="article:tag" content="插件设置">
+<meta property="article:tag" content="CHROME">
+<meta property="article:tag" content="写代码">
+<meta property="article:tag" content="个人喜好">
+<meta property="article:tag" content="浏览器">
+<meta property="article:tag" content="网络搜寻">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i0.hdslb.com/bfs/article/157fe16638857a03442126c65b7039507f55b83e.png@1256w_1142h_!web-article-pic.avif">
+  
+  
+  
+  <title>obsidian中使用网页剪报 - 哔哩哔哩 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="obsidian中使用网页剪报 - 哔哩哔哩"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-14 00:00" pubdate>
+          2023年11月14日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">obsidian中使用网页剪报 - 哔哩哔哩</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <meta name="referrer" content="no-referrer" />
+
+
+<h1 id="obsidian中使用网页剪报-哔哩哔哩"><a href="#obsidian中使用网页剪报-哔哩哔哩" class="headerlink" title="obsidian中使用网页剪报 - 哔哩哔哩"></a>obsidian中使用网页剪报 - 哔哩哔哩</h1><blockquote>
+<h2 id="Excerpt"><a href="#Excerpt" class="headerlink" title="Excerpt"></a>Excerpt</h2><h2 id="背景：平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录-插件下载：obsidian插件：advanced-obsidian-uri这个插件用来控制obsidian-uri相关操作。markdownload这个插件用来将浏览器中的内容剪切为markdown格式。-安装配置obsidian中的advanced-obsidian-uri插件能一键安装，这里就不说了，主要是chrome中markdownload插件的"><a href="#背景：平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录-插件下载：obsidian插件：advanced-obsidian-uri这个插件用来控制obsidian-uri相关操作。markdownload这个插件用来将浏览器中的内容剪切为markdown格式。-安装配置obsidian中的advanced-obsidian-uri插件能一键安装，这里就不说了，主要是chrome中markdownload插件的" class="headerlink" title="背景：平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录## 插件下载：obsidian插件：advanced obsidian uri这个插件用来控制obsidian uri相关操作。markdownload这个插件用来将浏览器中的内容剪切为markdown格式。## 安装配置obsidian中的advanced obsidian uri插件能一键安装，这里就不说了，主要是chrome中markdownload插件的"></a>背景：平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录## 插件下载：<strong>obsidian插件：</strong>advanced obsidian uri这个插件用来控制obsidian uri相关操作。<strong>markdownload</strong>这个插件用来将浏览器中的内容剪切为markdown格式。## 安装配置obsidian中的advanced obsidian uri插件能一键安装，这里就不说了，主要是chrome中markdownload插件的</h2></blockquote>
+<hr>
+<p><strong>## 背景：</strong>  </p>
+<p>平时经常使用网页剪报来做一些记录，但是切换到obsidian后，没有剪报有些不习惯，于是找了下相关的插件，安装后记录</p>
+<p><strong>## 插件下载：</strong></p>
+<p><strong>**obsidian插件：**</strong></p>
+<p>advanced obsidian uri</p>
+<p>这个插件用来控制obsidian uri相关操作。</p>
+<p><img src="https://i0.hdslb.com/bfs/article/157fe16638857a03442126c65b7039507f55b83e.png@1256w_1142h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload></p>
+<p><strong>**markdownload**</strong>  </p>
+<p>这个插件用来将浏览器中的内容剪切为markdown格式。</p>
+<p><img src="https://i0.hdslb.com/bfs/article/f40d3bd258ea67975bece878517d8ec3ea313ab3.png@1256w_1144h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload></p>
+<p><strong>## 安装配置</strong>  </p>
+<p>obsidian中的advanced obsidian uri插件能一键安装，这里就不说了，主要是chrome中markdownload插件的配置。</p>
+<p>在chrome 扩展程序中扩展程序选项配置markdownload插件设置。</p>
+<p><img src="https://i0.hdslb.com/bfs/article/2b45f85d31b050823b7b5595e80aef10fabe1703.png@1256w_894h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload></p>
+<p>配置中需要更改的主要是两个地方：</p>
+<p>1、开启chrome markdownload插件与obsidian联动功能，配置网页剪切保存位置，这是核心，否则不能自动保存到obsidian中。</p>
+<p><img src="https://i0.hdslb.com/bfs/article/218db792a3e7b644cad53833f2c9f1e259a201cf.png@1256w_402h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload></p>
+<p>2、开启剪切模板，开启后会有一个固定格式，跟写代码时配置的代码文档格式一样。（我个人喜欢配上）</p>
+<p><img src="https://i0.hdslb.com/bfs/article/2fdf96490624ffbde9e02fd324ae507977020b44.png@1256w_296h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload></p>
+<p>其他的比如背景什么的就看个人喜好去调整下。</p>
+<p><strong>## 实施效果</strong></p>
+<p>**全网页剪切**：在要剪切的页面上右键-》markdownload插件-》send tab to obsidian</p>
+<p><img src="https://i0.hdslb.com/bfs/article/9664d263fda3f792c495434ab6da496df10e697a.png@1256w_1308h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload></p>
+<p>**部分文字剪切**:选中要剪切的文字，右键-》markdownload插件-》send text  selection to obsidian</p>
+<p><img src="https://i0.hdslb.com/bfs/article/c7040b64297097656d88a088b7cf1f611374267f.png@1256w_1062h_!web-article-pic.avif" srcset="/img/loading.gif" lazyload><br>{<br>  “backmatter”: “”,<br>  “bulletListMarker”: “-“,<br>  “codeBlockStyle”: “fenced”,<br>  “contextMenus”: true,<br>  “disallowedChars”: “[]#^”,<br>  “downloadImages”: true,<br>  “downloadMode”: “downloadsApi”,<br>  “emDelimiter”: “<em>“,<br>  “fence”: “&#96;&#96;&#96;”,<br>  “frontmatter”: “—\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords},网络搜寻]\nsource: {baseURI}\nauthor: {byline}\ntitle: {pageTitle}\n—\n\n# {pageTitle}\n\n&gt; ## Excerpt\n&gt; {excerpt}\n\n—“,<br>  “headingStyle”: “atx”,<br>  “hr”: “</em>__”,<br>  “imagePrefix”: “{pageTitle}&#x2F;“,<br>  “imageRefStyle”: “inlined”,<br>  “imageStyle”: “base64”,<br>  “includeTemplate”: true,<br>  “linkReferenceStyle”: “full”,<br>  “linkStyle”: “inlined”,<br>  “mdClipsFolder”: null,<br>  “obsidianFolder”: “使用教程”,<br>  “obsidianIntegration”: true,<br>  “obsidianVault”: “obsidian”,<br>  “saveAs”: false,<br>  “strongDelimiter”: “**”,<br>  “title”: “{pageTitle}”,<br>  “turndownEscape”: true<br>}</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/MARKDOWN/">#MARKDOWN</a>
+      
+        <a href="/tags/%E6%8F%92%E4%BB%B6%E4%B8%8B%E8%BD%BD/">#插件下载</a>
+      
+        <a href="/tags/%E6%8F%92%E4%BB%B6%E8%AE%BE%E7%BD%AE/">#插件设置</a>
+      
+        <a href="/tags/CHROME/">#CHROME</a>
+      
+        <a href="/tags/%E5%86%99%E4%BB%A3%E7%A0%81/">#写代码</a>
+      
+        <a href="/tags/%E4%B8%AA%E4%BA%BA%E5%96%9C%E5%A5%BD/">#个人喜好</a>
+      
+        <a href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/">#浏览器</a>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C%E6%90%9C%E5%AF%BB/">#网络搜寻</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/cd33d05d.html" title="chown和chmod区别">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">chown和chmod区别</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/d6131b35.html" title="Kafka两种集群详解和搭建教程">
+                        <span class="hidden-mobile">Kafka两种集群详解和搭建教程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

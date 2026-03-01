@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin\_42950079&#x2F;article&#x2F;details&#x2F;88813630 我们都知道web项目需要部署到tomcat服务器中运行 那么，我们又是如何通过tomcat来访问存放在本地磁盘中的图片呢？，通过tomcat访问本地图片，需要配置虚拟路径，下面介绍两种配置虚拟路径的方式： 1、使用 IDEA 设置 虚拟路径2、在 Tomcat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springmvc 的作用 上传图片立即显示">
+<meta property="og:url" content="https://fyyhub.github.io/article/3ba10fab.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="转载自：https:&#x2F;&#x2F;blog.csdn.net&#x2F;weixin\_42950079&#x2F;article&#x2F;details&#x2F;88813630 我们都知道web项目需要部署到tomcat服务器中运行 那么，我们又是如何通过tomcat来访问存放在本地磁盘中的图片呢？，通过tomcat访问本地图片，需要配置虚拟路径，下面介绍两种配置虚拟路径的方式： 1、使用 IDEA 设置 虚拟路径2、在 Tomcat">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702095151267-1116514114.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101240267-552918868.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101252412-224344527.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101324941-579734131.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101405666-1676849834.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101419382-1124377410.png">
+<meta property="og:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101445323-1411097593.png">
+<meta property="article:published_time" content="2023-12-20T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.273Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="Github">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702095151267-1116514114.png">
+  
+  
+  
+  <title>springmvc 的作用 上传图片立即显示 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="springmvc 的作用 上传图片立即显示"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-20 00:00" pubdate>
+          2023年12月20日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          12 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">springmvc 的作用 上传图片立即显示</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+
+<p>转载自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin/_42950079/article/details/88813630">https://blog.csdn.net/weixin\_42950079/article/details/88813630</a></p>
+<p>我们都知道web项目需要部署到tomcat服务器中运行</p>
+<p>那么，我们又是如何通过tomcat来访问存放在本地磁盘中的图片呢？，通过tomcat访问本地图片，需要配置虚拟路径，下面介绍两种配置虚拟路径的方式：</p>
+<p>1、使用 IDEA 设置 虚拟路径<br>2、在 Tomcat 中设置 虚拟路径<br>如果不配置虚拟路径，我们使用Spring MVC上传的图片就无法正常显示，我在学习使用Spring MVC上传图片时就遇到过这样的问题，图片上传成功了，但无法让图片在浏览器中显示</p>
+<h1 id="第一种：使用-IDEA-设置-虚拟路径"><a href="#第一种：使用-IDEA-设置-虚拟路径" class="headerlink" title="第一种：使用 IDEA 设置 虚拟路径"></a>第一种：使用 IDEA 设置 虚拟路径</h1><p>1、先创建一个Spring MVC项目，将项目部署到tomcat中</p>
+<p>2、 在Output directory目录下创建 image 文件夹，用来保存上传的图片，在编写文件上传代码时，就可以通过request.getServletContext().getRealPath(“&#x2F;image&#x2F;“); 获取到该目录，然后指定图片上传到该目录中</p>
+<p>request.getServletContext().getRealPath(“”); 方法用于获取Output directory目录的路径</p>
+<p>如果指定其它目录保存上传的图片，比如在WEB-INF目录下创建一个image文件夹来保存上传的图片，就不能通过String path&#x3D;request.getServletContext().getRealPath(“&#x2F;image&#x2F;“); 方法来获取该目录，它是用来获取Output directory目录的路径的</p>
+<p>而是通过String path&#x3D;”E:\ideaUI\javaworkspace\springmvcTest\web\WEB-INF\image”; 来指定图片保存目录</p>
+<p> <img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702095151267-1116514114.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101240267-552918868.png" srcset="/img/loading.gif" lazyload></p>
+<p>3、Run → Edit Configurations . . . → Deployment → + → External Source . . .</p>
+<p><img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101252412-224344527.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、选择保存上传图片的磁盘路径，并设置虚拟路径为&#x2F;img<br>   配置成功后，就可以通过 localhost：8080&#x2F;img&#x2F;图片名称全称 访问到图片</p>
+<p> <img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101324941-579734131.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="第二种：在-Tomcat-中设置-虚拟路径"><a href="#第二种：在-Tomcat-中设置-虚拟路径" class="headerlink" title="第二种：在 Tomcat 中设置 虚拟路径"></a>第二种：在 Tomcat 中设置 虚拟路径</h1><p>1、进入tomcat安装目录，找到conf文件夹下的server.xml文件</p>
+<p><img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101405666-1676849834.png" srcset="/img/loading.gif" lazyload></p>
+<p>2、在标签中添加 <Context path="/img" docBase="E:\\ideaUI\\javaworkspace\\springmvcTest\\out\\artifacts\\springmvcTest\_war\_exploded\\image" reloadable="true"/> 设置虚拟路径</p>
+<p>path&#x3D;”&#x2F;img”  → 是虚拟路径<br>docBase&#x3D;“E:\ideaUI\javaworkspace\springmvcTest\out\artifacts\springmvcTest_war_exploded\image”   → 是磁盘中保存图片的真实目录</p>
+<p><img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101419382-1124377410.png" srcset="/img/loading.gif" lazyload></p>
+<p>3、Run → Edit Configurations . . . → 勾选 Deploy applications configured in Tomcat instance</p>
+<p><img src="https://img2018.cnblogs.com/blog/1418529/201907/1418529-20190702101445323-1411097593.png" srcset="/img/loading.gif" lazyload></p>
+<h1 id="第三种-修改上传文件路径为Artifacts的输出目录。"><a href="#第三种-修改上传文件路径为Artifacts的输出目录。" class="headerlink" title="第三种 修改上传文件路径为Artifacts的输出目录。"></a>第三种 修改上传文件路径为Artifacts的输出目录。</h1><p>D:&#x2F;adopt-master&#x2F;target&#x2F;adopt&#x2F;static&#x2F;images&#x2F;animal&#x2F;</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Hexo/">#Hexo</a>
+      
+        <a href="/tags/Github/">#Github</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/4961b213.html" title="Kafka主题，分区，副本介绍">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kafka主题，分区，副本介绍</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/175c32e0.html" title="redis集群节点显示noaddr">
+                        <span class="hidden-mobile">redis集群节点显示noaddr</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,716 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="@ControllerAdvice 的介绍及三种用法(转载)   浅析@ControllerAdvice 首先，ControllerAdvice本质上是一个Component，因此也会被当成组件扫描，一视同仁，扫扫扫。   然后，我们来看一下此类的注释：  这个类是为那些声明了（@ExceptionHandler、@InitBinder 或 @ModelAttribute注解修饰的）方法的类而提供">
+<meta property="og:type" content="article">
+<meta property="og:title" content="@ControllerAdvice 的介绍及三种用法(转载)">
+<meta property="og:url" content="https://fyyhub.github.io/article/ce91021a.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="@ControllerAdvice 的介绍及三种用法(转载)   浅析@ControllerAdvice 首先，ControllerAdvice本质上是一个Component，因此也会被当成组件扫描，一视同仁，扫扫扫。   然后，我们来看一下此类的注释：  这个类是为那些声明了（@ExceptionHandler、@InitBinder 或 @ModelAttribute注解修饰的）方法的类而提供">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c0c5578f8dc645b9ac88025f56cd5f5f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/94d060b22a424217aa6497c462193315.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a09b3552dda24d3e9fb1287ac4a99472.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8197da8981a9408a8b398264b2f00683.png">
+<meta property="article:published_time" content="2024-04-03T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.271Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/c0c5578f8dc645b9ac88025f56cd5f5f.png">
+  
+  
+  
+  <title>@ControllerAdvice 的介绍及三种用法(转载) - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="@ControllerAdvice 的介绍及三种用法(转载)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-03 00:00" pubdate>
+          2024年4月3日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          74 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">@ControllerAdvice 的介绍及三种用法(转载)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="ControllerAdvice-的介绍及三种用法-转载"><a href="#ControllerAdvice-的介绍及三种用法-转载" class="headerlink" title="@ControllerAdvice 的介绍及三种用法(转载)"></a>@ControllerAdvice 的介绍及三种用法(转载)</h1><!-- toc -->
+
+
+<h2 id="浅析-ControllerAdvice"><a href="#浅析-ControllerAdvice" class="headerlink" title="浅析@ControllerAdvice"></a>浅析@<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=ControllerAdvice&spm=1001.2101.3001.7020">ControllerAdvice</a></h2><blockquote>
+<p>首先，ControllerAdvice本质上是一个Component，因此也会被当成组件扫描，一视同仁，扫扫扫。</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/c0c5578f8dc645b9ac88025f56cd5f5f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>然后，我们来看一下此类的注释：</p>
+<ul>
+<li><p>这个类是为那些声明了（@<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=ExceptionHandler&spm=1001.2101.3001.7020">ExceptionHandler</a>、@InitBinder 或 @ModelAttribute注解修饰的）方法的类而提供的专业化的@Component , 以供多个 Controller类所共享。</p>
+</li>
+<li><p>说白了，就是aop思想的一种实现，你告诉我需要拦截规则，我帮你把他们拦下来，具体你想做更细致的拦截筛选和拦截之后的处理，你自己通过@ExceptionHandler、@InitBinder 或 @<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=ModelAttribute&spm=1001.2101.3001.7020">ModelAttribute</a>这三个注解以及被其注解的方法来自定义。</p>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/94d060b22a424217aa6497c462193315.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><strong>初定义拦截规则：</strong></p>
+<p>ControllerAdvice 提供了多种指定Advice规则的定义方式，默认什么都不写，则是Advice所有Controller，当然你也可以通过下列的方式指定规则：</p>
+<ol>
+<li>比如对于 String[] value() default {} , 写成@ControllerAdvice(“org.my.pkg”) 或者 @ControllerAdvice(basePackages&#x3D;“org.my.pkg”), 则匹配org.my.pkg包及其子包下的所有Controller</li>
+<li>当然也可以用数组的形式指定，如：@ControllerAdvice(basePackages&#x3D;{“org.my.pkg”, “org.my.other.pkg”})</li>
+<li>也可以通过指定注解来匹配，比如我自定了一个 @CustomAnnotation 注解，我想匹配所有被这个注解修饰的 Controller, 可以这么写：@ControllerAdvice（annotations&#x3D;{CustomAnnotation.class})</li>
+</ol>
+<p>还有很多用法，这里就不全部罗列了。</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-keyword">@Target</span>(ElementType.TYPE)<br><span class="hljs-keyword">@Retention</span>(RetentionPolicy.RUNTIME)<br><span class="hljs-keyword">@Documented</span><br><span class="hljs-keyword">@Component</span><br>public <span class="hljs-keyword">@interface</span> ControllerAdvice &#123;<br><br>	<span class="hljs-keyword">@AliasFor</span>(<span class="hljs-string">&quot;basePackages&quot;</span>)<br>	String[] value() default &#123;&#125;;<br><br>	<span class="hljs-keyword">@AliasFor</span>(<span class="hljs-string">&quot;value&quot;</span>)<br>	String[] basePackages() default &#123;&#125;;<br><br>	Class&lt;?&gt;<span class="hljs-selector-attr">[]</span> <span class="hljs-built_in">basePackageClasses</span>() default &#123;&#125;;<br><br>	Class&lt;?&gt;<span class="hljs-selector-attr">[]</span> <span class="hljs-built_in">assignableTypes</span>() default &#123;&#125;;<br><br>	Class&lt;? extends Annotation&gt;<span class="hljs-selector-attr">[]</span> <span class="hljs-built_in">annotations</span>() default &#123;&#125;;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-处理全局异常"><a href="#1-处理全局异常" class="headerlink" title="1.处理全局异常"></a>1.处理全局异常</h3><blockquote>
+<p>@ControllerAdvice 配合 <code>@ExceptionHandler</code> 实现全局异常处理</p>
+</blockquote>
+<p><strong>用于在特定的处理器类、方法中处理异常的注解</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/a09b3552dda24d3e9fb1287ac4a99472.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li><p>接收<code>Throwable</code>类作为参数，我们知道Throwable是所有异常的父类，所以说，可以自行<strong>指定</strong>所有异常</p>
+</li>
+<li><p>比如在方法上加：<code>@ExceptionHandler(IllegalArgumentException.class)</code>，则表明此方法处理<code>IllegalArgumentException</code> 类型的异常，如果参数为空，将默认为方法参数列表中列出的<strong>任何</strong>异常（方法抛出什么异常都接得住）。</p>
+</li>
+</ul>
+<p>下面的例子：处理所有<code>IllegalArgumentException</code>异常，域中加入错误信息errorMessage 并返回错误页面error</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@ControllerAdvice</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GlobalExceptionHandler</span> &#123;<br>    <span class="hljs-meta">@ExceptionHandler(IllegalArgumentException.class)</span><br>    <span class="hljs-keyword">public</span> ModelAndView <span class="hljs-title function_">handleException</span><span class="hljs-params">(IllegalArgumentException e)</span>&#123;<br>        <span class="hljs-type">ModelAndView</span> <span class="hljs-variable">modelAndView</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ModelAndView</span>(<span class="hljs-string">&quot;error&quot;</span>);<br>        modelAndView.addObject(<span class="hljs-string">&quot;errorMessage&quot;</span>, <span class="hljs-string">&quot;参数不符合规范!&quot;</span>);<br>        <span class="hljs-keyword">return</span> modelAndView;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-预设全局数据"><a href="#2-预设全局数据" class="headerlink" title="2.预设全局数据"></a>2.预设全局数据</h3><p><code>@ControllerAdvice</code> 配合 <code>@ModelAttribute</code> 预设全局数据</p>
+<p>我们先来看看 <code>ModelAttribute</code>注解类的源码</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Annotation that binds a method parameter or method return value</span><br><span class="hljs-comment"> * to a named model attribute, exposed to a web view. Supported</span><br><span class="hljs-comment"> * for controller classes with &#123;@link RequestMapping @RequestMapping&#125;</span><br><span class="hljs-comment"> * methods.</span><br><span class="hljs-comment"> * 此注解用于绑定一个方法参数或者返回值到一个被命名的model属性中，暴露给web视图。支持在</span><br><span class="hljs-comment"> * 在Controller类中注有@RequestMapping的方法使用（这里有点拗口，不过结合下面的使用介绍</span><br><span class="hljs-comment"> * 你就会明白的)</span><br><span class="hljs-comment"> */</span><br><span class="hljs-variable">@Target</span>(&#123;ElementType.PARAMETER, ElementType.METHOD&#125;)<br><span class="hljs-variable">@Retention</span>(RetentionPolicy.RUNTIME)<br><span class="hljs-variable">@Documented</span><br>public <span class="hljs-variable">@interface</span> ModelAttribute &#123;<br><br>	<span class="hljs-variable">@AliasFor</span>(<span class="hljs-string">&quot;name&quot;</span>)<br>	String <span class="hljs-built_in">value</span>() default <span class="hljs-string">&quot;&quot;</span>;<br><br>	<span class="hljs-variable">@AliasFor</span>(<span class="hljs-string">&quot;value&quot;</span>)<br>	String <span class="hljs-built_in">name</span>() default <span class="hljs-string">&quot;&quot;</span>;<br><br>	<span class="hljs-selector-tag">boolean</span> <span class="hljs-selector-tag">binding</span>() <span class="hljs-selector-tag">default</span> <span class="hljs-selector-tag">true</span>;<br><br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>实际上这个注解的作用就是，允许你往 <code>Model</code> 中注入全局属性（可以供所有Controller中注有<code>@Request Mapping</code>的方法使用），<code>value</code> 和 <code>name</code> 用于指定属性的 key ，<code>binding</code> 表示是否绑定，默认为 true。</p>
+</blockquote>
+<p>具体使用方法如下：</p>
+<p><strong>全局参数绑定</strong></p>
+<ul>
+<li>方式一：</li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@ControllerAdvice</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyGlobalHandler</span> &#123;<br>    <span class="hljs-meta">@ModelAttribute</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">presetParam</span>(<span class="hljs-params">Model model</span>)&#123;<br>        model.<span class="hljs-title function_">addAttribute</span>(<span class="hljs-string">&quot;globalAttr&quot;</span>,<span class="hljs-string">&quot;this is a global attribute&quot;</span>);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这种方式比较灵活，需要什么自己加就行了，加多少属性自己控制</p>
+</blockquote>
+<ul>
+<li>方式二：</li>
+</ul>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs livescript">@ControllerAdvice<br>public <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyGlobalHandler</span> &#123;<br><br>    @ModelAttribute()<br>    public <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt; presetParam()&#123;<br>        <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt; <span class="hljs-keyword">map</span> = <span class="hljs-keyword">new</span> HashMap&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">String</span>&gt;();<br>        <span class="hljs-keyword">map</span>.put(<span class="hljs-string">&quot;key1&quot;</span>, <span class="hljs-string">&quot;value1&quot;</span>);<br>        <span class="hljs-keyword">map</span>.put(<span class="hljs-string">&quot;key2&quot;</span>, <span class="hljs-string">&quot;value2&quot;</span>);<br>        <span class="hljs-keyword">map</span>.put(<span class="hljs-string">&quot;key3&quot;</span>, <span class="hljs-string">&quot;value3&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">map</span>;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这种方式对于加单个属性比较方便。默认会把返回值（如上面的map）作为属性的value，而对于key有两种指定方式：</p>
+<ol>
+<li>当 <code>@ModelAttribute()</code> 不传任何参数的时候，默认会把返回值的字符串值作为key，如上例的 key 则是 ”map”（值得注意的是，不支持字符串的返回值作为key）。</li>
+<li>当 <code>@ModelAttribute(&quot;myMap&quot;)</code> 传参数的时候，则以参数值作为key，这里 key 则是 ”myMap“。</li>
+</ol>
+<p><strong>全局参数使用</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AdviceController</span> &#123;<br><br>    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">&quot;methodOne&quot;</span>)<br>    <span class="hljs-keyword">public</span> <span class="hljs-title class_">String</span> <span class="hljs-title function_">methodOne</span>(<span class="hljs-params">Model model</span>)&#123; <br>        <span class="hljs-title class_">Map</span>&lt;<span class="hljs-title class_">String</span>, <span class="hljs-title class_">Object</span>&gt; modelMap = model.<span class="hljs-title function_">asMap</span>();<br>        <span class="hljs-keyword">return</span> (<span class="hljs-title class_">String</span>)modelMap.<span class="hljs-title function_">get</span>(<span class="hljs-string">&quot;globalAttr&quot;</span>);<br>    &#125;<br><br>  <br>    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">&quot;methodTwo&quot;</span>)<br>    <span class="hljs-keyword">public</span> <span class="hljs-title class_">String</span> <span class="hljs-title function_">methodTwo</span>(<span class="hljs-params"><span class="hljs-meta">@ModelAttribute</span>(<span class="hljs-string">&quot;globalAttr&quot;</span>) <span class="hljs-built_in">String</span> globalAttr</span>)&#123;<br>        <span class="hljs-keyword">return</span> globalAttr;<br>    &#125;<br><br><br>    <span class="hljs-meta">@GetMapping</span>(<span class="hljs-string">&quot;methodThree&quot;</span>)<br>    <span class="hljs-keyword">public</span> <span class="hljs-title class_">String</span> <span class="hljs-title function_">methodThree</span>(<span class="hljs-params">ModelMap modelMap</span>) &#123;<br>        <span class="hljs-keyword">return</span> (<span class="hljs-title class_">String</span>) modelMap.<span class="hljs-title function_">get</span>(<span class="hljs-string">&quot;globalAttr&quot;</span>);<br>    &#125;<br>    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这三种方式大同小异，其实都是都是从Model 中存储属性的 Map里取数据。</p>
+<h3 id="3-请求参数预处理"><a href="#3-请求参数预处理" class="headerlink" title="3.请求参数预处理"></a>3.请求参数预处理</h3><blockquote>
+<p><code>@ControllerAdvice</code> 配合 <code>@InitBinder</code> 实现对请求参数的预处理</p>
+</blockquote>
+<p>再次之前我们先来了解一下@IniiBinder，先看一下源码，我会提取一些重要的注释进行浅析</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Annotation that identifies methods which initialize the</span><br><span class="hljs-comment"> * &#123;@link org.springframework.web.bind.WebDataBinder&#125; which</span><br><span class="hljs-comment"> * will be used for populating command and form object arguments</span><br><span class="hljs-comment"> * of annotated handler methods.</span><br><span class="hljs-comment"> * 粗略翻译：此注解用于标记那些 (初始化[用于组装命令和表单对象参数的]WebDataBinder)的方法。</span><br><span class="hljs-comment"> * 原谅我的英语水平，翻译起来太拗口了，从句太多就用‘()、[]’分割一下便于阅读</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * Init-binder methods must not have a return value; they are usually</span><br><span class="hljs-comment"> * declared as &#123;@code void&#125;.</span><br><span class="hljs-comment"> * 粗略翻译：初始化绑定的方法禁止有返回值，他们通常声明为 &#x27;void&#x27;</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * &lt;p&gt;Typical arguments are &#123;@link org.springframework.web.bind.WebDataBinder&#125;</span><br><span class="hljs-comment"> * in combination with &#123;@link org.springframework.web.context.request.WebRequest&#125;</span><br><span class="hljs-comment"> * or &#123;@link java.util.Locale&#125;, allowing to register context-specific editors.</span><br><span class="hljs-comment"> * 粗略翻译：典型的参数是`WebDataBinder`，结合`WebRequest`或`Locale`使用，允许注册特定于上下文的编辑器。</span><br><span class="hljs-comment"> * </span><br><span class="hljs-comment"> * 总结如下：</span><br><span class="hljs-comment"> *  1. @InitBinder 标识的方法的参数通常是 WebDataBinder。</span><br><span class="hljs-comment"> *  2. @InitBinder 标识的方法,可以对 WebDataBinder 进行初始化。WebDataBinder 是 DataBinder 的一个子类,用于完成由表单字段到 JavaBean 属性的绑定。</span><br><span class="hljs-comment"> *  3. @InitBinder 标识的方法不能有返回值,必须声明为void。</span><br><span class="hljs-comment"> */</span><br><span class="hljs-variable">@Target</span>(&#123;ElementType.METHOD&#125;)<br><span class="hljs-variable">@Retention</span>(RetentionPolicy.RUNTIME)<br><span class="hljs-variable">@Documented</span><br>public <span class="hljs-variable">@interface</span> InitBinder &#123;<br>	<span class="hljs-comment">/**</span><br><span class="hljs-comment">	 * The names of command/form attributes and/or request parameters</span><br><span class="hljs-comment">	 * that this init-binder method is supposed to apply to.</span><br><span class="hljs-comment">	 * &lt;p&gt;Default is to apply to all command/form attributes and all request parameters</span><br><span class="hljs-comment">	 * processed by the annotated handler class. Specifying model attribute names or</span><br><span class="hljs-comment">	 * request parameter names here restricts the init-binder method to those specific</span><br><span class="hljs-comment">	 * attributes/parameters, with different init-binder methods typically applying to</span><br><span class="hljs-comment">	 * different groups of attributes or parameters.</span><br><span class="hljs-comment">	 * 粗略翻译：此init-binder方法应该应用于的命令/表单属性和/或请求参数的名称。默认是应用于所有命	   		* 令/表单属性和所有由带注释的处理类处理的请求参数。这里指定模型属性名或请求参数名将init-binder		 * 方法限制为那些特定的属性/参数，不同的init-binder方法通常应用于不同的属性或参数组。</span><br><span class="hljs-comment">	 * 我至己都理解不太理解这说的是啥呀，我们还是看例子吧</span><br><span class="hljs-comment">	 */</span><br>	<span class="hljs-selector-tag">String</span><span class="hljs-selector-attr">[]</span> <span class="hljs-selector-tag">value</span>() <span class="hljs-selector-tag">default</span> &#123;&#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们来看看具体用途，其实这些用途在 Controller里也可以定义，但是作用范围就只限当前Controller，因此下面的例子我们将结合 ControllerAdvice 作全局处理。</p>
+<ul>
+<li>参数处理</li>
+</ul>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs typescript"><span class="hljs-meta">@ControllerAdvice</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyGlobalHandler</span> &#123;<br><br>    <span class="hljs-meta">@InitBinder</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-built_in">void</span> <span class="hljs-title function_">processParam</span>(<span class="hljs-params">WebDataBinder dataBinder</span>)&#123;<br><br>        <span class="hljs-comment">/*</span><br><span class="hljs-comment">         * 创建一个字符串微调编辑器</span><br><span class="hljs-comment">         * 参数&#123;boolean emptyAsNull&#125;: 是否把空字符串(&quot;&quot;)视为 null</span><br><span class="hljs-comment">         */</span><br>        <span class="hljs-title class_">StringTrimmerEditor</span> trimmerEditor = <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringTrimmerEditor</span>(<span class="hljs-literal">true</span>);<br><br>        <span class="hljs-comment">/*</span><br><span class="hljs-comment">         * 注册自定义编辑器</span><br><span class="hljs-comment">         * 接受两个参数&#123;Class&lt;?&gt; requiredType, PropertyEditor propertyEditor&#125;</span><br><span class="hljs-comment">         * requiredType：所需处理的类型</span><br><span class="hljs-comment">         * propertyEditor：属性编辑器，StringTrimmerEditor就是 propertyEditor的一个子类</span><br><span class="hljs-comment">         */</span><br>        dataBinder.<span class="hljs-title function_">registerCustomEditor</span>(<span class="hljs-title class_">String</span>.<span class="hljs-property">class</span>, trimmerEditor);<br>        <br>        <span class="hljs-comment">//同上，这里就不再一步一步讲解了</span><br>        binder.<span class="hljs-title function_">registerCustomEditor</span>(<span class="hljs-title class_">Date</span>.<span class="hljs-property">class</span>,<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">CustomDateEditor</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">SimpleDateFormat</span>(<span class="hljs-string">&quot;yyyy-MM-dd&quot;</span>), <span class="hljs-literal">false</span>));<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>这样之后呢，就可以实现全局的实现对 Controller 中RequestMapping标识的方法中的所有 String 和Date类型的参数都会被作相应的处理。</p>
+<blockquote>
+<p>Controller:</p>
+</blockquote>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs livescript">@RestController<br>public <span class="hljs-keyword">class</span> <span class="hljs-title class_">BinderTestController</span> &#123;<br><br>    @GetMapping(<span class="hljs-string">&quot;processParam&quot;</span>)<br>    public <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Object</span>&gt; test(<span class="hljs-built_in">String</span> str, <span class="hljs-built_in">Date</span> date) throws Exception &#123;<br>        <span class="hljs-built_in">Map</span>&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Object</span>&gt; <span class="hljs-keyword">map</span> = <span class="hljs-keyword">new</span> HashMap&lt;<span class="hljs-built_in">String</span>, <span class="hljs-built_in">Object</span>&gt;();<br>        <span class="hljs-keyword">map</span>.put(<span class="hljs-string">&quot;str&quot;</span>, str);<br>        <span class="hljs-keyword">map</span>.put(<span class="hljs-string">&quot;data&quot;</span>, date);<br>        <span class="hljs-keyword">return</span>  <span class="hljs-keyword">map</span>;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>测试结果：</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/8197da8981a9408a8b398264b2f00683.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>我们可以看出，str 和 date 这两个参数在进入 Controller 的test的方法之前已经被处理了，str 被去掉了两边的空格(%20 在Http url 中是空格的意思)，String类型的 1997-1-10被转换成了Date类型。</p>
+<ul>
+<li>参数绑定</li>
+</ul>
+<p>参数绑定可以解决特定问题，那么我们先来看看我们面临的问题</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs kotlin"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> &#123;<br><br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> Integer age;<br>    <span class="hljs-comment">// omitted getters and setters.</span><br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Book</span> &#123;<br><br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-built_in">Double</span> price;<br>    <span class="hljs-comment">// omitted getters and setters.</span><br>&#125;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BinderTestController</span> &#123;<br><br>    <span class="hljs-meta">@PostMapping(<span class="hljs-string">&quot;bindParam&quot;</span>)</span><br>    <span class="hljs-keyword">public</span> void test(Person person, Book book) throws Exception &#123;<br>        System.<span class="hljs-keyword">out</span>.println(person);<br>        System.<span class="hljs-keyword">out</span>.println(book);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>我们会发现 Person类和 Book 类都有 name属性，那么这个时候就会出先问题，它可没有那么只能区分哪个name是哪个类的。因此 @InitBinder就派上用场了：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs aspectj"><span class="hljs-meta">@ControllerAdvice</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyGlobalHandler</span> </span>&#123;<br><br>	<span class="hljs-comment">/*</span><br><span class="hljs-comment">     * @InitBinder(&quot;person&quot;) 对应找到@RequstMapping标识的方法参数中</span><br><span class="hljs-comment">     * 找参数名为person的参数。</span><br><span class="hljs-comment">     * 在进行参数绑定的时候，以‘p.’开头的都绑定到名为person的参数中。</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@InitBinder</span>(<span class="hljs-string">&quot;person&quot;</span>)<br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">BindPerson</span><span class="hljs-params">(WebDataBinder dataBinder)</span></span>&#123;<br>        dataBinder.setFieldDefaultPrefix(<span class="hljs-string">&quot;p.&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@InitBinder</span>(<span class="hljs-string">&quot;book&quot;</span>)<br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">BindBook</span><span class="hljs-params">(WebDataBinder dataBinder)</span></span>&#123;<br>        dataBinder.setFieldDefaultPrefix(<span class="hljs-string">&quot;b.&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因此，传入的同名信息就能对应绑定到相应的实体类中：</p>
+<p>p.name -&gt; Person.name b.name -&gt; Book.name</p>
+<p>还有一点注意的是如果 @InitBinder(“value”) 中的 value 值和 Controller 中 @RequestMapping() 标识的方法的参数名不匹配，则就会产生绑定失败的后果,如：</p>
+<p>@InitBinder(“p”)、@InitBinder(“b”)</p>
+<p>public void test(Person person, Book book)</p>
+<p>上述情况就会出现绑定失败，有两种解决办法</p>
+<p>第一种：统一名称，要么全叫p，要么全叫person，只要相同就行。</p>
+<p>第二种：方法参数加 @ModelAttribute，有点类似@RequestParam</p>
+<p>@InitBinder(“p”)、@InitBinder(“b”)</p>
+<p>public void test(@ModelAttribute(“p”) Person person, @ModelAttribute(“b”) Book book)</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Spring/">#Spring</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/9148af35.html" title="try-with-resources使用指南">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">try-with-resources使用指南</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/3a6476bb.html" title="Spring中的spring.factories文件用法(Spring如何加载第三方Bean)">
+                        <span class="hidden-mobile">Spring中的spring.factories文件用法(Spring如何加载第三方Bean)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

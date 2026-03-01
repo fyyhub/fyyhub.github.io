@@ -1,0 +1,752 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="redis集群操作123456789101112131415161718192021222324252627282930313233343536373839&#x2F;&#x2F;集群(cluster)  　　CLUSTER INFO 打印集群的信息  　　CLUSTER NODES 列出集群当前已知的所有节点（node），以及这些节点的相关信息。   　　&#x2F;&#x2F;节点(node)  　　CLUSTER MEET &amp;lt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis集群操作命令">
+<meta property="og:url" content="https://fyyhub.github.io/article/27010637.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="redis集群操作123456789101112131415161718192021222324252627282930313233343536373839&#x2F;&#x2F;集群(cluster)  　　CLUSTER INFO 打印集群的信息  　　CLUSTER NODES 列出集群当前已知的所有节点（node），以及这些节点的相关信息。   　　&#x2F;&#x2F;节点(node)  　　CLUSTER MEET &amp;lt">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-11-01T14:08:46.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.276Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>redis集群操作命令 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="redis集群操作命令"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-01 14:08" pubdate>
+          2022年11月1日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          110 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">redis集群操作命令</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="redis集群操作"><a href="#redis集群操作" class="headerlink" title="redis集群操作"></a>redis集群操作</h2><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs objectivec"><span class="hljs-comment">//集群(cluster)  </span><br><br>　　<span class="hljs-built_in">CLUSTER</span> INFO 打印集群的信息  <br><br>　　<span class="hljs-built_in">CLUSTER</span> NODES 列出集群当前已知的所有节点（node），以及这些节点的相关信息。   <br><br>　　<span class="hljs-comment">//节点(node)  </span><br><br>　　<span class="hljs-built_in">CLUSTER</span> MEET &lt;ip&gt; &lt;port&gt; 将 ip 和 port 所指定的节点添加到集群当中，让它成为集群的一份子。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> FORGET &lt;node_id&gt; 从集群中移除 node_id 指定的节点。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> REPLICATE &lt;node_id&gt; 将当前节点设置为 node_id 指定的节点的从节点。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> SAVECONFIG 将节点的配置文件保存到硬盘里面。   <br><br>　　<span class="hljs-comment">//槽(slot)  </span><br><br>　　<span class="hljs-built_in">CLUSTER</span> ADDSLOTS &lt;slot&gt; [slot ...] 将一个或多个槽（slot）指派（<span class="hljs-keyword">assign</span>）给当前节点。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> DELSLOTS &lt;slot&gt; [slot ...] 移除一个或多个槽对当前节点的指派。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> FLUSHSLOTS 移除指派给当前节点的所有槽，让当前节点变成一个没有指派任何槽的节点。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> SETSLOT &lt;slot&gt; NODE &lt;node_id&gt; 将槽 slot 指派给 node_id 指定的节点，如果槽已经指派给另一个节点，那么先让另一个节点删除该槽&gt;，然后再进行指派。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> SETSLOT &lt;slot&gt; MIGRATING &lt;node_id&gt; 将本节点的槽 slot 迁移到 node_id 指定的节点中。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> SETSLOT &lt;slot&gt; IMPORTING &lt;node_id&gt; 从 node_id 指定的节点中导入槽 slot 到本节点。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> SETSLOT &lt;slot&gt; STABLE 取消对槽 slot 的导入（import）或者迁移（migrate）。   <br><br>　　<span class="hljs-comment">//键 (key)  </span><br><br>　　<span class="hljs-built_in">CLUSTER</span> KEYSLOT &lt;key&gt; 计算键 key 应该被放置在哪个槽上。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> COUNTKEYSINSLOT &lt;slot&gt; 返回槽 slot 目前包含的键值对数量。  <br><br>　　<span class="hljs-built_in">CLUSTER</span> GETKEYSINSLOT &lt;slot&gt; &lt;count&gt; 返回 count 个 slot 槽中的键。  <br></code></pre></td></tr></table></figure>
+
+<p> <strong>Redis增加删除（伸缩）节点操作步骤.</strong></p>
+<blockquote>
+<p><strong><code>说明：</code></strong></p>
+<ol>
+<li>由于是练习，所以设置的是同一台服务器多个redis实例来操作的redis集群。所以下面的步骤是基于这个来做的。如果是不同的服务器步骤稍微有一点的区别。</li>
+<li>Redis版本是6.2.6版本</li>
+<li>如果有密码，必须保证所有实例的密码一致。</li>
+<li>事先准备好了3主3从6个redis实例。</li>
+</ol>
+</blockquote>
+<!--toc-->
+<h2 id="一、-增加节点"><a href="#一、-增加节点" class="headerlink" title="一、 增加节点"></a>一、 增加节点</h2><p><strong>主要分两种情况</strong></p>
+<ol>
+<li>增加节点是主节点</li>
+<li>增加节点是从节点</li>
+</ol>
+<h3 id="1、增加节点是主节点"><a href="#1、增加节点是主节点" class="headerlink" title="1、增加节点是主节点"></a>1、增加节点是主节点</h3><p><strong>需求：增加7004主节点，如果需求需要包含某个值或者某些值一并移动到新节点去，那么就需要找到移动的值的最大散列插槽的值。步骤如下：</strong></p>
+<ol>
+<li><strong>首先创建（复制）一个redis.conf文件。</strong>（我的是放在一个文件夹下面的，所以就直接复制文件夹了）</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cp</span> ./redis7001 -r  ./redis7004<br><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>参数说明：</code></strong></p>
+<ul>
+<li><code>cp:</code>复制命令。</li>
+<li><code>-r:</code>递归复制整个文件夹。忽略redis7004这个这个目录是否存在，没有就创建一个新的文件夹（目录）。</li>
+</ul>
+<ol start="2">
+<li><strong>修改复制的文件端口号，日志文件地址名字，还有RDB文件名（万一后期自动选举成主节点了呢）等必要的信息。</strong></li>
+</ol>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gradle">#全局搜索文件.<span class="hljs-regexp">/redis7004/</span>conf/redis.conf的所有<span class="hljs-number">7001</span>改成<span class="hljs-number">7004</span>。<br>sed -i s<span class="hljs-regexp">/7001/</span><span class="hljs-number">7004</span><span class="hljs-regexp">/g ./</span>redis7004<span class="hljs-regexp">/conf/</span>redis.conf <br><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>启动服务。</strong></li>
+</ol>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">redis-server <span class="hljs-regexp">/www/</span>server<span class="hljs-regexp">/redis/</span>redis7004<span class="hljs-regexp">/conf/</span>redis.conf <br><br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>将7004节点添加到我们的集群节点中。</strong></li>
+</ol>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-comment">#1.命令：old_ip只要是集群中的任意一个ip即可</span><br>redis-cli -a [password] --cluster<span class="hljs-built_in"> add-node </span>[new_ip] [old_ip]<br><span class="hljs-comment">#2.例子</span><br>redis-cli -a 123456 --cluster<span class="hljs-built_in"> add-node </span>127.0.0.1:7004 127.0.0.1:7001<br><br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><strong>查看是否添加到集群中成功。</strong></li>
+</ol>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-id">#1</span>.命令<br>redis-cli -<span class="hljs-selector-tag">a</span> <span class="hljs-selector-attr">[password]</span> -<span class="hljs-selector-tag">p</span> <span class="hljs-selector-attr">[ip]</span> cluster nodes<br>#查看集群的命令<br>redis-cli <span class="hljs-attr">--cluster</span> help<br><span class="hljs-selector-id">#2</span>.例子<br>redis-cli -<span class="hljs-selector-tag">a</span> <span class="hljs-number">123456</span> -<span class="hljs-selector-tag">p</span> <span class="hljs-number">7004</span> cluster nodes<br><br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li><strong>分配散列槽</strong></li>
+</ol>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs crmsh"><span class="hljs-comment">#1.命令</span><br>redis-cli -a [password] --cluster reshard [new_ip]<br><span class="hljs-comment">#2.例子</span><br>redis-cli -a <span class="hljs-number">123456</span> --cluster reshard <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span><br>[root@T98899999 redis]<span class="hljs-comment"># redis-cli -a 123456 --cluster reshard 127.0.0.1:7004</span><br>Warning: Using a password with &#x27;-a&#x27; <span class="hljs-keyword">or</span> &#x27;-u&#x27; option on the command line interface may not be safe.<br>&gt;&gt;&gt; Performing Cluster Check (using <span class="hljs-keyword">node</span> <span class="hljs-title">127</span>.<span class="hljs-number">0.0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004</span>)<br>M: <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-keyword">master</span><br><span class="hljs-title">S</span>: c836695daad38bcea59eb71dece7f860eab5f15e <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8003</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-literal">slave</span><br>   replicates <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06<br>S: <span class="hljs-number">633546</span>d3d75199e202d66ac56bca7e4c387bb453 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8002</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-literal">slave</span><br>   replicates <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br>M: <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span><br>   slots:[<span class="hljs-number">0</span>-<span class="hljs-number">5460</span>] (<span class="hljs-number">5461</span> slots) <span class="hljs-keyword">master</span><br>   <span class="hljs-title">1</span> additional replica(s)<br>M: <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7002</span><br>   slots:[<span class="hljs-number">5461</span>-<span class="hljs-number">10922</span>] (<span class="hljs-number">5462</span> slots) <span class="hljs-keyword">master</span><br>   <span class="hljs-title">1</span> additional replica(s)<br>S: e236e0ec685118abc67da92ad67c2db4b3f1abc6 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8001</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-literal">slave</span><br>   replicates <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25<br>M: <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7003</span><br>   slots:[<span class="hljs-number">10923</span>-<span class="hljs-number">16383</span>] (<span class="hljs-number">5461</span> slots) <span class="hljs-keyword">master</span><br>   <span class="hljs-title">1</span> additional replica(s)<br>[OK] All nodes agree about slots configuration.<br>&gt;&gt;&gt; Check for open slots...<br>&gt;&gt;&gt; Check slots coverage...<br>[OK] All <span class="hljs-number">16384</span> slots covered.<br>How many slots do you want to move (from <span class="hljs-number">1</span> to <span class="hljs-number">16384</span>)? <span class="hljs-number">100</span><br>What is the receiving <span class="hljs-keyword">node</span> <span class="hljs-title">ID</span>? <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7<br>Please enter all the source <span class="hljs-keyword">node</span> <span class="hljs-title">IDs</span>.<br>  <span class="hljs-keyword">Type</span> &#x27;all&#x27; to use all the nodes as source nodes for the hash slots.<br>  <span class="hljs-keyword">Type</span> &#x27;done&#x27; once you entered all the source nodes IDs.<br>Source <span class="hljs-keyword">node</span> <span class="hljs-title">#1</span>: <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br>Source <span class="hljs-keyword">node</span> <span class="hljs-title">#2</span>: done<br>Ready to move <span class="hljs-number">100</span> slots.<br>  Source nodes:<br>    M: <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span><br>       slots:[<span class="hljs-number">0</span>-<span class="hljs-number">5460</span>] (<span class="hljs-number">5461</span> slots) <span class="hljs-keyword">master</span><br>       <span class="hljs-title">1</span> additional replica(s)<br>  Destination <span class="hljs-keyword">node</span><span class="hljs-title">:</span><br><span class="hljs-title">    M</span>: <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span><br>       slots: (<span class="hljs-number">0</span> slots) <span class="hljs-keyword">master</span><br>  <span class="hljs-title">Resharding</span> plan:<br>    Moving slot <span class="hljs-number">0</span> from <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br>    Moving slot <span class="hljs-number">1</span> from <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br>    Moving slot <span class="hljs-number">2</span> from <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br>		.....<br>Do you want to proceed with the proposed reshard plan (yes/no)? yes<br><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>说明下执行命令redis-cli -a 123456 --cluster reshard 127.0.0.1:7004时出现的询问：</code></strong></p>
+<ul>
+<li><code>How many slots do you want to move (from 1 to 16384)?:</code>表示需要移动槽的数量。填写自己的需要即可。</li>
+<li><code>What is the receiving node ID?：</code>表示：那个id来接收它。即新的7004的id。</li>
+<li><code>Source node #1:</code>从那个节点id上移动散列插槽。填写移动的7001的id。当然如果需要平均节点插槽，那么每个主节点的id都写上或者写all，然后需要移动的节点数量处理主节点数。</li>
+<li><code>Source node #2:</code>最后时填写done结束。</li>
+<li><code>Do you want to proceed with the proposed reshard plan (yes/no)?：</code>确定要移动这些槽的计划吗？输入yes或者no。</li>
+</ul>
+<blockquote>
+<p><strong>补充说明：</strong><br>如果需要包含某个值移动到新的节点（7004）上，那么就需要查询到移动的值的散列插槽值是多少。</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">redis-cli -a <span class="hljs-number">123456</span>-c -p <span class="hljs-number">7004</span><br><span class="hljs-built_in">Warning</span>: <span class="hljs-keyword">Using</span> a <span class="hljs-keyword">password</span> <span class="hljs-keyword">with</span> <span class="hljs-string">&#x27;-a&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;-u&#x27;</span> <span class="hljs-keyword">option</span> <span class="hljs-keyword">on</span> the command <span class="hljs-type">line</span> interface may <span class="hljs-keyword">not</span> be safe.<br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">7004</span>&gt; <span class="hljs-keyword">get</span> num<br> Redirected <span class="hljs-keyword">to</span> slot [<span class="hljs-number">2765</span>] located at <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">7001</span><br> &quot;10&quot;<br><br></code></pre></td></tr></table></figure>
+
+<p>可以看到num的slot槽是2765。</p>
+</blockquote>
+<ol start="7">
+<li><strong>查看是否添加成功。</strong></li>
+</ol>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">redis</span>-cli -a <span class="hljs-number">123456</span> -p <span class="hljs-number">7004</span> cluster nodes<br><span class="hljs-comment">#结果，可以发现7004上有0-99共100个散列插槽</span><br> <span class="hljs-attribute">redis</span>-cli -a <span class="hljs-number">123456</span> -p <span class="hljs-number">7004</span> cluster nodes<br><span class="hljs-attribute">Warning</span>: Using a password with &#x27;-a&#x27; or &#x27;-u&#x27; option <span class="hljs-literal">on</span> the command line interface may not be safe.<br><span class="hljs-attribute">c836695daad38bcea59eb71dece7f860eab5f15e</span> <span class="hljs-number">127.0.0.1:8003</span>@<span class="hljs-number">18003</span> slave <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">0</span> <span class="hljs-number">1656342598000</span> <span class="hljs-number">2</span> connected<br><span class="hljs-attribute">11c3459ccdb510973ed5e61a755aaecc923405f7</span> <span class="hljs-number">127.0.0.1:7004</span>@<span class="hljs-number">17004</span> myself,master - <span class="hljs-number">0</span> <span class="hljs-number">1656342595000</span> <span class="hljs-number">9</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">99</span><br><span class="hljs-attribute">633546d3d75199e202d66ac56bca7e4c387bb453</span> <span class="hljs-number">127.0.0.1:8002</span>@<span class="hljs-number">18002</span> slave <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818 <span class="hljs-number">0</span> <span class="hljs-number">1656342597000</span> <span class="hljs-number">8</span> connected<br><span class="hljs-attribute">145b99ca42e4ddf2ad7fc43bdbc410ed0729e818</span> <span class="hljs-number">127.0.0.1:7001</span>@<span class="hljs-number">17001</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1656342596000</span> <span class="hljs-number">8</span> connected <span class="hljs-number">100</span>-<span class="hljs-number">5460</span><br><span class="hljs-attribute">8140ca0e986ec863881b6dede6f7555d04fe5c06</span> <span class="hljs-number">127.0.0.1:7002</span>@<span class="hljs-number">17002</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1656342598804</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461</span>-<span class="hljs-number">10922</span><br><span class="hljs-attribute">e236e0ec685118abc67da92ad67c2db4b3f1abc6</span> <span class="hljs-number">127.0.0.1:8001</span>@<span class="hljs-number">18001</span> slave <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">0</span> <span class="hljs-number">1656342597801</span> <span class="hljs-number">3</span> connected<br><span class="hljs-attribute">4efa79ebad2f410049ab59edf695d6be63ed0a25</span> <span class="hljs-number">127.0.0.1:7003</span>@<span class="hljs-number">17003</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1656342595777</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923</span>-<span class="hljs-number">16383</span><br><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="2、增加slave节点"><a href="#2、增加slave节点" class="headerlink" title="2、增加slave节点"></a>2、增加slave节点</h3><p><strong>需求想要在master7001上增加7004子节点，步骤如下（前面的主节点前3个步骤与情况1一样的）：</strong></p>
+<ol>
+<li><strong>首先创建（复制）一个redis.conf文件。</strong>（我的是放在一个文件夹下面的，所以就直接复制文件夹了）</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cp</span> ./redis7001 -r  ./redis7004<br><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>参数说明：</code></strong></p>
+<ul>
+<li><code>cp:</code>复制命令。</li>
+<li><code>-r:</code>递归复制整个文件夹。忽略redis7004这个这个目录是否存在，没有就创建一个新的文件夹（目录）。</li>
+</ul>
+<ol start="2">
+<li><strong>修改复制的文件端口号，日志文件地址名字，还有RDB文件名（万一后期自动选举成主节点了呢）等必要的信息。</strong></li>
+</ol>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gradle">#全局搜索文件.<span class="hljs-regexp">/redis7004/</span>conf/redis.conf的所有<span class="hljs-number">7001</span>改成<span class="hljs-number">7004</span>。<br>sed -i s<span class="hljs-regexp">/7001/</span><span class="hljs-number">7004</span><span class="hljs-regexp">/g ./</span>redis7004<span class="hljs-regexp">/conf/</span>redis.conf <br><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>启动服务。</strong></li>
+</ol>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">redis-server <span class="hljs-regexp">/www/</span>server<span class="hljs-regexp">/redis/</span>redis7004<span class="hljs-regexp">/conf/</span>redis.conf <br><br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>添加到集群中设置为从节点</li>
+</ol>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs smali"><span class="hljs-comment">#1,命令</span><br>redis-cli -a [password] --cluster<span class="hljs-built_in"> add-node </span>[old_host:old_port] -a [password] --cluster-slave [old_id]<br><span class="hljs-comment">#2.最快捷的方式（当然你首先要查看主节点的id）</span><br>redis-cli -a 123456 --cluster<span class="hljs-built_in"> add-node </span>127.0.0.1:7004 127.0.0.1:7001 -a 123456 --cluster-slave 145b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>参数说明：</code></strong></p>
+<ul>
+<li><code>-a 123456 :</code> 如果redis有密码则需要加这个命令</li>
+<li><code>127.0.0.1:7004：</code>新节点host+port</li>
+<li><code>127.0.0.1:7001：</code>已经存在集群的任意host+端口</li>
+<li><code>--cluster-slave：</code>表示新的节点是一个从节点，如果后面没有跟ID则随机分配到一个master下。</li>
+<li><code>145b99ca42e4ddf2ad7fc43bdbc410ed0729e818</code>：指定master的ID</li>
+</ul>
+<ol start="5">
+<li><strong>查看是否添加成功</strong></li>
+</ol>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@T<span class="hljs-number">98899999</span> ~]# redis-cli -a <span class="hljs-number">123456</span> -p  <span class="hljs-number">7001</span> cluster nodes<br>Warning: Using a password with &#x27;-a&#x27; or &#x27;-u&#x27; option on the command line interface may not be safe.<br><span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed<span class="hljs-number">0a25 127.0</span>.<span class="hljs-number">0.1:7003</span>@<span class="hljs-number">17003</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1654181965000</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923-16383</span><br><span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc<span class="hljs-number">923405f7</span> `<span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7004@17004</span> slave` `<span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed<span class="hljs-number">0729e818</span>` <span class="hljs-number">0</span> <span class="hljs-number">1654181966807</span> <span class="hljs-number">8</span> connected<br><span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe<span class="hljs-number">5c06 127.0</span>.<span class="hljs-number">0.1:7002</span>@<span class="hljs-number">17002</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1654181968816</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461-10922</span><br>e236e0ec685118abc67da92ad67c2db4b3f1abc<span class="hljs-number">6 127.0.0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">8001@18001</span> slave <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">0</span> <span class="hljs-number">1654181965801</span> <span class="hljs-number">3</span> connected<br>c836695daad38bcea59eb71dece7f860eab5f15e <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">8003@18003</span> slave <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">0</span> <span class="hljs-number">1654181967000</span> <span class="hljs-number">2</span> connected<br>`<span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed<span class="hljs-number">0729e818</span>` <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7001@17001</span> myself,master - <span class="hljs-number">0</span> <span class="hljs-number">1654181964000</span> <span class="hljs-number">8</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">5460</span><br><span class="hljs-number">633546d</span>3d75199e202d66ac56bca7e4c387bb<span class="hljs-number">453 127.0</span>.<span class="hljs-number">0.1:8002</span>@<span class="hljs-number">18002</span> slave <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed<span class="hljs-number">0729e818</span> <span class="hljs-number">0</span> <span class="hljs-number">1654181967812</span> <span class="hljs-number">8</span> connected<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="二、删除节点"><a href="#二、删除节点" class="headerlink" title="二、删除节点"></a>二、删除节点</h2><p><strong>主要分两种情况</strong></p>
+<ol>
+<li>删除节点是主节点</li>
+<li>删除节点是从节</li>
+</ol>
+<h3 id="1、删除主节点7004"><a href="#1、删除主节点7004" class="headerlink" title="1、删除主节点7004"></a>1、删除主节点7004</h3><p><strong><code>因为主节点是分配了slot槽的，所以需要把删除节点的solt槽移动到其他master节点中去，否则数据会丢失。</code></strong></p>
+<p><strong>需求想要删除7004节点，步骤如下：</strong></p>
+<ul>
+<li><strong>数据迁移到其他主节点中 （逻辑和添加节点分配散列槽一样）</strong></li>
+</ul>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs crmsh"><span class="hljs-comment">#1.查看集群节点信息 -a password 如果没有密码就不需要这个命令</span><br>redis-cli -a <span class="hljs-number">123456</span> -p <span class="hljs-number">7004</span> cluster nodes<br>Warning: Using a password with &#x27;-a&#x27; <span class="hljs-keyword">or</span> &#x27;-u&#x27; option on the command line interface may not be safe.<br>e236e0ec685118abc67da92ad67c2db4b3f1abc6 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8001</span>@<span class="hljs-number">18001</span> <span class="hljs-literal">slave</span> <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">0</span> <span class="hljs-number">1654091452576</span> <span class="hljs-number">3</span> connected<br>c836695daad38bcea59eb71dece7f860eab5f15e <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8003</span>@<span class="hljs-number">18003</span> <span class="hljs-literal">slave</span> <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">0</span> <span class="hljs-number">1654091452000</span> <span class="hljs-number">2</span> connected<br><span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7003</span>@<span class="hljs-number">17003</span> <span class="hljs-keyword">master</span> <span class="hljs-title">- 0</span> <span class="hljs-number">1654091453593</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923</span>-<span class="hljs-number">16383</span><br><span class="hljs-number">633546</span>d3d75199e202d66ac56bca7e4c387bb453 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8002</span>@<span class="hljs-number">18002</span> <span class="hljs-literal">slave</span> <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818 <span class="hljs-number">0</span> <span class="hljs-number">1654091452000</span> <span class="hljs-number">1</span> connected<br><span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span>@<span class="hljs-number">17004</span> myself,<span class="hljs-keyword">master</span> <span class="hljs-title">- 0</span> <span class="hljs-number">1654091451000</span> <span class="hljs-number">7</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">2999</span><br><span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7002</span>@<span class="hljs-number">17002</span> <span class="hljs-keyword">master</span> <span class="hljs-title">- 0</span> <span class="hljs-number">1654091453000</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461</span>-<span class="hljs-number">10922</span><br><span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span>@<span class="hljs-number">17001</span> <span class="hljs-keyword">master</span> <span class="hljs-title">- 0</span> <span class="hljs-number">1654091454597</span> <span class="hljs-number">1</span> connected <span class="hljs-number">3000</span>-<span class="hljs-number">5460</span><br><span class="hljs-comment">#2.移动slot槽:需要注意的是id顺序不要搞错了 </span><br><span class="hljs-comment">#2.1 执行命令：redis-cli -a 123456 --cluster reshard 127.0.0.1:7004</span><br><span class="hljs-comment">#2.2 会出现如下的内容：能看到你要移除节点的slots槽</span><br>redis-cli -a <span class="hljs-number">123456</span> --cluster reshard <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span><br>Warning: Using a <span class="hljs-number">123456</span> with &#x27;-a&#x27; <span class="hljs-keyword">or</span> &#x27;-u&#x27; option on the command line interface may not be safe.<br>&gt;&gt;&gt; Performing Cluster Check (using <span class="hljs-keyword">node</span> <span class="hljs-title">127</span>.<span class="hljs-number">0.0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004</span>)<br>M: <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span><br>   slots:[<span class="hljs-number">0</span>-<span class="hljs-number">2999</span>] (<span class="hljs-number">3000</span> slots) <span class="hljs-keyword">master</span><br>   <span class="hljs-title">1</span> additional replica(s)<br>S: e236e0ec685118abc67da92ad67c2db4b3f1abc6 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8001</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-literal">slave</span><br>   replicates <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25<br>S: c836695daad38bcea59eb71dece7f860eab5f15e <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8003</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-literal">slave</span><br>   replicates <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06<br>M: <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7003</span><br>   slots:[<span class="hljs-number">10923</span>-<span class="hljs-number">16383</span>] (<span class="hljs-number">5461</span> slots) <span class="hljs-keyword">master</span><br>   <span class="hljs-title">1</span> additional replica(s)<br>S: <span class="hljs-number">633546</span>d3d75199e202d66ac56bca7e4c387bb453 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">8002</span><br>   slots: (<span class="hljs-number">0</span> slots) <span class="hljs-literal">slave</span><br>   replicates <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7<br>M: <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7002</span><br>   slots:[<span class="hljs-number">5461</span>-<span class="hljs-number">10922</span>] (<span class="hljs-number">5462</span> slots) <span class="hljs-keyword">master</span><br>   <span class="hljs-title">1</span> additional replica(s)<br>M: <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818 <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span><br>   slots:[<span class="hljs-number">3000</span>-<span class="hljs-number">5460</span>] (<span class="hljs-number">2641</span> slots) <span class="hljs-keyword">master</span><br><span class="hljs-title">[OK</span>] All nodes agree about slots configuration.<br>&gt;&gt;&gt; Check for open slots...<br>&gt;&gt;&gt; Check slots coverage...<br>[OK] All <span class="hljs-number">16384</span> slots covered.<br><span class="hljs-comment">#2.3表示移动slots的数量</span><br>How many slots do you want to move (from <span class="hljs-number">1</span> to <span class="hljs-number">16384</span>)?<span class="hljs-number">3000</span><br><span class="hljs-comment">#2.4 表示移动到那个节点ID（或者说那个节点ID来接受这个移动的slots）</span><br>What is the receiving <span class="hljs-keyword">node</span> <span class="hljs-title">ID</span>? <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed0729e818<br><span class="hljs-comment">#2.5 表示那个节点ID需要移动</span><br>Please enter all the source <span class="hljs-keyword">node</span> <span class="hljs-title">IDs</span>.<br>  <span class="hljs-keyword">Type</span> &#x27;all&#x27; to use all the nodes as source nodes for the hash slots.<br>  <span class="hljs-keyword">Type</span> &#x27;done&#x27; once you entered all the source nodes IDs.<br>Source <span class="hljs-keyword">node</span> <span class="hljs-title">#1</span>: <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7<br><span class="hljs-comment">#2.6输入done</span><br>Source <span class="hljs-keyword">node</span> <span class="hljs-title">#1</span>:done<br><span class="hljs-comment">#2.7最后确认是否是想要的结果</span><br>Do you want to proceed with the proposed reshard plan (yes/no)? yes<br><span class="hljs-comment">#2.8 开始执行移动功能。等着移动完成后就可以删除节点了。</span><br>Moving slot <span class="hljs-number">1546</span> from <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span> to <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span>: <br>Moving slot <span class="hljs-number">1547</span> from <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span> to <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span>: <br>Moving slot <span class="hljs-number">1548</span> from <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span> to <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span>: <br>Moving slot <span class="hljs-number">1549</span> from <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span> to <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7001</span>: <br>省略.....<br><span class="hljs-comment">#3.可以再次执行1命令检查一下</span><br><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>用到的命令：</code></strong></p>
+<ul>
+<li><code>redis-cli -a password -p 7004 cluster nodes</code></li>
+<li><code>redis-cli -a password --cluster reshard host:prot</code></li>
+</ul>
+<ol start="2">
+<li><strong>执行删除命令</strong>:</li>
+</ol>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs oxygene"><span class="hljs-string">#1</span>.命令<br>redis-cli -a password --cluster del-node ip:prot 删除点ID<br><span class="hljs-string">#2</span>.例子<br>[root@T98899999 ~]# redis-cli -a <span class="hljs-number">123456</span> --cluster del-node <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span> <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7<br>Warning: <span class="hljs-keyword">Using</span> a password <span class="hljs-keyword">with</span> <span class="hljs-string">&#x27;-a&#x27;</span> <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;-u&#x27;</span> option <span class="hljs-keyword">on</span> the command line <span class="hljs-keyword">interface</span> may <span class="hljs-keyword">not</span> be safe.<br>&gt;&gt;&gt; Removing node <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7 <span class="hljs-keyword">from</span> cluster <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">7004</span><br>&gt;&gt;&gt; Sending CLUSTER FORGET messages <span class="hljs-keyword">to</span> the cluster...<br>&gt;&gt;&gt; Sending CLUSTER RESET <span class="hljs-keyword">SOFT</span> <span class="hljs-keyword">to</span> the deleted node.<br><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>查看是否删除成功(发现已经没有这个节点了)</strong></li>
+</ol>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs dns">[root@T<span class="hljs-number">98899999</span> ~]# redis-cli -a <span class="hljs-number">123456</span> -p <span class="hljs-number">7001</span> cluster nodes<br>Warning: Using a password with &#x27;-a&#x27; or &#x27;-u&#x27; option on the command line interface may not be safe.<br><br><span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed<span class="hljs-number">0a25 127.0</span>.<span class="hljs-number">0.1:7003</span>@<span class="hljs-number">17003</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1654095165860</span> <span class="hljs-number">3</span> connected <span class="hljs-number">10923-16383</span><br><br><span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe<span class="hljs-number">5c06 127.0</span>.<span class="hljs-number">0.1:7002</span>@<span class="hljs-number">17002</span> master - <span class="hljs-number">0</span> <span class="hljs-number">1654095164857</span> <span class="hljs-number">2</span> connected <span class="hljs-number">5461-10922</span><br><br>e236e0ec685118abc67da92ad67c2db4b3f1abc<span class="hljs-number">6 127.0.0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">8001@18001</span> slave <span class="hljs-number">4</span>efa79ebad2f410049ab59edf695d6be63ed0a25 <span class="hljs-number">0</span> <span class="hljs-number">1654095163854</span> <span class="hljs-number">3</span> connected<br><br>c836695daad38bcea59eb71dece7f860eab5f15e <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">8003@18003</span> slave <span class="hljs-number">8140</span>ca0e986ec863881b6dede6f7555d04fe5c06 <span class="hljs-number">0</span> <span class="hljs-number">1654095164000</span> <span class="hljs-number">2</span> connected<br><br><span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed<span class="hljs-number">0729e818</span> <span class="hljs-number">127.0.0.1</span>:<span class="hljs-number">7001@17001</span> myself,master - <span class="hljs-number">0</span> <span class="hljs-number">1654095164000</span> <span class="hljs-number">8</span> connected <span class="hljs-number">0</span>-<span class="hljs-number">5460</span><br><br><span class="hljs-number">633546d</span>3d75199e202d66ac56bca7e4c387bb<span class="hljs-number">453 127.0</span>.<span class="hljs-number">0.1:8002</span>@<span class="hljs-number">18002</span> slave <span class="hljs-number">145</span>b99ca42e4ddf2ad7fc43bdbc410ed<span class="hljs-number">0729e818</span> <span class="hljs-number">0</span> <span class="hljs-number">1654095164000</span> <span class="hljs-number">8</span> connected<br><br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>关闭服务：先查看ps进程，然后kill掉进程</strong></li>
+</ol>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs tap">[root@T98899999 ~]<span class="hljs-comment"># ps -ef|grep  redis-server</span><br>root    <span class="hljs-number"> 1751233 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月26 ?       00:06:51 redis-server *:6379<br>root    <span class="hljs-number"> 2244353 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月27 ?       00:05:55 redis-server 0.0.0.0:7001 [cluster]<br>root    <span class="hljs-number"> 2244355 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月27 ?       00:06:00 redis-server 0.0.0.0:7002 [cluster]<br>root    <span class="hljs-number"> 2244357 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月27 ?       00:05:56 redis-server 0.0.0.0:7003 [cluster]<br>root    <span class="hljs-number"> 2244359 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月27 ?       00:05:53 redis-server 0.0.0.0:8001 [cluster]<br>root    <span class="hljs-number"> 2244361 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月27 ?       00:05:53 redis-server 0.0.0.0:8002 [cluster]<br>root    <span class="hljs-number"> 2244367 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月27 ?       00:05:56 redis-server 0.0.0.0:8003 [cluster]<br>root    <span class="hljs-number"> 2749064 </span>     <span class="hljs-number"> 1 </span><span class="hljs-number"> 0 </span>5月30 ?       00:02:17 redis-server 0.0.0.0:7004 [cluster]<br>root    <span class="hljs-number"> 3875558 </span>3762488 <span class="hljs-number"> 0 </span>22:54 pts/4    00:00:00 grep --color=auto redis-server<br>[root@T98899999 ~]<span class="hljs-comment"># kill -9 2749064</span><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="2、删除slave节点"><a href="#2、删除slave节点" class="headerlink" title="2、删除slave节点"></a>2、删除slave节点</h3><p><strong>删除从节点就比较简单了。步骤如下：</strong></p>
+<ol>
+<li><strong>执行删除命令</strong></li>
+</ol>
+<figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs crmsh"><span class="hljs-comment">#1.命令</span><br>redis-cli -a password --cluster del-<span class="hljs-keyword">node</span> ip:<span class="hljs-title">prot</span> 删除点ID<br><span class="hljs-comment">#2.例子</span><br>redis-cli -a <span class="hljs-number">123456</span> --cluster del-<span class="hljs-keyword">node</span> <span class="hljs-title">127</span>.<span class="hljs-number">0.0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">7004</span> <span class="hljs-number">11</span>c3459ccdb510973ed5e61a755aaecc923405f7<br><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>关闭服务：先查看ps -ef|grep redis-server，然后执行kill命令。</strong></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%8A%80%E6%9C%AF/" class="category-chain-item">技术</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/redis/">#redis</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/65a98f40.html" title="xxl-job知识点">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">xxl-job知识点</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/d06cc010.html" title="多款视频 APP 源码（前端+后端）打包出售">
+                        <span class="hidden-mobile">多款视频 APP 源码（前端+后端）打包出售</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,1141 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在[多线程](https:&#x2F;&#x2F;so.csdn.net&#x2F;so&#x2F;search?q&#x3D;%E5%A4%9A%E7%BA%BF%E7%A8%8B&amp;spm&#x3D;1001.2101.3001.7020)环境下，为了保证数据的线程安全，我们通常用加锁的方式，使同一时刻只有一个线程可以对这个共享资源进行操作，**在单服务系统我们常用JVM锁——[Synchronized、ReentrantLock等](https:&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redisson分布式锁">
+<meta property="og:url" content="https://fyyhub.github.io/article/41a6994d.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="在[多线程](https:&#x2F;&#x2F;so.csdn.net&#x2F;so&#x2F;search?q&#x3D;%E5%A4%9A%E7%BA%BF%E7%A8%8B&amp;spm&#x3D;1001.2101.3001.7020)环境下，为了保证数据的线程安全，我们通常用加锁的方式，使同一时刻只有一个线程可以对这个共享资源进行操作，**在单服务系统我们常用JVM锁——[Synchronized、ReentrantLock等](https:&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/direct/47e9d6b55dd9448d8fe54d097e8bfbd3.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5c90322cb4a159b87fd04aca1081c2e2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/096f1c9bba501ea1e6b22b942c56c93f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/17e3ff2ffae885cde2e3349b11819e08.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/8ab1b8816bdb35dc5cd7918ee3e682dc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3776045e441c2b913a359ec9fbe4266d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a0950ff3af7e06b77e31416b71c66999.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/04323d9885389ecb586ed19b62ac751c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/16032194b6c649b468f75692ef55f6b4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3aac08c39e8ead75464cc1c9aeb18fe7.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/cff71f24ba3ea06fa99bc94dc294f563.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/aaa3bc287881377ff5ecdf9d7b7c1fdd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/708d64a8687a87050b20fe1e5e88a36e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/50ed4ade0574c203c1e118abc1920cfd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2bc37246d829ed6149898214984c7ab2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/70dd77797eb7311864199dbdc59537b6.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1c9d3a00e609d59fa4984a1f606e3953.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5bf0550041bf17578d7a01ed660437db.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f9968619e85e7c4660cc7331cb48315d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/direct/47e9d6b55dd9448d8fe54d097e8bfbd3.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5c90322cb4a159b87fd04aca1081c2e2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/096f1c9bba501ea1e6b22b942c56c93f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/17e3ff2ffae885cde2e3349b11819e08.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/8ab1b8816bdb35dc5cd7918ee3e682dc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3776045e441c2b913a359ec9fbe4266d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a0950ff3af7e06b77e31416b71c66999.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/04323d9885389ecb586ed19b62ac751c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/16032194b6c649b468f75692ef55f6b4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3aac08c39e8ead75464cc1c9aeb18fe7.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/cff71f24ba3ea06fa99bc94dc294f563.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/aaa3bc287881377ff5ecdf9d7b7c1fdd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/708d64a8687a87050b20fe1e5e88a36e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/50ed4ade0574c203c1e118abc1920cfd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2bc37246d829ed6149898214984c7ab2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/70dd77797eb7311864199dbdc59537b6.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1c9d3a00e609d59fa4984a1f606e3953.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5bf0550041bf17578d7a01ed660437db.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f9968619e85e7c4660cc7331cb48315d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/direct/47e9d6b55dd9448d8fe54d097e8bfbd3.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5c90322cb4a159b87fd04aca1081c2e2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/096f1c9bba501ea1e6b22b942c56c93f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/17e3ff2ffae885cde2e3349b11819e08.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/8ab1b8816bdb35dc5cd7918ee3e682dc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3776045e441c2b913a359ec9fbe4266d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a0950ff3af7e06b77e31416b71c66999.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/04323d9885389ecb586ed19b62ac751c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/16032194b6c649b468f75692ef55f6b4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3aac08c39e8ead75464cc1c9aeb18fe7.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/cff71f24ba3ea06fa99bc94dc294f563.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/aaa3bc287881377ff5ecdf9d7b7c1fdd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/708d64a8687a87050b20fe1e5e88a36e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/50ed4ade0574c203c1e118abc1920cfd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2bc37246d829ed6149898214984c7ab2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/70dd77797eb7311864199dbdc59537b6.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1c9d3a00e609d59fa4984a1f606e3953.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5bf0550041bf17578d7a01ed660437db.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f9968619e85e7c4660cc7331cb48315d.png">
+<meta property="article:published_time" content="2024-12-26T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.274Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png">
+  
+  
+  
+  <title>Redisson分布式锁 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Redisson分布式锁"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-26 00:00" pubdate>
+          2024年12月26日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          137 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redisson分布式锁</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+在[多线程](https://so.csdn.net/so/search?q=%E5%A4%9A%E7%BA%BF%E7%A8%8B&spm=1001.2101.3001.7020)环境下，为了保证数据的线程安全，我们通常用加锁的方式，使同一时刻只有一个线程可以对这个共享资源进行操作，**在单服务系统我们常用JVM锁——[Synchronized、ReentrantLock等](https://blog.csdn.net/weixin_45433817/article/details/132216383 "Synchronized、ReentrantLock等")。然而在多台服务系统的情况下，JVM锁就无法在多个服务器之间生效了，这时候我们就需要用分布式锁来解决线程安全的问题。**
+
+<p>分布式锁的实现方式有很多，主流的就是基于<strong>数据库、zookeeper以及redis</strong>，当然使用redis的居多，由于篇幅原因，本节就详细介绍一下使用redis实现分布式锁的几种方式。</p>
+<h2 id="一、SETNX实现"><a href="#一、SETNX实现" class="headerlink" title="一、SETNX实现"></a>一、SETNX实现</h2><p><strong>ps：本文重点使Redisson实现分布式锁，咱就不从SETNX+EXPIRE、SETNX+LUA脚本…什么的逐步演进了，本身就是一回事，直接一步到位，用set ex px nx+唯一校验+LUA脚本删除等操作实现。</strong></p>
+<p>利用<strong>Redis的单线程</strong>特性，在多个Redis客户端通过SETNX，如果返回1表示获取锁成功，反之失败。因为Redis的单线程机制，所以可以保证一个客户端成功获取后，其它客户端都会获取失败。伪代码如下：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake">public class RedisLock &#123;    private Jedis jedis;    private void init()&#123;        //建立连接        jedis = JedisPoolFactory.getJedis();    &#125;    /**     * 获取锁     * @param lockKey 锁的键值     * @param requestId 唯一标识     * @param expireTime 过期时间     * @<span class="hljs-keyword">return</span> 是否获取锁 成功返回<span class="hljs-keyword">true</span>，反之<span class="hljs-keyword">false</span>     */    public boolean tryLock(<span class="hljs-keyword">String</span> lockKey,<span class="hljs-keyword">String</span> requestId,int expireTime)&#123;        //<span class="hljs-number">2</span>、加锁        <span class="hljs-keyword">String</span> result = jedis.<span class="hljs-keyword">set</span>(lockKey,requestId,<span class="hljs-string">&quot;NX&quot;</span>,<span class="hljs-string">&quot;EX&quot;</span>,expireTime);​        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;OK&quot;</span>.equals(result);    &#125;​    /**     * 释放锁     * @param lockKey 锁的键值     * @param requestId 唯一标识     * @<span class="hljs-keyword">return</span> 成功<span class="hljs-keyword">true</span>，失败<span class="hljs-keyword">false</span>     */    public boolean unlock(<span class="hljs-keyword">String</span> lockKey,<span class="hljs-keyword">String</span> requestId)&#123;        //LUA脚本：判断当前锁的值是否等于请求标识requestId，如果是则删除锁并返回<span class="hljs-keyword">true</span>，反之返回<span class="hljs-keyword">false</span>。        <span class="hljs-keyword">String</span> scripts = <span class="hljs-string">&quot;if redis.call(&#x27;get&#x27;,KEYS[1]) == ARGV[1] then &quot;</span> +                <span class="hljs-string">&quot;return redis.call(&#x27;del&#x27;,KEYS[1]) else return 0 end&quot;</span>;        Object result = jedis.eval(scripts, Collections.singletonList(lockKey), Collections.singletonList(requestId));        <span class="hljs-keyword">return</span> Long.parseLong(result.toString())==<span class="hljs-number">1</span>L;    &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>存在的问题：</strong></p>
+<blockquote>
+<ul>
+<li><strong>锁无法续期：</strong>假设线程A获取了锁，但是由于网络原因，执行时间超过了设置的过期时间，这是锁被释放了，线程B获取锁成功，此时线程A和B都会执行临界区的代码，这是绝对不允许的。</li>
+</ul>
+</blockquote>
+<h2 id="二、Redisson实现分布式锁"><a href="#二、Redisson实现分布式锁" class="headerlink" title="二、Redisson实现分布式锁"></a>二、Redisson实现分布式锁</h2><p>在使用SETNX实现的分布式锁中，存在锁无法续期导致并发冲突的问题。不过这个问题在Redisson中用看门狗的机制巧妙地解决了，这也是我们实现分布式锁最常用的方式。</p>
+<h3 id="2-1-整体类图"><a href="#2-1-整体类图" class="headerlink" title="2.1 整体类图"></a>2.1 整体类图</h3><p><img src="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png" srcset="/img/loading.gif" lazyload></p>
+<p>标黄的两个类就是我们今天的重点，看门狗续期的实现逻辑在<strong>RedissionBaseLock类</strong>中，加锁逻辑在<strong>RedissionLock类</strong>中。</p>
+<h3 id="2-2-大致流程"><a href="#2-2-大致流程" class="headerlink" title="2.2 大致流程"></a>2.2 大致流程</h3><p>在深入代码前，我们先看下加锁、看门狗续期大致的流程，有个大致印象。</p>
+<p><img src="https://i-blog.csdnimg.cn/direct/47e9d6b55dd9448d8fe54d097e8bfbd3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-3-加锁流程源码分析"><a href="#2-3-加锁流程源码分析" class="headerlink" title="2.3 加锁流程源码分析"></a>2.3 加锁流程源码分析</h3><p>下面我们就按上面的流程图，走走源码。</p>
+<h4 id="2-3-1-lock-—加锁入口"><a href="#2-3-1-lock-—加锁入口" class="headerlink" title="2.3.1 lock()—加锁入口"></a>2.3.1 lock()—加锁入口</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/5c90322cb4a159b87fd04aca1081c2e2.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>lock方法，一个没设置过期时间，一个设置了过期时间。</li>
+</ul>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/096f1c9bba501ea1e6b22b942c56c93f.png" srcset="/img/loading.gif" lazyload></p>
+<p>解析：</p>
+<blockquote>
+<ul>
+<li>第一个红框：尝试加锁，会返回null或者具体的值，<strong>返回null表示加锁成功，反之有线程持有该锁，加锁失败。</strong></li>
+<li>第二个红框：<strong>加锁失败，while循环不断尝试。</strong></li>
+</ul>
+</blockquote>
+<h4 id="2-3-2-tryAcquire-—执行加锁LUA脚本并判断是否要进行锁续期"><a href="#2-3-2-tryAcquire-—执行加锁LUA脚本并判断是否要进行锁续期" class="headerlink" title="2.3.2 tryAcquire()—执行加锁LUA脚本并判断是否要进行锁续期"></a>2.3.2 tryAcquire()—执行加锁LUA脚本并判断是否要进行锁续期</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/17e3ff2ffae885cde2e3349b11819e08.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/8ab1b8816bdb35dc5cd7918ee3e682dc.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><p>第一个红框：执行加锁LUA脚本，返回null说明加锁成功，反之失败。</p>
+<ul>
+<li><p><strong>如果设置了过期时间，第二个参数就传设置的时间。</strong></p>
+</li>
+<li><p>反之，使用默认的<strong>internallockLeaseTime</strong>时间。</p>
+</li>
+</ul>
+</li>
+<li><p>第二个红框：如果加锁成功（null），且设置了过期时间，将设置过期时间赋值给internallockLeaseTime，如果没设置，则执行<strong>scheduleExpirationRenewal方法（看门狗）。</strong>返回结果。</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>ps：internallockLeaseTime默认就是30s。</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/3776045e441c2b913a359ec9fbe4266d.png" srcset="/img/loading.gif" lazyload><img src="https://i-blog.csdnimg.cn/blog_migrate/a0950ff3af7e06b77e31416b71c66999.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/04323d9885389ecb586ed19b62ac751c.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="2-3-3-tryLockInnerAsync-—–选择slot槽并执行lua脚本"><a href="#2-3-3-tryLockInnerAsync-—–选择slot槽并执行lua脚本" class="headerlink" title="2.3.3 tryLockInnerAsync()—–选择slot槽并执行lua脚本"></a>2.3.3 tryLockInnerAsync()—–选择slot槽并执行lua脚本</h4><p>我们先看如何执行LUA加锁脚本的，这里面有点深。。。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/16032194b6c649b468f75692ef55f6b4.png" srcset="/img/loading.gif" lazyload> <img src="https://i-blog.csdnimg.cn/blog_migrate/3aac08c39e8ead75464cc1c9aeb18fe7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/cff71f24ba3ea06fa99bc94dc294f563.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>slot槽这里就不多讲了。。。我们回到LUA脚本。</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/aaa3bc287881377ff5ecdf9d7b7c1fdd.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><strong>首先检查锁的key是否存在，如果不存在，判断是否是同一线程再次过来对同一个key进行加锁，也就是当前key是否被当前线程持有（可重入性）。</strong></li>
+<li>如果上述两个条件任意一个成立，则对当前key执行自增和设置过期时间操作，并<strong>返回null表示加锁成功。</strong></li>
+<li><strong>反之，返回当前锁的过期时间，表示加锁失败。</strong></li>
+</ul>
+</blockquote>
+<h3 id="2-4-watch-dog源码分析"><a href="#2-4-watch-dog源码分析" class="headerlink" title="2.4 watch dog源码分析"></a>2.4 watch dog源码分析</h3><h4 id="2-4-1-scheduleExpirationRenewal-–锁续期入口"><a href="#2-4-1-scheduleExpirationRenewal-–锁续期入口" class="headerlink" title="2.4.1 scheduleExpirationRenewal()–锁续期入口"></a>2.4.1 scheduleExpirationRenewal()–锁续期入口</h4><p>当加锁成功，且没有设置过期时间，执行<strong>scheduleExpirationRenewal()方法</strong>，这也是我们常说的”看门狗”的实现逻辑。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/708d64a8687a87050b20fe1e5e88a36e.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li>第一个红框：EXPIRATION_RENEWAL_MAP存放续期任务，get有值说明当前锁需要续期，为null则不需要再续期了。</li>
+<li>第二个红框，执行续期操作。</li>
+</ul>
+</blockquote>
+<h4 id="2-4-2-renewExpiration-—-执行锁续期操作"><a href="#2-4-2-renewExpiration-—-执行锁续期操作" class="headerlink" title="2.4.2 renewExpiration()—-执行锁续期操作"></a>2.4.2 renewExpiration()—-执行锁续期操作</h4><p>这个方法用<strong>netty的时间轮</strong>进行续期。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/50ed4ade0574c203c1e118abc1920cfd.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><p>第一个红框：首先会从<strong>EXPIRATION_RENEWAL_MAP</strong>中获取一个值，如果为null，就不续期了，<strong>说明这个锁可能已经被释放或过期了。</strong></p>
+</li>
+<li><p>第二个红框：基于TimerTask实现一个定时任务，设置<strong>internalLockLeaseTime &#x2F; 3</strong>的时长进行一次锁续期，也就是每10s进行一次续期。</p>
+<ul>
+<li><p>这里也会从<strong>EXPIRATION_RENEWAL_MAP</strong>里获取一个值，检查锁是否被释放。</p>
+</li>
+<li><p><strong>如果不为null，则获取第一个thread（也就是持有锁的线程），如果为null则说明锁也被释放了，此时也不需要续期。</strong></p>
+</li>
+<li><p>如果不为null，说明需要续期，它会异步调用<strong>renewExpirationAsync(threadId)方法</strong>来实现续期。</p>
+</li>
+<li><p>当异步续期操作完成，会调用whenComplete方法来处理结果，如果有异常，则将该锁从<strong>EXPIRATION_RENEWAL_MAP</strong>中移除。如果续期成功，则会重新调用<strong>renewExpiration()方法</strong>进行下一次续期，如果续期失败，则调用<strong>cancelExpirationRenewal()方法</strong>取消续期。</p>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h4 id="2-4-3-renewExpirationAsync-–执行锁续期LUA脚本"><a href="#2-4-3-renewExpirationAsync-–执行锁续期LUA脚本" class="headerlink" title="2.4.3 renewExpirationAsync()–执行锁续期LUA脚本"></a>2.4.3 renewExpirationAsync()–执行锁续期LUA脚本</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/2bc37246d829ed6149898214984c7ab2.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><strong>如果当前key存在，说明当前锁还被该线程持有，那么就重置过期时间为30s，并返回true，表示续期成功，反之返回false。</strong></li>
+</ul>
+</blockquote>
+<h4 id="2-4-4-cancelExpirationRenewal—取消锁续期"><a href="#2-4-4-cancelExpirationRenewal—取消锁续期" class="headerlink" title="2.4.4 cancelExpirationRenewal—取消锁续期"></a>2.4.4 cancelExpirationRenewal—取消锁续期</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/70dd77797eb7311864199dbdc59537b6.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li>还是从这个map里获取键值对，如果为null，说明续期任务不存在，也没必要进行下去了，直接返回。</li>
+<li>如果threadId不为null，直接将这个续期任务从task里移除。</li>
+<li>如果threadId为null或者task中不再有任何线程在等待续期，此时就调用cancel方法来取消定时任务，然后在从<strong>EXPIRATION_RENEWAL_MAP</strong>中移除该续期任务。</li>
+</ul>
+</blockquote>
+<p><strong>ps：当unlock的时候也会调该方法，来执行取消锁续期的操作。</strong></p>
+<h3 id="2-5-小结"><a href="#2-5-小结" class="headerlink" title="2.5 小结"></a>2.5 小结</h3><h4 id="2-5-1-什么时候会进行锁续期"><a href="#2-5-1-什么时候会进行锁续期" class="headerlink" title="2.5.1 什么时候会进行锁续期"></a>2.5.1 什么时候会进行锁续期</h4><blockquote>
+<p>加锁时，如果没有指定过期时间，则默认过期时间为30s且每隔10s进行锁续期操作。</p>
+<p><strong>ps：参考2.3.2和2.4.2小节。</strong></p>
+</blockquote>
+<h4 id="2-5-2-什么情况会停止续期"><a href="#2-5-2-什么情况会停止续期" class="headerlink" title="2.5.2 什么情况会停止续期"></a>2.5.2 什么情况会停止续期</h4><blockquote>
+<ul>
+<li><p>锁被释放。</p>
+</li>
+<li><p>续期时发生异常。</p>
+</li>
+<li><p>执行锁续期LUA脚本失败。</p>
+</li>
+<li><p>Redission的续期时Netty时间轮（TimerTask、TimeOut、Timer）的，并且操作都是基于JVM，所以当应用宕机、下线或重启后，续期任务也没有了。</p>
+</li>
+</ul>
+<p><strong>ps：参考2.4.3小节。</strong></p>
+</blockquote>
+<h3 id="2-6-lock-和trylock-的区别"><a href="#2-6-lock-和trylock-的区别" class="headerlink" title="2.6 lock()和trylock()的区别"></a>2.6 lock()和trylock()的区别</h3><p>讲了半天忘了说使用redission实现分布式锁的示例了😂，索性就在这补充一下吧。</p>
+<p><strong>lock()：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">RLock lock = redisson.getLock(<span class="hljs-string">&quot;MyLock&quot;</span>);lock.lock();<span class="hljs-regexp">//</span>阻塞方法，知道获取到锁try &#123;    <span class="hljs-regexp">//</span>业务代码&#125;finally &#123;    <span class="hljs-regexp">//</span>当前锁存在且被当前线程持有     <span class="hljs-keyword">if</span>(lock.isLocked() &amp;&amp; lock.isHeldByCurrentThread())&#123;      <span class="hljs-regexp">//</span>释放锁      lock.unlock();   &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>lock的原理是以阻塞的方式获取锁，如果获取失败则一直等待，直到获取成功。</p>
+<p><strong>ps：可以参考2.3.1小节。</strong></p>
+</blockquote>
+<p><strong>trylock()：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">RLock lock = redisson.getLock(<span class="hljs-string">&quot;MyLock&quot;</span>);boolean b = lock.tryLock();<span class="hljs-regexp">//</span>非阻塞方法，立即返回获取结果<span class="hljs-keyword">if</span>(b)&#123;     try &#123;          <span class="hljs-regexp">//</span>业务代码     &#125;finally &#123;          <span class="hljs-regexp">//</span>当前锁存在且被当前线程持有          <span class="hljs-keyword">if</span>(lock.isLocked() &amp;&amp; lock.isHeldByCurrentThread())&#123;               <span class="hljs-regexp">//</span>释放锁               lock.unlock();           &#125;     &#125;&#125;<span class="hljs-keyword">else</span> &#123;   <span class="hljs-regexp">//</span>获取锁失败，处理逻辑&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/1c9d3a00e609d59fa4984a1f606e3953.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>tryLock是尝试获取锁，如果能获取直接返回true，如果无法获取，它会按照我们指定的超时时间进行阻塞，<strong>这个时间内还会尝试获取锁，如果超过这个时间还没获取到，直接返回false。</strong>如果没有指定超时时间，就如我们的示例，那获取不到的话直接就返回false。</p>
+</blockquote>
+<p><strong>我们看下源码：</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/5bf0550041bf17578d7a01ed660437db.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/f9968619e85e7c4660cc7331cb48315d.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>这是没有指定超时时间执行的方法，方法名也很见名知意，就是尝试一次加锁。指定了超时时间的这里就不介绍了，无非是在超时时间内执行while循环尝试获取锁。</strong></p>
+<h2 id="三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用"><a href="#三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用" class="headerlink" title="三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用"></a>三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用</h2><p><strong>ps：这几种锁都不常用，所以就不细讲了，知道有这个事就行。</strong></p>
+<h3 id="3-1-公平锁（FairLock）"><a href="#3-1-公平锁（FairLock）" class="headerlink" title="3.1 公平锁（FairLock）"></a>3.1 公平锁（FairLock）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csharp">RLock <span class="hljs-keyword">lock</span> = redisson.getFairLock(<span class="hljs-string">&quot;MyLock&quot;</span>);<span class="hljs-keyword">lock</span>.<span class="hljs-keyword">lock</span>();<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-联锁（MultiLock）"><a href="#3-2-联锁（MultiLock）" class="headerlink" title="3.2 联锁（MultiLock）"></a>3.2 联锁（MultiLock）</h3><figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">RLock lock1 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock1&quot;</span>)</span>;RLock lock2 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock2&quot;</span>)</span>;RLock lock3 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock3&quot;</span>)</span>;RedissonMultiLock lock=<span class="hljs-keyword">new</span> <span class="hljs-constructor">RedissonMultiLock(<span class="hljs-params">lock1</span>,<span class="hljs-params">lock2</span>,<span class="hljs-params">lock3</span>)</span>;<span class="hljs-comment">//同时加锁lock1、lock2、lock3//所有的锁都上锁成功才算成功lock.lock(); //...lock.unlock();</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-读写锁"><a href="#3-3-读写锁" class="headerlink" title="3.3 读写锁"></a>3.3 读写锁</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">RReadWriteLock <span class="hljs-keyword">lock</span> = redisson.getReadWriteLock(&quot;myLock&quot;);//读锁<span class="hljs-keyword">lock</span>.readLock().<span class="hljs-keyword">lock</span>();//写锁<span class="hljs-keyword">lock</span>.writeLock().<span class="hljs-keyword">lock</span>();<br></code></pre></td></tr></table></figure>
+
+<p><strong>ps：还有个RedLock，这个可以细讲一下，但是由于篇幅原因，就放在下一篇文章吧。</strong></p>
+<h2 id="四、Redission实现分布式锁存在的问题"><a href="#四、Redission实现分布式锁存在的问题" class="headerlink" title="四、Redission实现分布式锁存在的问题"></a>四、Redission实现分布式锁存在的问题</h2><p>Redission使用看门狗续期的方案在大多数场景下是挺不错的，但在极端情况下还是会存在问题，比如：</p>
+<blockquote>
+<ul>
+<li>线程1首先获取锁成功，将键值对写入redis的master节点。</li>
+<li><strong>在redis将master数据同步到slave节点之前，master故障了。</strong></li>
+<li>此时会触发故障转移，将其中一个slave升级为master。</li>
+<li>但新的master并没有线程1写入的键值对，因此如果此时来个线程2，也同样可以获取到锁，这就违背了锁的初衷。</li>
+</ul>
+</blockquote>
+<p>这个场景就是我们常说的<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45433817/article/details/137209295?spm=1001.2014.3001.5501" title="集群脑裂">集群脑裂</a><strong>（网络分区）</strong>问题。</p>
+<p>那么比较主流的解决方案就是<strong>Redis作者提出的Redlock</strong>和<strong>Zookeeper</strong>实现的分布式锁，这个我们下节再讲。</p>
+<p><strong>End：希望对大家有所帮助，如果有纰漏或者更好的想法，请您一定不要吝啬你的赐教🙋。</strong>在<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%A4%9A%E7%BA%BF%E7%A8%8B&spm=1001.2101.3001.7020">多线程</a>环境下，为了保证数据的线程安全，我们通常用加锁的方式，使同一时刻只有一个线程可以对这个共享资源进行操作，<strong>在单服务系统我们常用JVM锁——<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45433817/article/details/132216383" title="Synchronized、ReentrantLock等">Synchronized、ReentrantLock等</a>。然而在多台服务系统的情况下，JVM锁就无法在多个服务器之间生效了，这时候我们就需要用分布式锁来解决线程安全的问题。</strong></p>
+<p>分布式锁的实现方式有很多，主流的就是基于<strong>数据库、zookeeper以及redis</strong>，当然使用redis的居多，由于篇幅原因，本节就详细介绍一下使用redis实现分布式锁的几种方式。</p>
+<h2 id="一、SETNX实现-1"><a href="#一、SETNX实现-1" class="headerlink" title="一、SETNX实现"></a>一、SETNX实现</h2><p><strong>ps：本文重点使Redisson实现分布式锁，咱就不从SETNX+EXPIRE、SETNX+LUA脚本…什么的逐步演进了，本身就是一回事，直接一步到位，用set ex px nx+唯一校验+LUA脚本删除等操作实现。</strong></p>
+<p>利用<strong>Redis的单线程</strong>特性，在多个Redis客户端通过SETNX，如果返回1表示获取锁成功，反之失败。因为Redis的单线程机制，所以可以保证一个客户端成功获取后，其它客户端都会获取失败。伪代码如下：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake">public class RedisLock &#123;    private Jedis jedis;    private void init()&#123;        //建立连接        jedis = JedisPoolFactory.getJedis();    &#125;    /**     * 获取锁     * @param lockKey 锁的键值     * @param requestId 唯一标识     * @param expireTime 过期时间     * @<span class="hljs-keyword">return</span> 是否获取锁 成功返回<span class="hljs-keyword">true</span>，反之<span class="hljs-keyword">false</span>     */    public boolean tryLock(<span class="hljs-keyword">String</span> lockKey,<span class="hljs-keyword">String</span> requestId,int expireTime)&#123;        //<span class="hljs-number">2</span>、加锁        <span class="hljs-keyword">String</span> result = jedis.<span class="hljs-keyword">set</span>(lockKey,requestId,<span class="hljs-string">&quot;NX&quot;</span>,<span class="hljs-string">&quot;EX&quot;</span>,expireTime);​        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;OK&quot;</span>.equals(result);    &#125;​    /**     * 释放锁     * @param lockKey 锁的键值     * @param requestId 唯一标识     * @<span class="hljs-keyword">return</span> 成功<span class="hljs-keyword">true</span>，失败<span class="hljs-keyword">false</span>     */    public boolean unlock(<span class="hljs-keyword">String</span> lockKey,<span class="hljs-keyword">String</span> requestId)&#123;        //LUA脚本：判断当前锁的值是否等于请求标识requestId，如果是则删除锁并返回<span class="hljs-keyword">true</span>，反之返回<span class="hljs-keyword">false</span>。        <span class="hljs-keyword">String</span> scripts = <span class="hljs-string">&quot;if redis.call(&#x27;get&#x27;,KEYS[1]) == ARGV[1] then &quot;</span> +                <span class="hljs-string">&quot;return redis.call(&#x27;del&#x27;,KEYS[1]) else return 0 end&quot;</span>;        Object result = jedis.eval(scripts, Collections.singletonList(lockKey), Collections.singletonList(requestId));        <span class="hljs-keyword">return</span> Long.parseLong(result.toString())==<span class="hljs-number">1</span>L;    &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>存在的问题：</strong></p>
+<blockquote>
+<ul>
+<li><strong>锁无法续期：</strong>假设线程A获取了锁，但是由于网络原因，执行时间超过了设置的过期时间，这是锁被释放了，线程B获取锁成功，此时线程A和B都会执行临界区的代码，这是绝对不允许的。</li>
+</ul>
+</blockquote>
+<h2 id="二、Redisson实现分布式锁-1"><a href="#二、Redisson实现分布式锁-1" class="headerlink" title="二、Redisson实现分布式锁"></a>二、Redisson实现分布式锁</h2><p>在使用SETNX实现的分布式锁中，存在锁无法续期导致并发冲突的问题。不过这个问题在Redisson中用看门狗的机制巧妙地解决了，这也是我们实现分布式锁最常用的方式。</p>
+<h3 id="2-1-整体类图-1"><a href="#2-1-整体类图-1" class="headerlink" title="2.1 整体类图"></a>2.1 整体类图</h3><p><img src="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png" srcset="/img/loading.gif" lazyload></p>
+<p>标黄的两个类就是我们今天的重点，看门狗续期的实现逻辑在<strong>RedissionBaseLock类</strong>中，加锁逻辑在<strong>RedissionLock类</strong>中。</p>
+<h3 id="2-2-大致流程-1"><a href="#2-2-大致流程-1" class="headerlink" title="2.2 大致流程"></a>2.2 大致流程</h3><p>在深入代码前，我们先看下加锁、看门狗续期大致的流程，有个大致印象。</p>
+<p><img src="https://i-blog.csdnimg.cn/direct/47e9d6b55dd9448d8fe54d097e8bfbd3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-3-加锁流程源码分析-1"><a href="#2-3-加锁流程源码分析-1" class="headerlink" title="2.3 加锁流程源码分析"></a>2.3 加锁流程源码分析</h3><p>下面我们就按上面的流程图，走走源码。</p>
+<h4 id="2-3-1-lock-—加锁入口-1"><a href="#2-3-1-lock-—加锁入口-1" class="headerlink" title="2.3.1 lock()—加锁入口"></a>2.3.1 lock()—加锁入口</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/5c90322cb4a159b87fd04aca1081c2e2.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>lock方法，一个没设置过期时间，一个设置了过期时间。</li>
+</ul>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/096f1c9bba501ea1e6b22b942c56c93f.png" srcset="/img/loading.gif" lazyload></p>
+<p>解析：</p>
+<blockquote>
+<ul>
+<li>第一个红框：尝试加锁，会返回null或者具体的值，<strong>返回null表示加锁成功，反之有线程持有该锁，加锁失败。</strong></li>
+<li>第二个红框：<strong>加锁失败，while循环不断尝试。</strong></li>
+</ul>
+</blockquote>
+<h4 id="2-3-2-tryAcquire-—执行加锁LUA脚本并判断是否要进行锁续期-1"><a href="#2-3-2-tryAcquire-—执行加锁LUA脚本并判断是否要进行锁续期-1" class="headerlink" title="2.3.2 tryAcquire()—执行加锁LUA脚本并判断是否要进行锁续期"></a>2.3.2 tryAcquire()—执行加锁LUA脚本并判断是否要进行锁续期</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/17e3ff2ffae885cde2e3349b11819e08.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/8ab1b8816bdb35dc5cd7918ee3e682dc.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><p>第一个红框：执行加锁LUA脚本，返回null说明加锁成功，反之失败。</p>
+<ul>
+<li><p><strong>如果设置了过期时间，第二个参数就传设置的时间。</strong></p>
+</li>
+<li><p>反之，使用默认的<strong>internallockLeaseTime</strong>时间。</p>
+</li>
+</ul>
+</li>
+<li><p>第二个红框：如果加锁成功（null），且设置了过期时间，将设置过期时间赋值给internallockLeaseTime，如果没设置，则执行<strong>scheduleExpirationRenewal方法（看门狗）。</strong>返回结果。</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>ps：internallockLeaseTime默认就是30s。</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/3776045e441c2b913a359ec9fbe4266d.png" srcset="/img/loading.gif" lazyload><img src="https://i-blog.csdnimg.cn/blog_migrate/a0950ff3af7e06b77e31416b71c66999.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/04323d9885389ecb586ed19b62ac751c.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="2-3-3-tryLockInnerAsync-—–选择slot槽并执行lua脚本-1"><a href="#2-3-3-tryLockInnerAsync-—–选择slot槽并执行lua脚本-1" class="headerlink" title="2.3.3 tryLockInnerAsync()—–选择slot槽并执行lua脚本"></a>2.3.3 tryLockInnerAsync()—–选择slot槽并执行lua脚本</h4><p>我们先看如何执行LUA加锁脚本的，这里面有点深。。。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/16032194b6c649b468f75692ef55f6b4.png" srcset="/img/loading.gif" lazyload> <img src="https://i-blog.csdnimg.cn/blog_migrate/3aac08c39e8ead75464cc1c9aeb18fe7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/cff71f24ba3ea06fa99bc94dc294f563.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>slot槽这里就不多讲了。。。我们回到LUA脚本。</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/aaa3bc287881377ff5ecdf9d7b7c1fdd.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><strong>首先检查锁的key是否存在，如果不存在，判断是否是同一线程再次过来对同一个key进行加锁，也就是当前key是否被当前线程持有（可重入性）。</strong></li>
+<li>如果上述两个条件任意一个成立，则对当前key执行自增和设置过期时间操作，并<strong>返回null表示加锁成功。</strong></li>
+<li><strong>反之，返回当前锁的过期时间，表示加锁失败。</strong></li>
+</ul>
+</blockquote>
+<h3 id="2-4-watch-dog源码分析-1"><a href="#2-4-watch-dog源码分析-1" class="headerlink" title="2.4 watch dog源码分析"></a>2.4 watch dog源码分析</h3><h4 id="2-4-1-scheduleExpirationRenewal-–锁续期入口-1"><a href="#2-4-1-scheduleExpirationRenewal-–锁续期入口-1" class="headerlink" title="2.4.1 scheduleExpirationRenewal()–锁续期入口"></a>2.4.1 scheduleExpirationRenewal()–锁续期入口</h4><p>当加锁成功，且没有设置过期时间，执行<strong>scheduleExpirationRenewal()方法</strong>，这也是我们常说的”看门狗”的实现逻辑。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/708d64a8687a87050b20fe1e5e88a36e.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li>第一个红框：EXPIRATION_RENEWAL_MAP存放续期任务，get有值说明当前锁需要续期，为null则不需要再续期了。</li>
+<li>第二个红框，执行续期操作。</li>
+</ul>
+</blockquote>
+<h4 id="2-4-2-renewExpiration-—-执行锁续期操作-1"><a href="#2-4-2-renewExpiration-—-执行锁续期操作-1" class="headerlink" title="2.4.2 renewExpiration()—-执行锁续期操作"></a>2.4.2 renewExpiration()—-执行锁续期操作</h4><p>这个方法用<strong>netty的时间轮</strong>进行续期。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/50ed4ade0574c203c1e118abc1920cfd.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><p>第一个红框：首先会从<strong>EXPIRATION_RENEWAL_MAP</strong>中获取一个值，如果为null，就不续期了，<strong>说明这个锁可能已经被释放或过期了。</strong></p>
+</li>
+<li><p>第二个红框：基于TimerTask实现一个定时任务，设置<strong>internalLockLeaseTime &#x2F; 3</strong>的时长进行一次锁续期，也就是每10s进行一次续期。</p>
+<ul>
+<li><p>这里也会从<strong>EXPIRATION_RENEWAL_MAP</strong>里获取一个值，检查锁是否被释放。</p>
+</li>
+<li><p><strong>如果不为null，则获取第一个thread（也就是持有锁的线程），如果为null则说明锁也被释放了，此时也不需要续期。</strong></p>
+</li>
+<li><p>如果不为null，说明需要续期，它会异步调用<strong>renewExpirationAsync(threadId)方法</strong>来实现续期。</p>
+</li>
+<li><p>当异步续期操作完成，会调用whenComplete方法来处理结果，如果有异常，则将该锁从<strong>EXPIRATION_RENEWAL_MAP</strong>中移除。如果续期成功，则会重新调用<strong>renewExpiration()方法</strong>进行下一次续期，如果续期失败，则调用<strong>cancelExpirationRenewal()方法</strong>取消续期。</p>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h4 id="2-4-3-renewExpirationAsync-–执行锁续期LUA脚本-1"><a href="#2-4-3-renewExpirationAsync-–执行锁续期LUA脚本-1" class="headerlink" title="2.4.3 renewExpirationAsync()–执行锁续期LUA脚本"></a>2.4.3 renewExpirationAsync()–执行锁续期LUA脚本</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/2bc37246d829ed6149898214984c7ab2.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><strong>如果当前key存在，说明当前锁还被该线程持有，那么就重置过期时间为30s，并返回true，表示续期成功，反之返回false。</strong></li>
+</ul>
+</blockquote>
+<h4 id="2-4-4-cancelExpirationRenewal—取消锁续期-1"><a href="#2-4-4-cancelExpirationRenewal—取消锁续期-1" class="headerlink" title="2.4.4 cancelExpirationRenewal—取消锁续期"></a>2.4.4 cancelExpirationRenewal—取消锁续期</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/70dd77797eb7311864199dbdc59537b6.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li>还是从这个map里获取键值对，如果为null，说明续期任务不存在，也没必要进行下去了，直接返回。</li>
+<li>如果threadId不为null，直接将这个续期任务从task里移除。</li>
+<li>如果threadId为null或者task中不再有任何线程在等待续期，此时就调用cancel方法来取消定时任务，然后在从<strong>EXPIRATION_RENEWAL_MAP</strong>中移除该续期任务。</li>
+</ul>
+</blockquote>
+<p><strong>ps：当unlock的时候也会调该方法，来执行取消锁续期的操作。</strong></p>
+<h3 id="2-5-小结-1"><a href="#2-5-小结-1" class="headerlink" title="2.5 小结"></a>2.5 小结</h3><h4 id="2-5-1-什么时候会进行锁续期-1"><a href="#2-5-1-什么时候会进行锁续期-1" class="headerlink" title="2.5.1 什么时候会进行锁续期"></a>2.5.1 什么时候会进行锁续期</h4><blockquote>
+<p>加锁时，如果没有指定过期时间，则默认过期时间为30s且每隔10s进行锁续期操作。</p>
+<p><strong>ps：参考2.3.2和2.4.2小节。</strong></p>
+</blockquote>
+<h4 id="2-5-2-什么情况会停止续期-1"><a href="#2-5-2-什么情况会停止续期-1" class="headerlink" title="2.5.2 什么情况会停止续期"></a>2.5.2 什么情况会停止续期</h4><blockquote>
+<ul>
+<li><p>锁被释放。</p>
+</li>
+<li><p>续期时发生异常。</p>
+</li>
+<li><p>执行锁续期LUA脚本失败。</p>
+</li>
+<li><p>Redission的续期时Netty时间轮（TimerTask、TimeOut、Timer）的，并且操作都是基于JVM，所以当应用宕机、下线或重启后，续期任务也没有了。</p>
+</li>
+</ul>
+<p><strong>ps：参考2.4.3小节。</strong></p>
+</blockquote>
+<h3 id="2-6-lock-和trylock-的区别-1"><a href="#2-6-lock-和trylock-的区别-1" class="headerlink" title="2.6 lock()和trylock()的区别"></a>2.6 lock()和trylock()的区别</h3><p>讲了半天忘了说使用redission实现分布式锁的示例了😂，索性就在这补充一下吧。</p>
+<p><strong>lock()：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">RLock lock = redisson.getLock(<span class="hljs-string">&quot;MyLock&quot;</span>);lock.lock();<span class="hljs-regexp">//</span>阻塞方法，知道获取到锁try &#123;    <span class="hljs-regexp">//</span>业务代码&#125;finally &#123;    <span class="hljs-regexp">//</span>当前锁存在且被当前线程持有     <span class="hljs-keyword">if</span>(lock.isLocked() &amp;&amp; lock.isHeldByCurrentThread())&#123;      <span class="hljs-regexp">//</span>释放锁      lock.unlock();   &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>lock的原理是以阻塞的方式获取锁，如果获取失败则一直等待，直到获取成功。</p>
+<p><strong>ps：可以参考2.3.1小节。</strong></p>
+</blockquote>
+<p><strong>trylock()：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">RLock lock = redisson.getLock(<span class="hljs-string">&quot;MyLock&quot;</span>);boolean b = lock.tryLock();<span class="hljs-regexp">//</span>非阻塞方法，立即返回获取结果<span class="hljs-keyword">if</span>(b)&#123;     try &#123;          <span class="hljs-regexp">//</span>业务代码     &#125;finally &#123;          <span class="hljs-regexp">//</span>当前锁存在且被当前线程持有          <span class="hljs-keyword">if</span>(lock.isLocked() &amp;&amp; lock.isHeldByCurrentThread())&#123;               <span class="hljs-regexp">//</span>释放锁               lock.unlock();           &#125;     &#125;&#125;<span class="hljs-keyword">else</span> &#123;   <span class="hljs-regexp">//</span>获取锁失败，处理逻辑&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/1c9d3a00e609d59fa4984a1f606e3953.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>tryLock是尝试获取锁，如果能获取直接返回true，如果无法获取，它会按照我们指定的超时时间进行阻塞，<strong>这个时间内还会尝试获取锁，如果超过这个时间还没获取到，直接返回false。</strong>如果没有指定超时时间，就如我们的示例，那获取不到的话直接就返回false。</p>
+</blockquote>
+<p><strong>我们看下源码：</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/5bf0550041bf17578d7a01ed660437db.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/f9968619e85e7c4660cc7331cb48315d.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>这是没有指定超时时间执行的方法，方法名也很见名知意，就是尝试一次加锁。指定了超时时间的这里就不介绍了，无非是在超时时间内执行while循环尝试获取锁。</strong></p>
+<h2 id="三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用-1"><a href="#三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用-1" class="headerlink" title="三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用"></a>三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用</h2><p><strong>ps：这几种锁都不常用，所以就不细讲了，知道有这个事就行。</strong></p>
+<h3 id="3-1-公平锁（FairLock）-1"><a href="#3-1-公平锁（FairLock）-1" class="headerlink" title="3.1 公平锁（FairLock）"></a>3.1 公平锁（FairLock）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csharp">RLock <span class="hljs-keyword">lock</span> = redisson.getFairLock(<span class="hljs-string">&quot;MyLock&quot;</span>);<span class="hljs-keyword">lock</span>.<span class="hljs-keyword">lock</span>();<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-联锁（MultiLock）-1"><a href="#3-2-联锁（MultiLock）-1" class="headerlink" title="3.2 联锁（MultiLock）"></a>3.2 联锁（MultiLock）</h3><figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">RLock lock1 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock1&quot;</span>)</span>;RLock lock2 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock2&quot;</span>)</span>;RLock lock3 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock3&quot;</span>)</span>;RedissonMultiLock lock=<span class="hljs-keyword">new</span> <span class="hljs-constructor">RedissonMultiLock(<span class="hljs-params">lock1</span>,<span class="hljs-params">lock2</span>,<span class="hljs-params">lock3</span>)</span>;<span class="hljs-comment">//同时加锁lock1、lock2、lock3//所有的锁都上锁成功才算成功lock.lock(); //...lock.unlock();</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-读写锁-1"><a href="#3-3-读写锁-1" class="headerlink" title="3.3 读写锁"></a>3.3 读写锁</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">RReadWriteLock <span class="hljs-keyword">lock</span> = redisson.getReadWriteLock(&quot;myLock&quot;);//读锁<span class="hljs-keyword">lock</span>.readLock().<span class="hljs-keyword">lock</span>();//写锁<span class="hljs-keyword">lock</span>.writeLock().<span class="hljs-keyword">lock</span>();<br></code></pre></td></tr></table></figure>
+
+<p><strong>ps：还有个RedLock，这个可以细讲一下，但是由于篇幅原因，就放在下一篇文章吧。</strong></p>
+<h2 id="四、Redission实现分布式锁存在的问题-1"><a href="#四、Redission实现分布式锁存在的问题-1" class="headerlink" title="四、Redission实现分布式锁存在的问题"></a>四、Redission实现分布式锁存在的问题</h2><p>Redission使用看门狗续期的方案在大多数场景下是挺不错的，但在极端情况下还是会存在问题，比如：</p>
+<blockquote>
+<ul>
+<li>线程1首先获取锁成功，将键值对写入redis的master节点。</li>
+<li><strong>在redis将master数据同步到slave节点之前，master故障了。</strong></li>
+<li>此时会触发故障转移，将其中一个slave升级为master。</li>
+<li>但新的master并没有线程1写入的键值对，因此如果此时来个线程2，也同样可以获取到锁，这就违背了锁的初衷。</li>
+</ul>
+</blockquote>
+<p>这个场景就是我们常说的<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45433817/article/details/137209295?spm=1001.2014.3001.5501" title="集群脑裂">集群脑裂</a><strong>（网络分区）</strong>问题。</p>
+<p>那么比较主流的解决方案就是<strong>Redis作者提出的Redlock</strong>和<strong>Zookeeper</strong>实现的分布式锁，这个我们下节再讲。</p>
+<p><strong>End：希望对大家有所帮助，如果有纰漏或者更好的想法，请您一定不要吝啬你的赐教🙋。</strong>在<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%A4%9A%E7%BA%BF%E7%A8%8B&spm=1001.2101.3001.7020">多线程</a>环境下，为了保证数据的线程安全，我们通常用加锁的方式，使同一时刻只有一个线程可以对这个共享资源进行操作，<strong>在单服务系统我们常用JVM锁——<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45433817/article/details/132216383" title="Synchronized、ReentrantLock等">Synchronized、ReentrantLock等</a>。然而在多台服务系统的情况下，JVM锁就无法在多个服务器之间生效了，这时候我们就需要用分布式锁来解决线程安全的问题。</strong></p>
+<p>分布式锁的实现方式有很多，主流的就是基于<strong>数据库、zookeeper以及redis</strong>，当然使用redis的居多，由于篇幅原因，本节就详细介绍一下使用redis实现分布式锁的几种方式。</p>
+<h2 id="一、SETNX实现-2"><a href="#一、SETNX实现-2" class="headerlink" title="一、SETNX实现"></a>一、SETNX实现</h2><p><strong>ps：本文重点使Redisson实现分布式锁，咱就不从SETNX+EXPIRE、SETNX+LUA脚本…什么的逐步演进了，本身就是一回事，直接一步到位，用set ex px nx+唯一校验+LUA脚本删除等操作实现。</strong></p>
+<p>利用<strong>Redis的单线程</strong>特性，在多个Redis客户端通过SETNX，如果返回1表示获取锁成功，反之失败。因为Redis的单线程机制，所以可以保证一个客户端成功获取后，其它客户端都会获取失败。伪代码如下：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmake">public class RedisLock &#123;    private Jedis jedis;    private void init()&#123;        //建立连接        jedis = JedisPoolFactory.getJedis();    &#125;    /**     * 获取锁     * @param lockKey 锁的键值     * @param requestId 唯一标识     * @param expireTime 过期时间     * @<span class="hljs-keyword">return</span> 是否获取锁 成功返回<span class="hljs-keyword">true</span>，反之<span class="hljs-keyword">false</span>     */    public boolean tryLock(<span class="hljs-keyword">String</span> lockKey,<span class="hljs-keyword">String</span> requestId,int expireTime)&#123;        //<span class="hljs-number">2</span>、加锁        <span class="hljs-keyword">String</span> result = jedis.<span class="hljs-keyword">set</span>(lockKey,requestId,<span class="hljs-string">&quot;NX&quot;</span>,<span class="hljs-string">&quot;EX&quot;</span>,expireTime);​        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;OK&quot;</span>.equals(result);    &#125;​    /**     * 释放锁     * @param lockKey 锁的键值     * @param requestId 唯一标识     * @<span class="hljs-keyword">return</span> 成功<span class="hljs-keyword">true</span>，失败<span class="hljs-keyword">false</span>     */    public boolean unlock(<span class="hljs-keyword">String</span> lockKey,<span class="hljs-keyword">String</span> requestId)&#123;        //LUA脚本：判断当前锁的值是否等于请求标识requestId，如果是则删除锁并返回<span class="hljs-keyword">true</span>，反之返回<span class="hljs-keyword">false</span>。        <span class="hljs-keyword">String</span> scripts = <span class="hljs-string">&quot;if redis.call(&#x27;get&#x27;,KEYS[1]) == ARGV[1] then &quot;</span> +                <span class="hljs-string">&quot;return redis.call(&#x27;del&#x27;,KEYS[1]) else return 0 end&quot;</span>;        Object result = jedis.eval(scripts, Collections.singletonList(lockKey), Collections.singletonList(requestId));        <span class="hljs-keyword">return</span> Long.parseLong(result.toString())==<span class="hljs-number">1</span>L;    &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>存在的问题：</strong></p>
+<blockquote>
+<ul>
+<li><strong>锁无法续期：</strong>假设线程A获取了锁，但是由于网络原因，执行时间超过了设置的过期时间，这是锁被释放了，线程B获取锁成功，此时线程A和B都会执行临界区的代码，这是绝对不允许的。</li>
+</ul>
+</blockquote>
+<h2 id="二、Redisson实现分布式锁-2"><a href="#二、Redisson实现分布式锁-2" class="headerlink" title="二、Redisson实现分布式锁"></a>二、Redisson实现分布式锁</h2><p>在使用SETNX实现的分布式锁中，存在锁无法续期导致并发冲突的问题。不过这个问题在Redisson中用看门狗的机制巧妙地解决了，这也是我们实现分布式锁最常用的方式。</p>
+<h3 id="2-1-整体类图-2"><a href="#2-1-整体类图-2" class="headerlink" title="2.1 整体类图"></a>2.1 整体类图</h3><p><img src="https://i-blog.csdnimg.cn/blog_migrate/2163205be5f25e23897ced4a05a14cb9.png" srcset="/img/loading.gif" lazyload></p>
+<p>标黄的两个类就是我们今天的重点，看门狗续期的实现逻辑在<strong>RedissionBaseLock类</strong>中，加锁逻辑在<strong>RedissionLock类</strong>中。</p>
+<h3 id="2-2-大致流程-2"><a href="#2-2-大致流程-2" class="headerlink" title="2.2 大致流程"></a>2.2 大致流程</h3><p>在深入代码前，我们先看下加锁、看门狗续期大致的流程，有个大致印象。</p>
+<p><img src="https://i-blog.csdnimg.cn/direct/47e9d6b55dd9448d8fe54d097e8bfbd3.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-3-加锁流程源码分析-2"><a href="#2-3-加锁流程源码分析-2" class="headerlink" title="2.3 加锁流程源码分析"></a>2.3 加锁流程源码分析</h3><p>下面我们就按上面的流程图，走走源码。</p>
+<h4 id="2-3-1-lock-—加锁入口-2"><a href="#2-3-1-lock-—加锁入口-2" class="headerlink" title="2.3.1 lock()—加锁入口"></a>2.3.1 lock()—加锁入口</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/5c90322cb4a159b87fd04aca1081c2e2.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>lock方法，一个没设置过期时间，一个设置了过期时间。</li>
+</ul>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/096f1c9bba501ea1e6b22b942c56c93f.png" srcset="/img/loading.gif" lazyload></p>
+<p>解析：</p>
+<blockquote>
+<ul>
+<li>第一个红框：尝试加锁，会返回null或者具体的值，<strong>返回null表示加锁成功，反之有线程持有该锁，加锁失败。</strong></li>
+<li>第二个红框：<strong>加锁失败，while循环不断尝试。</strong></li>
+</ul>
+</blockquote>
+<h4 id="2-3-2-tryAcquire-—执行加锁LUA脚本并判断是否要进行锁续期-2"><a href="#2-3-2-tryAcquire-—执行加锁LUA脚本并判断是否要进行锁续期-2" class="headerlink" title="2.3.2 tryAcquire()—执行加锁LUA脚本并判断是否要进行锁续期"></a>2.3.2 tryAcquire()—执行加锁LUA脚本并判断是否要进行锁续期</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/17e3ff2ffae885cde2e3349b11819e08.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/8ab1b8816bdb35dc5cd7918ee3e682dc.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><p>第一个红框：执行加锁LUA脚本，返回null说明加锁成功，反之失败。</p>
+<ul>
+<li><p><strong>如果设置了过期时间，第二个参数就传设置的时间。</strong></p>
+</li>
+<li><p>反之，使用默认的<strong>internallockLeaseTime</strong>时间。</p>
+</li>
+</ul>
+</li>
+<li><p>第二个红框：如果加锁成功（null），且设置了过期时间，将设置过期时间赋值给internallockLeaseTime，如果没设置，则执行<strong>scheduleExpirationRenewal方法（看门狗）。</strong>返回结果。</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>ps：internallockLeaseTime默认就是30s。</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/3776045e441c2b913a359ec9fbe4266d.png" srcset="/img/loading.gif" lazyload><img src="https://i-blog.csdnimg.cn/blog_migrate/a0950ff3af7e06b77e31416b71c66999.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/04323d9885389ecb586ed19b62ac751c.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="2-3-3-tryLockInnerAsync-—–选择slot槽并执行lua脚本-2"><a href="#2-3-3-tryLockInnerAsync-—–选择slot槽并执行lua脚本-2" class="headerlink" title="2.3.3 tryLockInnerAsync()—–选择slot槽并执行lua脚本"></a>2.3.3 tryLockInnerAsync()—–选择slot槽并执行lua脚本</h4><p>我们先看如何执行LUA加锁脚本的，这里面有点深。。。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/16032194b6c649b468f75692ef55f6b4.png" srcset="/img/loading.gif" lazyload> <img src="https://i-blog.csdnimg.cn/blog_migrate/3aac08c39e8ead75464cc1c9aeb18fe7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/cff71f24ba3ea06fa99bc94dc294f563.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>slot槽这里就不多讲了。。。我们回到LUA脚本。</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/aaa3bc287881377ff5ecdf9d7b7c1fdd.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><strong>首先检查锁的key是否存在，如果不存在，判断是否是同一线程再次过来对同一个key进行加锁，也就是当前key是否被当前线程持有（可重入性）。</strong></li>
+<li>如果上述两个条件任意一个成立，则对当前key执行自增和设置过期时间操作，并<strong>返回null表示加锁成功。</strong></li>
+<li><strong>反之，返回当前锁的过期时间，表示加锁失败。</strong></li>
+</ul>
+</blockquote>
+<h3 id="2-4-watch-dog源码分析-2"><a href="#2-4-watch-dog源码分析-2" class="headerlink" title="2.4 watch dog源码分析"></a>2.4 watch dog源码分析</h3><h4 id="2-4-1-scheduleExpirationRenewal-–锁续期入口-2"><a href="#2-4-1-scheduleExpirationRenewal-–锁续期入口-2" class="headerlink" title="2.4.1 scheduleExpirationRenewal()–锁续期入口"></a>2.4.1 scheduleExpirationRenewal()–锁续期入口</h4><p>当加锁成功，且没有设置过期时间，执行<strong>scheduleExpirationRenewal()方法</strong>，这也是我们常说的”看门狗”的实现逻辑。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/708d64a8687a87050b20fe1e5e88a36e.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li>第一个红框：EXPIRATION_RENEWAL_MAP存放续期任务，get有值说明当前锁需要续期，为null则不需要再续期了。</li>
+<li>第二个红框，执行续期操作。</li>
+</ul>
+</blockquote>
+<h4 id="2-4-2-renewExpiration-—-执行锁续期操作-2"><a href="#2-4-2-renewExpiration-—-执行锁续期操作-2" class="headerlink" title="2.4.2 renewExpiration()—-执行锁续期操作"></a>2.4.2 renewExpiration()—-执行锁续期操作</h4><p>这个方法用<strong>netty的时间轮</strong>进行续期。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/50ed4ade0574c203c1e118abc1920cfd.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><p>第一个红框：首先会从<strong>EXPIRATION_RENEWAL_MAP</strong>中获取一个值，如果为null，就不续期了，<strong>说明这个锁可能已经被释放或过期了。</strong></p>
+</li>
+<li><p>第二个红框：基于TimerTask实现一个定时任务，设置<strong>internalLockLeaseTime &#x2F; 3</strong>的时长进行一次锁续期，也就是每10s进行一次续期。</p>
+<ul>
+<li><p>这里也会从<strong>EXPIRATION_RENEWAL_MAP</strong>里获取一个值，检查锁是否被释放。</p>
+</li>
+<li><p><strong>如果不为null，则获取第一个thread（也就是持有锁的线程），如果为null则说明锁也被释放了，此时也不需要续期。</strong></p>
+</li>
+<li><p>如果不为null，说明需要续期，它会异步调用<strong>renewExpirationAsync(threadId)方法</strong>来实现续期。</p>
+</li>
+<li><p>当异步续期操作完成，会调用whenComplete方法来处理结果，如果有异常，则将该锁从<strong>EXPIRATION_RENEWAL_MAP</strong>中移除。如果续期成功，则会重新调用<strong>renewExpiration()方法</strong>进行下一次续期，如果续期失败，则调用<strong>cancelExpirationRenewal()方法</strong>取消续期。</p>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h4 id="2-4-3-renewExpirationAsync-–执行锁续期LUA脚本-2"><a href="#2-4-3-renewExpirationAsync-–执行锁续期LUA脚本-2" class="headerlink" title="2.4.3 renewExpirationAsync()–执行锁续期LUA脚本"></a>2.4.3 renewExpirationAsync()–执行锁续期LUA脚本</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/2bc37246d829ed6149898214984c7ab2.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li><strong>如果当前key存在，说明当前锁还被该线程持有，那么就重置过期时间为30s，并返回true，表示续期成功，反之返回false。</strong></li>
+</ul>
+</blockquote>
+<h4 id="2-4-4-cancelExpirationRenewal—取消锁续期-2"><a href="#2-4-4-cancelExpirationRenewal—取消锁续期-2" class="headerlink" title="2.4.4 cancelExpirationRenewal—取消锁续期"></a>2.4.4 cancelExpirationRenewal—取消锁续期</h4><p><img src="https://i-blog.csdnimg.cn/blog_migrate/70dd77797eb7311864199dbdc59537b6.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<ul>
+<li>还是从这个map里获取键值对，如果为null，说明续期任务不存在，也没必要进行下去了，直接返回。</li>
+<li>如果threadId不为null，直接将这个续期任务从task里移除。</li>
+<li>如果threadId为null或者task中不再有任何线程在等待续期，此时就调用cancel方法来取消定时任务，然后在从<strong>EXPIRATION_RENEWAL_MAP</strong>中移除该续期任务。</li>
+</ul>
+</blockquote>
+<p><strong>ps：当unlock的时候也会调该方法，来执行取消锁续期的操作。</strong></p>
+<h3 id="2-5-小结-2"><a href="#2-5-小结-2" class="headerlink" title="2.5 小结"></a>2.5 小结</h3><h4 id="2-5-1-什么时候会进行锁续期-2"><a href="#2-5-1-什么时候会进行锁续期-2" class="headerlink" title="2.5.1 什么时候会进行锁续期"></a>2.5.1 什么时候会进行锁续期</h4><blockquote>
+<p>加锁时，如果没有指定过期时间，则默认过期时间为30s且每隔10s进行锁续期操作。</p>
+<p><strong>ps：参考2.3.2和2.4.2小节。</strong></p>
+</blockquote>
+<h4 id="2-5-2-什么情况会停止续期-2"><a href="#2-5-2-什么情况会停止续期-2" class="headerlink" title="2.5.2 什么情况会停止续期"></a>2.5.2 什么情况会停止续期</h4><blockquote>
+<ul>
+<li><p>锁被释放。</p>
+</li>
+<li><p>续期时发生异常。</p>
+</li>
+<li><p>执行锁续期LUA脚本失败。</p>
+</li>
+<li><p>Redission的续期时Netty时间轮（TimerTask、TimeOut、Timer）的，并且操作都是基于JVM，所以当应用宕机、下线或重启后，续期任务也没有了。</p>
+</li>
+</ul>
+<p><strong>ps：参考2.4.3小节。</strong></p>
+</blockquote>
+<h3 id="2-6-lock-和trylock-的区别-2"><a href="#2-6-lock-和trylock-的区别-2" class="headerlink" title="2.6 lock()和trylock()的区别"></a>2.6 lock()和trylock()的区别</h3><p>讲了半天忘了说使用redission实现分布式锁的示例了😂，索性就在这补充一下吧。</p>
+<p><strong>lock()：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">RLock lock = redisson.getLock(<span class="hljs-string">&quot;MyLock&quot;</span>);lock.lock();<span class="hljs-regexp">//</span>阻塞方法，知道获取到锁try &#123;    <span class="hljs-regexp">//</span>业务代码&#125;finally &#123;    <span class="hljs-regexp">//</span>当前锁存在且被当前线程持有     <span class="hljs-keyword">if</span>(lock.isLocked() &amp;&amp; lock.isHeldByCurrentThread())&#123;      <span class="hljs-regexp">//</span>释放锁      lock.unlock();   &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>lock的原理是以阻塞的方式获取锁，如果获取失败则一直等待，直到获取成功。</p>
+<p><strong>ps：可以参考2.3.1小节。</strong></p>
+</blockquote>
+<p><strong>trylock()：</strong></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">RLock lock = redisson.getLock(<span class="hljs-string">&quot;MyLock&quot;</span>);boolean b = lock.tryLock();<span class="hljs-regexp">//</span>非阻塞方法，立即返回获取结果<span class="hljs-keyword">if</span>(b)&#123;     try &#123;          <span class="hljs-regexp">//</span>业务代码     &#125;finally &#123;          <span class="hljs-regexp">//</span>当前锁存在且被当前线程持有          <span class="hljs-keyword">if</span>(lock.isLocked() &amp;&amp; lock.isHeldByCurrentThread())&#123;               <span class="hljs-regexp">//</span>释放锁               lock.unlock();           &#125;     &#125;&#125;<span class="hljs-keyword">else</span> &#123;   <span class="hljs-regexp">//</span>获取锁失败，处理逻辑&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/1c9d3a00e609d59fa4984a1f606e3953.png" srcset="/img/loading.gif" lazyload></p>
+<blockquote>
+<p>tryLock是尝试获取锁，如果能获取直接返回true，如果无法获取，它会按照我们指定的超时时间进行阻塞，<strong>这个时间内还会尝试获取锁，如果超过这个时间还没获取到，直接返回false。</strong>如果没有指定超时时间，就如我们的示例，那获取不到的话直接就返回false。</p>
+</blockquote>
+<p><strong>我们看下源码：</strong></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/5bf0550041bf17578d7a01ed660437db.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/f9968619e85e7c4660cc7331cb48315d.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>这是没有指定超时时间执行的方法，方法名也很见名知意，就是尝试一次加锁。指定了超时时间的这里就不介绍了，无非是在超时时间内执行while循环尝试获取锁。</strong></p>
+<h2 id="三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用-2"><a href="#三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用-2" class="headerlink" title="三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用"></a>三、Redission公平锁（FairLock）、联锁（MultiLock）、读写锁的使用</h2><p><strong>ps：这几种锁都不常用，所以就不细讲了，知道有这个事就行。</strong></p>
+<h3 id="3-1-公平锁（FairLock）-2"><a href="#3-1-公平锁（FairLock）-2" class="headerlink" title="3.1 公平锁（FairLock）"></a>3.1 公平锁（FairLock）</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs csharp">RLock <span class="hljs-keyword">lock</span> = redisson.getFairLock(<span class="hljs-string">&quot;MyLock&quot;</span>);<span class="hljs-keyword">lock</span>.<span class="hljs-keyword">lock</span>();<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-联锁（MultiLock）-2"><a href="#3-2-联锁（MultiLock）-2" class="headerlink" title="3.2 联锁（MultiLock）"></a>3.2 联锁（MultiLock）</h3><figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">RLock lock1 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock1&quot;</span>)</span>;RLock lock2 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock2&quot;</span>)</span>;RLock lock3 = redisson.get<span class="hljs-constructor">Lock(<span class="hljs-string">&quot;MyLock3&quot;</span>)</span>;RedissonMultiLock lock=<span class="hljs-keyword">new</span> <span class="hljs-constructor">RedissonMultiLock(<span class="hljs-params">lock1</span>,<span class="hljs-params">lock2</span>,<span class="hljs-params">lock3</span>)</span>;<span class="hljs-comment">//同时加锁lock1、lock2、lock3//所有的锁都上锁成功才算成功lock.lock(); //...lock.unlock();</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-读写锁-2"><a href="#3-3-读写锁-2" class="headerlink" title="3.3 读写锁"></a>3.3 读写锁</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">RReadWriteLock <span class="hljs-keyword">lock</span> = redisson.getReadWriteLock(&quot;myLock&quot;);//读锁<span class="hljs-keyword">lock</span>.readLock().<span class="hljs-keyword">lock</span>();//写锁<span class="hljs-keyword">lock</span>.writeLock().<span class="hljs-keyword">lock</span>();<br></code></pre></td></tr></table></figure>
+
+<p><strong>ps：还有个RedLock，这个可以细讲一下，但是由于篇幅原因，就放在下一篇文章吧。</strong></p>
+<h2 id="四、Redission实现分布式锁存在的问题-2"><a href="#四、Redission实现分布式锁存在的问题-2" class="headerlink" title="四、Redission实现分布式锁存在的问题"></a>四、Redission实现分布式锁存在的问题</h2><p>Redission使用看门狗续期的方案在大多数场景下是挺不错的，但在极端情况下还是会存在问题，比如：</p>
+<blockquote>
+<ul>
+<li>线程1首先获取锁成功，将键值对写入redis的master节点。</li>
+<li><strong>在redis将master数据同步到slave节点之前，master故障了。</strong></li>
+<li>此时会触发故障转移，将其中一个slave升级为master。</li>
+<li>但新的master并没有线程1写入的键值对，因此如果此时来个线程2，也同样可以获取到锁，这就违背了锁的初衷。</li>
+</ul>
+</blockquote>
+<p>这个场景就是我们常说的<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45433817/article/details/137209295?spm=1001.2014.3001.5501" title="集群脑裂">集群脑裂</a><strong>（网络分区）</strong>问题。</p>
+<p>那么比较主流的解决方案就是<strong>Redis作者提出的Redlock</strong>和<strong>Zookeeper</strong>实现的分布式锁，这个我们下节再讲。</p>
+<p><strong>End：希望对大家有所帮助，如果有纰漏或者更好的想法，请您一定不要吝啬你的赐教🙋。</strong></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Redis/">#Redis</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/7ea8260e.html" title="redis集群维护">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">redis集群维护</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/e2ee4148.html" title="redis分布式锁">
+                        <span class="hidden-mobile">redis分布式锁</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

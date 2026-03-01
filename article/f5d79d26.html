@@ -1,0 +1,1149 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="名称rabbitmqctl — 用于管理中间件的命令行工具 语法rabbitmqctl [-n _node_] [-t _timeout_] [-q] {command} [command options…] 描述RabbitMQ是AMQP的实现, 后者是高性能企业消息通信的新兴标准. RabbitMQ server是AMQP 中间件健壮的，可扩展的实现. rabbitmqctl 用来管理Ra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="rabbitmqctl 命令指南">
+<meta property="og:url" content="https://fyyhub.github.io/article/f5d79d26.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="名称rabbitmqctl — 用于管理中间件的命令行工具 语法rabbitmqctl [-n _node_] [-t _timeout_] [-q] {command} [command options…] 描述RabbitMQ是AMQP的实现, 后者是高性能企业消息通信的新兴标准. RabbitMQ server是AMQP 中间件健壮的，可扩展的实现. rabbitmqctl 用来管理Ra">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-20T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.274Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Rabbitmq">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>rabbitmqctl 命令指南 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="rabbitmqctl 命令指南"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-20 00:00" pubdate>
+          2024年6月20日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          132 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">rabbitmqctl 命令指南</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+
+<h1 id="名称"><a href="#名称" class="headerlink" title="名称"></a>名称</h1><p>rabbitmqctl — 用于管理中间件的命令行工具</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><p>rabbitmqctl [-n _node_] [-t _timeout_] [-q] {<em>command</em>} [<em>command options</em>…]</p>
+<h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>RabbitMQ是AMQP的实现, 后者是高性能企业消息通信的新兴标准. RabbitMQ server是AMQP 中间件健壮的，可扩展的实现.</p>
+<p><strong>rabbitmqctl</strong> 用来管理RabbitMQ中间件的命令行工具.它通过连接中间件节点来执行所有操作。</p>
+<p>如果中间件没有运行，将会显示诊断信息, 不能到达，或因不匹配Erlang cookie而拒绝连接.</p>
+<h2 id="选项"><a href="#选项" class="headerlink" title="选项"></a>选项</h2><p>[-n _node_]</p>
+<p>默认节点是”rabbit@server”,此处的server是本地主机. 在一个名为”server.example.com”的主机上, RabbitMQ Erlang node 的节点名称通常是rabbit@server (除非RABBITMQ_NODENAME在启动时设置了非默认值). <strong>hostname -s</strong> 的输出通常是”@” 标志后的东西.查看rabbitmq-server(1)来了解配置RabbitMQ broker的细节.</p>
+<p>[-q]</p>
+<p>使用-q标志来启用宁静(quiet)模式，这会一致消息输出.</p>
+<p>[-t _timeout_]</p>
+<p>操作超时时间（秒为单位）. 只适用于”list” 命令. 默认是无穷大.</p>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><h3 id="应用程序和集群管理"><a href="#应用程序和集群管理" class="headerlink" title="应用程序和集群管理"></a>应用程序和集群管理</h3><h3 id="stop-pid-file"><a href="#stop-pid-file" class="headerlink" title="stop [_pid_file_]"></a>stop [_pid_file_]</h3><p>用于停止运行RabbitMQ的Erlang node.如果指定了pid_file，还将等待指定的过程结束。例如：</p>
+<p>rabbitmqctl stop</p>
+<p>此命令会终止RabbitMQ node的运行.</p>
+<p>stop_app</p>
+<p>停止RabbitMQ application,但Erlang node会继续运行.此命令主要用于优先执行其它管理操作（这些管理操作需要先停止RabbitMQ application），如. <a target="_blank" rel="noopener" href="http://www.rabbitmq.com/man/rabbitmqctl.1.man.html#reset"><strong>reset</strong></a>.例如：</p>
+<p>rabbitmqctl stop_app</p>
+<p>start_app</p>
+<p>启动RabbitMQ application.</p>
+<p>此命令典型用于在执行了其它管理操作之后，重新启动停止的RabbitMQ application。如<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/man/rabbitmqctl.1.man.html#reset"><strong>reset</strong></a>.例如：</p>
+<p>rabbitmqctl start_app</p>
+<p>此命令来指导RabbitMQ node来启动RabbitMQ application.</p>
+<p>wait {<em>pid_file</em>}</p>
+<p>等待RabbitMQ application启动.此命令用来等待RabbitMQ application来启动node。它会等待创建pid文件，然后等待pid文件中的特定pid过程启动，最后等待RabbitMQ  application 来启动node. </p>
+<p>pid file是通过<strong>rabbitmq-server</strong> 脚本来创建的.默认情况下，它存放于Mnesia目录中. 修改<strong>RABBITMQ_PID_FILE</strong> 环境变量可以改变此位置。如：</p>
+<p>rabbitmqctl wait &#x2F;var&#x2F;run&#x2F;rabbitmq&#x2F;pid</p>
+<p>此命令会在RabbitMQ node启动后返回.</p>
+<p>reset</p>
+<p>将RabbitMQ node还原到最初状态.包括从所在群集中删除此node,从管理数据库中删除所有配置数据，如已配置的用户和虚拟主机，以及删除所有持久化消息.</p>
+<p>执行<strong>reset和****force_reset之前，必须停止</strong>RabbitMQ application ,如使用<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/man/rabbitmqctl.1.man.html#stop_app"><strong>stop_app</strong></a>.</p>
+<p>示例:</p>
+<p>rabbitmqctl reset</p>
+<p>此命令会重设RabbitMQ　node.</p>
+<p>force_reset</p>
+<p>强制RabbitMQ node还原到最初状态.</p>
+<p>不同于<strong>reset</strong> ， <strong>force_reset</strong> 命令会无条件地重设node,不论当前管理数据库的状态和集群配置是什么. 它只能在数据库或集群配置已损坏的情况下才可使用。</p>
+<p>执行<strong>reset和****force_reset之前，必须停止</strong>RabbitMQ application ,如使用<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/man/rabbitmqctl.1.man.html#stop_app"><strong>stop_app</strong></a>.</p>
+<p>示例:</p>
+<p>rabbitmqctl force_reset</p>
+<p>此命令会重设RabbitMQnode.</p>
+<p>rotate_logs {<em>suffix</em>}</p>
+<p>指示RabbitMQ node循环日志文件.</p>
+<p>RabbitMQ 中间件会将原来日志文件中的内容追加到原始名称和后辍的日志文件中，然后再将原始日志文件内容复制到新创建的日志上。实际上，当前日志内容会移到以此后辍结尾的文件上。当目标文件不存在时，将会进行创建。如果不指定后辍，则不会发生循环，日志文件只是重新打开。示例：</p>
+<p>rabbitmqctl rotate_logs .1</p>
+<p>此命令指示RabbitMQ node将日志文件的内容追加到新日志文件（文件名由原日志文件名和.1后辍构成）中。如. <a href="mailto:&#114;&#97;&#x62;&#x62;&#x69;&#116;&#x40;&#109;&#x79;&#x6d;&#97;&#x63;&#104;&#x69;&#x6e;&#x65;&#46;&#108;&#x6f;&#x67;&#x2e;&#x31;">&#114;&#97;&#x62;&#x62;&#x69;&#116;&#x40;&#109;&#x79;&#x6d;&#97;&#x63;&#104;&#x69;&#x6e;&#x65;&#46;&#108;&#x6f;&#x67;&#x2e;&#x31;</a> 和 <a href="mailto:&#x72;&#x61;&#x62;&#x62;&#x69;&#116;&#x40;&#109;&#121;&#x6d;&#x61;&#x63;&#104;&#x69;&#110;&#x65;&#x2d;&#115;&#97;&#115;&#108;&#46;&#x6c;&#111;&#103;&#46;&#x31;">&#x72;&#x61;&#x62;&#x62;&#x69;&#116;&#x40;&#109;&#121;&#x6d;&#x61;&#x63;&#104;&#x69;&#110;&#x65;&#x2d;&#115;&#97;&#115;&#108;&#46;&#x6c;&#111;&#103;&#46;&#x31;</a>. 最后, 日志会在原始位置恢复到新文件中.</p>
+<h3 id="集群管理"><a href="#集群管理" class="headerlink" title="集群管理"></a>集群管理</h3><p>join_cluster {<em>clusternode</em>} [–ram]</p>
+<p>clusternode</p>
+<p>加入集群的节点.</p>
+<p>[–ram]</p>
+<p>如果进行了设置，节点将以RAM节点身份加入集群.</p>
+<p>指导节点成为集群中的一员. 在加入集群之前，节点会重置,因此在使用此命令时，必须小心. 这个命令要成功,RabbitMQ应用程序必须先停止,如<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/man/rabbitmqctl.1.man.html#stop_app"><strong>stop_app</strong></a>.</p>
+<p>集群节点可以是两种类型: 磁盘节点(Disc Node) 或 内存节点(RAM Node).磁盘节点会在RAM和磁盘中复制数据, 通过冗余可以防止节点失效事件，并可从断电这种全局事件中进行恢复. RAM节点只在RAM中复制数据(除了队列的内容外，还依赖于队列是否是持久化的或者内容对于内存来说是否过大) ，并主要用于可伸缩性. RAM节点只有当管理资源(如，增加&#x2F;删除队列,交换机,或绑定)的时候才具有更高的性能.一个集群必须至少有一个磁盘节点，通常来说还不止一个.</p>
+<p>默认情况下，节点是磁盘节点.如果你想要创建内存节点,需要提供<strong>--ram</strong> 标志.</p>
+<p>在执行<strong>cluster</strong>命令之后, 无论何时，当前节点上启动的RabbitMQ 应用程序在节点宕机的情况下，会尝试连接集群中的其它节点。</p>
+<p>要脱离集群, 必须重设(reset)节点. 你也可以通过<strong>forget_cluster_node</strong> 命令来远程删除节点.</p>
+<p>更多详情，参考<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/clustering.html">集群指南</a>.</p>
+<p>例如:</p>
+<p>rabbitmqctl join_cluster hare@elena –ram</p>
+<p>此命令用于指示RabbitMQ node以ram节点的形式将 <strong>hare@elena</strong> 加入集群.</p>
+<p>cluster_status</p>
+<p>按节点类型来分组展示集群中的所有节点，包括当前运行的节点.</p>
+<p>例如:</p>
+<p>rabbitmqctl cluster_status</p>
+<p>此命令会显示集群中的所有节点.</p>
+<p>change_cluster_node_type {disc | ram}</p>
+<p>修改集群节点的类型. 要成功执行此操作，必须首先停止节点，要将节点转换为RAM节点，则此节点不能是集群中的唯一disc节点。</p>
+<p>例如:</p>
+<p>rabbitmqctl change_cluster_node_type disc</p>
+<p>此命令会将一个RAM节点转换为disc节点.</p>
+<p>forget_cluster_node [–offline]</p>
+<p>[–offline]</p>
+<p>允许节点从脱机节点中删除. 这只在所有节点都脱机且最后一个掉线节点不能再上线的情况下有用，从而防止整个集群从启动。它不能使用在其它情况下，因为这会导致不一致．</p>
+<p>远程删除一个集群节点.要删除的节点必须是脱机的, 而在删除节点期间节点必须是在线的，除非使用了<strong>--offline</strong> 标志.</p>
+<p>当使用<strong>--offline</strong> 标志时，rabbitmqctl不会尝试正常连接节点;相反，它会临时改变节点以作修改.如果节点不能正常启动的话，这是非常有用的.在这种情况下，节点将变成集群元数据的规范源（例如，队列的存在），即使它不是以前的。因此，如果有可能，你应该在最新的节点上使用这个命令来关闭。</p>
+<p>例如:</p>
+<p>rabbitmqctl -n hare@mcnulty forget_cluster_node rabbit@stringer</p>
+<p>此命令会从节点<strong>hare@mcnulty中删除****rabbit@stringer节点</strong>.</p>
+<p>rename_cluster_node {oldnode1} {newnode1} [oldnode2] [newnode2 …]</p>
+<p>支持在本地数据库中重命名集群节点.</p>
+<p>此子命令会促使rabbitmqctl临时改变节点以作出修改. 因此本地集群必须是停止的，其它节点可以是在线或离线的．</p>
+<p>这个子命令接偶数个参数，成对表示节点的旧名称和新名称.你必须指定节点的旧名称和新名称，因为其它停止的节点也可能在同一时间重命名.</p>
+<p>同时停止所有节点来重命名也是可以的(在这种情况下，每个节点都必须给出旧名称和新名称)或一次停止一个节点来重命名(在这种情况下，每个节点只需要被告知其名句是如何变化的).</p>
+<p>例如:</p>
+<p>rabbitmqctl rename_cluster_node rabbit@misshelpful rabbit@cordelia</p>
+<p>此命令来将节点名称<strong>rabbit@misshelpful</strong> 重命名为<strong>rabbit@cordelia</strong>.</p>
+<p>update_cluster_nodes {clusternode}</p>
+<p>clusternode</p>
+<p>用于咨询具有最新消息的节点.</p>
+<p>指示已集群的节点醒来时联系<strong>clusternode</strong>.这不同于<strong>join_cluster</strong> ，因为它不会加入任何集群 - 它会检查节点已经以<strong>clusternode</strong>的形式存在于集群中了．</p>
+<p>需要这个命令的动机是当节点离线时，集群可以变化.考虑这样的情况，节点Ａ和节点Ｂ都在集群里边，这里节点Ａ掉线了，Ｃ又和Ｂ集群了，然后Ｂ又离开了集群．当Ａ醒来的时候，它会尝试联系Ｂ，但这会失败，因为Ｂ已经不在集群中了.<strong>update_cluster_nodes -n A C</strong> 可解决这种场景．</p>
+<p>force_boot</p>
+<p>确保节点将在下一次启动，即使它不是最后一个关闭的。通常情况下，当你关闭整个RabbitMQ 集群时，你重启的第一个节点应该是最后一个下线的节点，因为它可以看到其它节点所看不到的事情. 但有时这是不可能的:例如，如果整个集群是失去了电力而所有节点都在想它不是最后一个关闭的．</p>
+<p>在这种节点掉线情况下，你可以调用<strong>rabbitmqctl force_boot</strong> ．这就告诉节点下一次无条件的启动节点.在此节点关闭后，集群的任何变化，它都会丢失．</p>
+<p>如果最后一个掉线的节点永久丢失了，那么你需要优先使用<strong>rabbitmqctl forget_cluster_node –offline</strong>, 因为它可以确保在丢失的节点上掌握的镜像队列得到提升。</p>
+<p>例如:</p>
+<p>rabbitmqctl force_boot</p>
+<p>这可以强制节点下次启动时不用等待其它节点．</p>
+<p>sync_queue [-p _vhost_] {queue}</p>
+<p>queue</p>
+<p>同步队列的名称</p>
+<p>指示未同步slaves上的镜像队列自行同步.同步发生时，队列会阻塞(所有出入队列的发布者和消费者都会阻塞).此命令成功执行后，队列必须是镜像的．</p>
+<p>注意，未同步队列中的消息被耗尽后，最终也会变成同步. 此命令主要用于未耗尽的队列。</p>
+<p>cancel_sync_queue [-p _vhost_] {queue}</p>
+<p>queue</p>
+<p>取消同步的队列名称.</p>
+<p>指示同步镜像队列停止同步.</p>
+<p>purge_queue [-p _vhost_] {queue}</p>
+<p>queue</p>
+<p>要清除队列的名称.</p>
+<p>清除队列(删除其中的所有消息).</p>
+<p>set_cluster_name {name}</p>
+<p>设置集群名称. 集群名称在client连接时，会通报给client,也可用于federation和shovel插件记录消息的来源地. 群集名称默认是来自在群集中的第一个节点的主机名，但可以改变。</p>
+<p>例如:</p>
+<p>rabbitmqctl set_cluster_name london</p>
+<p>设置集群名称为”london”.</p>
+<h3 id="用户管理"><a href="#用户管理" class="headerlink" title="用户管理"></a>用户管理</h3><p>注意<strong>rabbitmqctl</strong> 管理RabbitMQ 内部用户数据库. 任何来自其它认证后端的用户对于<strong>rabbitmqctl</strong>来说是不可见的.</p>
+<p>add_user {<em>username</em>} {<em>password</em>}</p>
+<p>username</p>
+<p>要创建的用户名称.</p>
+<p>password</p>
+<p>设置创建用户登录broker的密码.       </p>
+<p>rabbitmqctl add_user tonyg changeit</p>
+<p>此命令用于指示RabbitMQ broker 创建一个拥有非管理权限的用户，其名称为<strong>tonyg，</strong> 初始密码为<strong>changeit</strong>.</p>
+<p>delete_user {<em>username</em>}</p>
+<p>username</p>
+<p>要删除的用户名称.</p>
+<p>例如:</p>
+<p>rabbitmqctl delete_user tonyg</p>
+<p>此命令用于指示RabbitMQ broker删除名为<strong>tonyg的用户</strong></p>
+<p>change_password {<em>username</em>} {<em>newpassword</em>}</p>
+<p>username</p>
+<p>要修改密码的用户名称.</p>
+<p>newpassword</p>
+<p>用户的新密码.</p>
+<p>例如:</p>
+<p>rabbitmqctl change_password tonyg newpass</p>
+<p>此命令用于指定RabbitMQ broker将<strong>tonyg</strong> 用户的密码修改为<strong>newpass</strong>.</p>
+<p>clear_password {<em>username</em>}</p>
+<p>username</p>
+<p>要清除密码的用户名称.</p>
+<p>例如:</p>
+<p>rabbitmqctl clear_password tonyg</p>
+<p>此命令会指示RabbitMQ broker清除名为tonyg的用户密码.现在，此用户不能使用密码登录(但可以通过SASL EXTERNAL登录，如果配置了的话).</p>
+<p>authenticate_user {<em>username</em>} {<em>password</em>}</p>
+<p>username</p>
+<p>用户的名称.</p>
+<p>password</p>
+<p>用户的密码.</p>
+<p>例如:</p>
+<p>rabbitmqctl authenticate_user tonyg verifyit</p>
+<p>此命令会指示RabbitMQ broker以名称为tonyg， 密码为verifyit来进行验证.</p>
+<p>set_user_tags {<em>username</em>} {<em>tag</em> …}</p>
+<p>username</p>
+<p>要设置tag的用户名称.</p>
+<p>tag</p>
+<p>用于设置0个，1个或多个tags.任何现有的tags都将被删除.</p>
+<p>例如:</p>
+<p>rabbitmqctl set_user_tags tonyg administrator</p>
+<p>此命令指示RabbitMQ broker用于确保<strong>tonyg</strong> 是administrator.当通过AMQP来登录时，这没有什么效果,但用户通过其它的途经来登录时，它可用来管理用户,虚拟主机和权限(如使用管理插件).</p>
+<p>rabbitmqctl set_user_tags tonyg</p>
+<p>此命令会指示RabbitMQ broker删除tonyg上的任何现有的tag.</p>
+<p>list_users</p>
+<p>列出用户. 每个结果行都包含用户名，其后紧跟用户的tags.</p>
+<p>例如:</p>
+<p>rabbitmqctl list_users</p>
+<p>此命令指示RabbitMQ broker列出所有用户.</p>
+<h3 id="访问控制"><a href="#访问控制" class="headerlink" title="访问控制"></a>访问控制</h3><p>注意<strong>rabbitmqctl</strong> 会管理RabbitMQ的内部用户数据库. 无权限的用户将不能使用<strong>rabbitmqctl</strong>.</p>
+<p>add_vhost {<em>vhost</em>}</p>
+<p>vhost</p>
+<p>要创建虚拟主机名称.</p>
+<p>创建一个虚拟主机.</p>
+<p>例如:</p>
+<p>rabbitmqctl add_vhost test</p>
+<p>此命令指示RabbitMQ broker来创建一个新的名为test的虚拟主机.</p>
+<p>delete_vhost {<em>vhost</em>}</p>
+<p>vhost</p>
+<p>要删除的虚拟主机的名称.</p>
+<p>删除一个虚拟主机.</p>
+<p>删除一个虚拟主机，同时也会删除所有交换机，队列，绑定，用户权限，参数和策略.</p>
+<p>例如:</p>
+<p>rabbitmqctl delete_vhost test</p>
+<p>此命令指示RabbitMQ broker删除名为test的虚拟主机.</p>
+<p>list_vhosts [<em>vhostinfoitem</em> …]</p>
+<p>列出所有虚拟主机.</p>
+<p><strong>vhostinfoitem</strong> 参数用于标识哪些虚拟主机应该包含在结果集中.结果集中的列顺序会匹配参数的顺序.<strong>vhostinfoitem</strong> 可接受下面的值：</p>
+<p>name</p>
+<p>虚拟主机的名称.</p>
+<p>tracing</p>
+<p>是否对虚拟主机启用追踪.</p>
+<p>如果没有指定<strong>vhostinfoitem</strong> 参数，那么会显示虚拟主机名称.</p>
+<p>例如：</p>
+<p>rabbitmqctl list_vhosts name tracing</p>
+<p>此命令用于指示RabbitMQ broker显示所有虚拟主机.</p>
+<p>set_permissions [-p _vhost_] {<em>user</em>} {<em>conf</em>} {<em>write</em>} {<em>read</em>}</p>
+<p>vhost</p>
+<p>授予用户可访问的虚拟机名称，默认是**&#x2F;**.</p>
+<p>user</p>
+<p>可访问指定虚拟主机的用户名称.</p>
+<p>conf</p>
+<p>一个用于匹配用户在哪些资源名称上拥有配置权限的正则表达式</p>
+<p>write</p>
+<p>一个用于匹配用户在哪些资源名称上拥有写权限的正则表达式.</p>
+<p>read</p>
+<p>一个用于匹配用户在哪些资源名称上拥有读权限的正则表达式.</p>
+<p>设置用户权限.</p>
+<p>例如:</p>
+<p>rabbitmqctl set_permissions -p &#x2F;myvhost tonyg “^tonyg-.*“ “.*“ “.*“</p>
+<p>此命令表示RabbitMQ broker授予<strong>tonyg</strong> 用户可访问 <strong>&#x2F;myvhost虚拟主机</strong>,并在资源名称以”tonyg-“开头的所有资源上都具有配置权限，并在所有资源上都拥有读写权限。</p>
+<p>clear_permissions [-p _vhost_] {<em>username</em>}</p>
+<p>vhost</p>
+<p>用于设置禁止用户访问的虚拟主机名称,默认为**&#x2F;**.</p>
+<p>username</p>
+<p>禁止访问特定虚拟主机的用户名称.</p>
+<p>设置用户权限.</p>
+<p>例如:</p>
+<p>rabbitmqctl clear_permissions -p &#x2F;myvhost tonyg</p>
+<p>此命令用于指示RabbitMQ broker禁止tonyg 用户访问&#x2F;myvhost虚拟主机.</p>
+<p>list_permissions [-p _vhost_]</p>
+<p>vhost</p>
+<p>用于指定虚拟主机名称，将会列出所有可访问此虚拟主机的所有用户名称和权限.默认为**&#x2F;**.</p>
+<p>显示虚拟机上权限.</p>
+<p>例如:</p>
+<p>rabbitmqctl list_permissions -p &#x2F;myvhost</p>
+<p>此命令指示RabbitMQ broker列出所有已授权访问**&#x2F;myvhost** 虚拟主机的用户，同时也会列出这些用户能在虚拟主机资源可操作的权限.注意，空字符串表示没有任何授予的权限。</p>
+<p>list_user_permissions {<em>username</em>}</p>
+<p>username</p>
+<p>要显示权限的用户名称.</p>
+<p>列出用户权限.</p>
+<p>例如:</p>
+<p>rabbitmqctl list_user_permissions tonyg</p>
+<p>此命令指示RabbitMQ broker列出tonyg可授权访问的所有虚拟主机名称，以及在这些虚拟主机上的操作.</p>
+<h3 id="参数管理"><a href="#参数管理" class="headerlink" title="参数管理"></a>参数管理</h3><p>RabbitMQ的某些特性(如联合插件)是动态控制的. 每个参数都是与特定虚拟主机相关的组件名称, name和value构成的. 组件名称和name都是字符串,值是Erlang term. 参数可被设置，清除和显示.通常你可以参考文档来了解如何设置参数.</p>
+<p>set_parameter [-p _vhost_] {<em>component_name</em>} {<em>name</em>} {<em>value</em>}</p>
+<p>设置一个参数.</p>
+<p>component_name</p>
+<p>要设置的组件名称.</p>
+<p>name</p>
+<p>要设置的参数名称.</p>
+<p>value</p>
+<p>要设置的参数值，作不JSON项。在多数shells中，你更喜欢将其引起来.</p>
+<p>例如:</p>
+<p>rabbitmqctl set_parameter federation local_username ‘“guest”‘</p>
+<p>此命令用于在默认虚拟主机上设置<strong>federation</strong> 组件的<strong>local_username 参数值</strong><strong>“guest”</strong>.</p>
+<p>clear_parameter [-p _vhost_] {<em>component_name</em>} {<em>key</em>}</p>
+<p>清除参数.</p>
+<p>component_name</p>
+<p>要清除参数的组件名称.</p>
+<p>name</p>
+<p>要清除的参数名称.</p>
+<p>例如:</p>
+<p>rabbitmqctl clear_parameter federation local_username</p>
+<p>此命令用于清除默认虚拟主机上的<strong>federation</strong> 组件的<strong>local_username</strong> 参数值.</p>
+<p>list_parameters [-p _vhost_]</p>
+<p>列出虚拟主机上的所有参数.</p>
+<p>示例:</p>
+<p>rabbitmqctl list_parameters</p>
+<p>此命令用于列出默认虚拟主机上的所有参数.</p>
+<h3 id="策略管理"><a href="#策略管理" class="headerlink" title="策略管理"></a>策略管理</h3><p>策略用于在集群范围的基础上用于控制和修改队列和交换机的行为. 策略应用于虚拟主机,由name, pattern, definition或可选的priority组成. 策略可被设置，清除和列举.</p>
+<p>set_policy [-p _vhost_] [–priority _priority_] [–apply-to _apply-to_] {<em>name</em>} {<em>pattern</em>} {<em>definition</em>}</p>
+<p>设置策略.</p>
+<p>name</p>
+<p>策略名称.</p>
+<p>pattern</p>
+<p>正则表达式, 匹配要应用的资源</p>
+<p>definition</p>
+<p>策略的定义,JSON形式．在大多数shells中，你很可能需要引用这个</p>
+<p>priority</p>
+<p>策略的整数优先级. 数字越高则优先级越高.默认是０.</p>
+<p>apply-to</p>
+<p>策略适用的对象类型，其值可为 “queues”, “exchanges” 或 “all”.默认是”all”.</p>
+<p>例如:</p>
+<p>rabbitmqctl set_policy federate-me “^amq.” ‘{“federation-upstream-set”:”all”}’</p>
+<p>此命令在默认虚拟主机上设置策略为<strong>federate-me，</strong>这样内建的交换器将进行联合.</p>
+<p>clear_policy [-p _vhost_] {<em>name</em>}</p>
+<p>清除策略.</p>
+<p>name</p>
+<p>要清除的策略名称.</p>
+<p>例如:</p>
+<p>rabbitmqctl clear_policy federate-me</p>
+<p>此命令来清除默认虚拟主机上的<strong>federate-me</strong> 策略.</p>
+<p>list_policies [-p _vhost_]</p>
+<p>显示虚拟主机上的所有策略.</p>
+<p>例如:</p>
+<p>rabbitmqctl list_policies</p>
+<p>此命令会显示默认虚拟主机上的所有策略.</p>
+<h3 id="服务器状态"><a href="#服务器状态" class="headerlink" title="服务器状态"></a>服务器状态</h3><p>服务器状态查询查询服务器返回一个结果以制表符分隔的列表. 某些查询(<strong>list_queues</strong>, <strong>list_exchanges</strong>, <strong>list_bindings</strong>, 和 <strong>list_consumers</strong>) 接受一个可选的<strong>vhost</strong> 参数. 如果这个参数出现了，那么它必须指定在查询的后面.</p>
+<p>list_queues, list_exchanges and list_bindings 命令接受一个可选的虚拟主机参数以显示其结果．默认值为”&#x2F;“.</p>
+<p>list_queues [-p _vhost_] [<em>queueinfoitem</em> …]</p>
+<p>返回队列的详细信息. 如果无-p标志，将显示／虚拟主机上的队列详情．”-p” 标志可用来覆盖此默认值．</p>
+<p><strong>queueinfoitem</strong> 参数用于指示哪些队列信息项会包含在结果集中.结果集的列顺序将匹配参数的顺序.<strong>queueinfoitem</strong> 可以是下面列表中的任何值:</p>
+<p>name</p>
+<p>非ASCII字符的队列名称.</p>
+<p>durable</p>
+<p>服务器重启后，队列是否能幸存.</p>
+<p>auto_delete</p>
+<p>不再使用时，是否需要自动删除队列.</p>
+<p>arguments</p>
+<p>队列参数.</p>
+<p>policy</p>
+<p>应用到队列上的策略名称.</p>
+<p>pid</p>
+<p>关联队列的Erlang进程ID.</p>
+<p>owner_pid</p>
+<p>表示队列专用所有者的代表连接的Erlang进程ID.如果队列是非专用的，此值将为空．</p>
+<p>exclusive</p>
+<p>True:如果队列是专用的(即有owner_pid), 反之false</p>
+<p>exclusive_consumer_pid</p>
+<p>表示此channel的专用消费者订阅到此队列的Erlang进程Id. 如果没有专用消费者，则为空．</p>
+<p>exclusive_consumer_tag</p>
+<p>专用消费者订阅到此队列的Consumer tag.如果没有专用消费者，则为空.</p>
+<p>messages_ready</p>
+<p>准备分发给客户端的消息数目.</p>
+<p>messages_unacknowledged</p>
+<p>分发到客户端但尚未应答的消息数目.</p>
+<p>messages</p>
+<p>准备分发和未应答消息的总和(队列深度).</p>
+<p>messages_ready_ram</p>
+<p>驻留在ram中messages_ready的消息数目.</p>
+<p>messages_unacknowledged_ram</p>
+<p>驻留在ram中messages_unacknowledged的消息数目.</p>
+<p>messages_ram</p>
+<p>驻留在ram中的消息总数.</p>
+<p>messages_persistent</p>
+<p>队列中持久化消息的数目(对于瞬时队列总是0).</p>
+<p>message_bytes</p>
+<p>队列中所有消息体的大小总和.这不包括消息属性(包括headers) 或任何开销(overhead)。</p>
+<p>message_bytes_ready</p>
+<p>类似于<strong>message_bytes</strong> ，但只统计准备投递给clients的那些消息．</p>
+<p>message_bytes_unacknowledged</p>
+<p>类似于<strong>message_bytes</strong> ，但只统计那些已经投递给clients但还未应答的消息</p>
+<p>message_bytes_ram</p>
+<p>类似于<strong>message_bytes</strong> ，但只统计那些在RAM中的消息</p>
+<p>message_bytes_persistent</p>
+<p>类似于<strong>message_bytes</strong> ，但只统计那些持久化的消息</p>
+<p>head_message_timestamp</p>
+<p>如果存在，只显示队列中第１个消息的timestamp属性. 消息的时间戳只出现在分页情况下．</p>
+<p>disk_reads</p>
+<p>从队列启动开如，已从磁盘上读取该队列的消息总次数.</p>
+<p>disk_writes</p>
+<p>从队列启动开始，已向磁盘队列写消息总次数.</p>
+<p>consumers</p>
+<p>消费者数目.</p>
+<p>consumer_utilisation</p>
+<p>时间分数(0.0与1.0之间)，队列可立即向消费者投递消息. 它可以小于1.0，如果消费者受限于网络堵塞或预提取数量.</p>
+<p>memory</p>
+<p>与队列相关的Erlang进程消耗的内存字节数,包括栈,堆以及内部结构.</p>
+<p>slave_pids</p>
+<p>如果队列是镜像的，这里给出的是当前slaves的IDs.</p>
+<p>synchronised_slave_pids</p>
+<p>如果队列是镜像的，当前slaves的IDs是master同步的- 即它们可在无消息丢失的情况下，接管master.</p>
+<p>state</p>
+<p>队列状态.正常情况下是’running’, 但如果队列正在同步也可能是”{syncing, MsgCount}”. 处于集群下的节点如果掉线了，队列状态交显示’down’ (大多数<strong>queueinfoitem</strong>s 将不可用).</p>
+<p>如果没有指定<strong>queueinfoitem</strong>s，那么将显示队列名称和队列深度．</p>
+<p>例如:</p>
+<p>rabbitmqctl list_queues -p &#x2F;myvhost messages consumers</p>
+<p>此命令显示了**&#x2F;myvhost**虚拟主机中每个队列的深度和消费者数目.</p>
+<p>list_exchanges [-p _vhost_] [<em>exchangeinfoitem</em> …]</p>
+<p>返回交换器细节.如果没有指定”-p”选项，将返回 <strong>&#x2F;</strong> 虚拟主机的细节.  “-p” 选项可用来覆盖默认虚拟主机.</p>
+<p><strong>exchangeinfoitem</strong> 参数用来表示哪些交换器信息要包含在结果中. 结果集中列的顺序将与参数顺序保持一致. <strong>exchangeinfoitem</strong> 可接受下面的列表中任何值：</p>
+<p>name</p>
+<p>交换器名称.</p>
+<p>type</p>
+<p>交换器类型(如[<strong>direct</strong>, <strong>topic</strong>, <strong>headers</strong>, <strong>fanout</strong>]).</p>
+<p>durable</p>
+<p>当服务器重启时，交换器是否能复活.</p>
+<p>auto_delete</p>
+<p>当不再使用时，交换器是否需要自动删除.</p>
+<p>internal</p>
+<p>交换器是否是内部的，即不能由client直接发布.</p>
+<p>arguments</p>
+<p>交换器参数</p>
+<p>policy</p>
+<p>应用到交换器上的策略名称.</p>
+<p>如果没有指定<strong>exchangeinfoitem</strong>s，那么将会显示交换器类型和类型</p>
+<p>例如:</p>
+<p>rabbitmqctl list_exchanges -p &#x2F;myvhost name type</p>
+<p>此命令会显示**&#x2F;myvhost**中每个交换器的名称和类型.</p>
+<p>list_bindings [-p _vhost_] [<em>bindinginfoitem</em> …]</p>
+<p>返回绑定细节.默认情况下返回的是 <strong>&#x2F;</strong> 虚拟主机上的绑定详情.可使用”-p” 标记来覆盖默认虚拟主机.</p>
+<p><strong>bindinginfoitem</strong> 参数用来表示结果中包含哪些绑定信息. 结果集中列的顺序将匹配参数的顺序.<strong>bindinginfoitem</strong>可接受下面列表的任意值:</p>
+<p>source_name</p>
+<p>绑定中消息来源的名称. C中非ASCII转义字符.</p>
+<p>source_kind</p>
+<p>绑定中消息来源的类别.当前总是exchange. C中非ASCII转义字符.</p>
+<p>destination_name</p>
+<p>绑定中消息目的地名称.C中非ASCII转义字符.</p>
+<p>destination_kind</p>
+<p>绑定中消息目的地的种类. C中非ASCII转义字符.</p>
+<p>routing_key</p>
+<p>绑定的路由键,C中非ASCII转义字符.</p>
+<p>arguments</p>
+<p>绑定参数.</p>
+<p>如果没有指定<strong>bindinginfoitem</strong>s，将会显示所有上述条目．</p>
+<p>例如:</p>
+<p>rabbitmqctl list_bindings -p &#x2F;myvhost exchange_name queue_name</p>
+<p>此命令来显示**&#x2F;myvhost**虚拟主机上绑定的交换器名称和队列名称.</p>
+<p>list_connections [<em>connectioninfoitem</em> …]</p>
+<p>返回TCP&#x2F;IP连接统计.</p>
+<p><strong>connectioninfoitem</strong> 参数用来表示在结果中包含哪些连接信息. 结果集中列的顺序将匹配参数的顺序.               <strong>connectioninfoitem</strong>可接受下面列表的任意值:</p>
+<p>pid</p>
+<p>与连接相关的Erlang进程ID.</p>
+<p>name</p>
+<p>连接的可读名称.</p>
+<p>port</p>
+<p>服务器端口.</p>
+<p>host</p>
+<p>返回反向DNS获取的服务器主机名称，或 IP地址(反向DNS解析失败) 或者未启用．</p>
+<p>peer_port</p>
+<p>Peer 端口.</p>
+<p>peer_host</p>
+<p>　　　返回反向DNS获取的Peer主机名称，或 IP地址(反向DNS解析失败) 或者未启用．</p>
+<p>ssl</p>
+<p>用Boolean来表示连接是否是SSL的.</p>
+<p>ssl_protocol</p>
+<p>SSL 协议(如. tlsv1)</p>
+<p>ssl_key_exchange</p>
+<p>SSL key exchange 算法 (如 rsa)</p>
+<p>ssl_cipher</p>
+<p>SSL cipher 算法 (如aes_256_cbc)</p>
+<p>ssl_hash</p>
+<p>SSL hash 函数 (如 sha)</p>
+<p>peer_cert_subject</p>
+<p>peer的 SSL 安全证书的主体, RFC4514形式．</p>
+<p>peer_cert_issuer</p>
+<p>peer的 SSL安全证书的发行者, RFC4514 形式.</p>
+<p>peer_cert_validity</p>
+<p>peer的SSL安全证书的有效期.</p>
+<p>state</p>
+<p>连接状态(可为[<strong>starting</strong>, <strong>tuning</strong>, <strong>opening</strong>, <strong>running</strong>, <strong>flow</strong>, <strong>blocking</strong>, <strong>blocked</strong>, <strong>closing</strong>, <strong>closed</strong>]其中一个).</p>
+<p>channels</p>
+<p>使用连接的channel数。</p>
+<p>protocol</p>
+<p>使用的AMQP协议版本(当前是**{0,9,1}** 或**{0,8,0}**). 注意，如果client请求的是AMQP 0-9 连接, 我们会视为AMQP 0-9-1.</p>
+<p>auth_mechanism</p>
+<p>使用的SASL认证机制,如<strong>PLAIN</strong>.</p>
+<p>user</p>
+<p>与连接相关的用户名</p>
+<p>vhost</p>
+<p>虚拟主机名称，Ｃ中非ASCII转义字符.</p>
+<p>timeout</p>
+<p>连接超时／协商的心跳间隔,秒为单位.</p>
+<p>frame_max</p>
+<p>最大 frame 大小(字节).</p>
+<p>channel_max</p>
+<p>        此连接上channel的最大数目.</p>
+<p>client_properties</p>
+<p>连接建立期间由client发送的信息属性.</p>
+<p>recv_oct</p>
+<p>Octets已收到.</p>
+<p>recv_cnt</p>
+<p>Packets 已收到.</p>
+<p>send_oct</p>
+<p>Octets 发送.</p>
+<p>send_cnt</p>
+<p>Packets 发送.</p>
+<p>send_pend</p>
+<p>发送队列大小.</p>
+<p>connected_at</p>
+<p>连接建立的日期和时间,当作timestamp.</p>
+<p>如果没有<strong>connectioninfoitem</strong>s， 那么会显示user, peer host, peer port,流量控制和内存块状态的时间</p>
+<p>例如:</p>
+<p>rabbitmqctl list_connections send_pend port</p>
+<p>此命令会显示发送队列的大小以及第个连接的服务器端口．</p>
+<p>list_channels [<em>channelinfoitem</em> …]</p>
+<p>返回所有当前channel上的信息,逻辑容器执行大部分 AMQP命令.这将包含最初AMQP连接的部分，以及不同插件和其它扩展创建的channels.</p>
+<p><strong>channelinfoitem</strong> 参数用来表示在结果集中包含哪些channel信息．结果集中列的顺序将匹配参数的顺序. <strong>channelinfoitem</strong> 可接受下面列表中的任何一个参数：</p>
+<p>pid</p>
+<p>与连接相关的Erlang进程ID.</p>
+<p>connection</p>
+<p>channel所属的连接Erlang进程ID.</p>
+<p>name</p>
+<p>channel的可读名称.</p>
+<p>number</p>
+<p>channel的数目，在一个连接中，它有唯一的标识符．</p>
+<p>user</p>
+<p>与channel相关的用户名称.</p>
+<p>vhost</p>
+<p>channel操作的虚拟主机.</p>
+<p>transactional</p>
+<p>True：如果channel处于事务模式,其它情况为false.</p>
+<p>confirm</p>
+<p>True：如果channel是确认模式，其它情况为false.</p>
+<p>consumer_count</p>
+<p>在channel中接收消息的逻辑AMQP消费者数目．</p>
+<p>messages_unacknowledged</p>
+<p>在channel中消息已投递但还未应答的消息数目．</p>
+<p>messages_uncommitted</p>
+<p>在channel中已收到消息但还没有提交事务的消息个数．</p>
+<p>acks_uncommitted</p>
+<p>确认收到一个还未提交的事务数。</p>
+<p>messages_unconfirmed</p>
+<p>尚未确认已发布消息的数目。在通道不在确认模式下时，这将是0。</p>
+<p>prefetch_count</p>
+<p>新消费者QoS预提取限制, 0表示无上限.</p>
+<p>global_prefetch_count</p>
+<p>整个channel　QoS预提取限制, 0表示无上限.</p>
+<p>如果没有指定<strong>channelinfoitem</strong>s，那么将显示pid, user, consumer_count,messages_unacknowledged．</p>
+<p>例如:</p>
+<p>rabbitmqctl list_channels connection messages_unacknowledged</p>
+<p>此命令会显示每个channel中连接进程和未应答消息的数目.</p>
+<p>list_consumers [-p _vhost_]</p>
+<p>列举消费者, 即订阅队列的消息流. 每行将打印出由制表符分隔的已订阅队列的名称，创建并管理订阅的channel进程的标识,channel中订阅的consumer tag唯一标识符, boolean值表示投递到此消费者的消息是否需要应答,整数值表示表示预提取限制(为０表示无限制), 以及关于此消费者的任何其它参数．</p>
+<p>status</p>
+<p>显示 broker 状态信息，如当前Erlang节点上运行的应用程序, RabbitMQ 和 Erlang 的版本信息, OS 名称, 内存和文件描述符统计信息. (查看<strong>cluster_status</strong> 命令来找出那些节点是集群化的以及正在运行的.)</p>
+<p>例如:</p>
+<p>rabbitmqctl status</p>
+<p>此命令显示了RabbitMQ broker的相关信息.</p>
+<p>environment</p>
+<p>显示每个运行程序环境中每个变量的名称和值.</p>
+<p>report</p>
+<p>为所有服务器状态生成一个服务器状态报告，输出应该重定向到一个文件.</p>
+<p>例如:</p>
+<p>rabbitmqctl report &gt; server_report.txt</p>
+<p>此命令创建了一个服务器报告，可将它附着在支持请求的电子邮件中．</p>
+<p>eval {<em>expr</em>}</p>
+<p>执行任意Erlang表达式.</p>
+<p>例如:</p>
+<p>rabbitmqctl eval ‘node().’</p>
+<p>此命令用于返回rabbitmqctl连接的节点名称</p>
+<h3 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h3><p>close_connection {<em>connectionpid</em>} {<em>explanation</em>}</p>
+<p>connectionpid</p>
+<p>要关闭的与连接相关的Erlang进程ID.</p>
+<p>explanation</p>
+<p>解释字符串.</p>
+<p>指示broker关闭与Erlang进程id相关的连接(可通过<a target="_blank" rel="noopener" href="http://www.rabbitmq.com/man/rabbitmqctl.1.man.html#list_connections"><strong>list_connections</strong></a> 命令查看), 通过为连接客户端传递解释字符串(作为AMQP连接关闭协议的一部分).</p>
+<p>例如:</p>
+<p>rabbitmqctl close_connection “<a href="mailto:&#x72;&#x61;&#x62;&#98;&#x69;&#x74;&#x40;&#116;&#x61;&#x6e;&#116;&#111;&#x2e;&#52;&#50;&#54;&#x32;&#x2e;&#48;">&#x72;&#x61;&#x62;&#98;&#x69;&#x74;&#x40;&#116;&#x61;&#x6e;&#116;&#111;&#x2e;&#52;&#50;&#54;&#x32;&#x2e;&#48;</a>“ “go away”</p>
+<p>此命令指示RabbitMQ broker关闭与Erlang 进程id<a href="mailto:&#114;&#x61;&#98;&#x62;&#x69;&#116;&#64;&#116;&#97;&#110;&#116;&#111;&#x2e;&#52;&#x32;&#54;&#50;&#46;&#x30;">&#114;&#x61;&#98;&#x62;&#x69;&#116;&#64;&#116;&#97;&#110;&#116;&#111;&#x2e;&#52;&#x32;&#54;&#50;&#46;&#x30;</a>相关联的连接, 同时向客户端传递go away字符串.</p>
+<p>trace_on [-p _vhost_]</p>
+<p>vhost</p>
+<p>要开启追踪的虚拟主机的名称.</p>
+<p>开启追踪.注意，追踪状态不是持久化的; 如果服务器重启，追踪状态将会丢失.</p>
+<p>trace_off [-p _vhost_]</p>
+<p>vhost</p>
+<p>要停止追踪的虚拟主机名称.</p>
+<p>停止追踪.</p>
+<p>set_vm_memory_high_watermark {<em>fraction</em>}</p>
+<p>fraction</p>
+<p>当一个浮点数大于或等于0时，会触发流量控制新内存阈值部分。</p>
+<p>set_vm_memory_high_watermark absolute {<em>memory_limit</em>}</p>
+<p>memory_limit</p>
+<p>流程控制触发的新内存限制, 以字节来表示大于或等于０的整数或以字符串和内存单位来表示(如 512M或1G). 可用的单位是: k, kiB: kibibytes (2^10 bytes) M, MiB: mebibytes (2^20) G, GiB: gibibytes (2^30) kB: kilobytes (10^3) MB: megabytes (10^6) GB: gigabytes (10^9)</p>
+<p>set_disk_free_limit {<em>disk_limit</em>}</p>
+<p>disk_limit</p>
+<p>以整数或字符串单位的可用磁盘下限限制(查看vm_memory_high_watermark), 如 512M or 1G. 一旦可用磁盘空间达到这个限制，就会设置磁盘报警.</p>
+<p>set_disk_free_limit mem_relative {<em>fraction</em>}</p>
+<p>fraction</p>
+<p>相对于整个可用内存的限制，其值为非负浮点数. 当值小于１.０时是很危险的，应该谨慎使用．</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Rabbitmq/">#Rabbitmq</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/51e3a86c.html" title="彻底搞懂Redis主从复制原理及实战">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">彻底搞懂Redis主从复制原理及实战</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/1530782b.html" title="rabbitmq数据备份与还原">
+                        <span class="hidden-mobile">rabbitmq数据备份与还原</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

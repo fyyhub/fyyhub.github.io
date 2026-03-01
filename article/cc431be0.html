@@ -1,0 +1,605 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="名词解释12Linux 内核会将所有外部设备都看做一个文件来操作，对一个文件的读写操作会调用内核提供的系统命令，返回一个file descriptor （fd, 文件描述符）。二队一个socket的读写也会有相应的描述符，成为socketfd，描述符就是一个数字，它指向内核中的一个机构提（文件路径，数据区等一些属性）。根据UNIX网络编程对I&#x2F;O模型的分类，UNIX提供了5种I&#x2F;O模型 主体内容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty-1 IO网络模型">
+<meta property="og:url" content="https://fyyhub.github.io/article/cc431be0.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="名词解释12Linux 内核会将所有外部设备都看做一个文件来操作，对一个文件的读写操作会调用内核提供的系统命令，返回一个file descriptor （fd, 文件描述符）。二队一个socket的读写也会有相应的描述符，成为socketfd，描述符就是一个数字，它指向内核中的一个机构提（文件路径，数据区等一些属性）。根据UNIX网络编程对I&#x2F;O模型的分类，UNIX提供了5种I&#x2F;O模型 主体内容">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-30T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.272Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Netty">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Netty-1 IO网络模型 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Netty-1 IO网络模型"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-30 00:00" pubdate>
+          2024年4月30日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          14 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Netty-1 IO网络模型</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-variable">Linux</span> 内核会将所有外部设备都看做一个文件来操作，对一个文件的读写操作会调用内核提供的系统命令，返回一个<span class="hljs-variable">file</span> <span class="hljs-variable">descriptor</span> （<span class="hljs-variable">fd</span><span class="hljs-operator">,</span> 文件描述符）。二队一个<span class="hljs-variable">socket</span>的读写也会有相应的描述符，成为<span class="hljs-variable">socketfd</span>，描述符就是一个数字，它指向内核中的一个机构提（文件路径，数据区等一些属性）。<br>根据<span class="hljs-variable">UNIX</span>网络编程对<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>模型的分类，<span class="hljs-variable">UNIX</span>提供了<span class="hljs-number">5</span>种<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>模型<br></code></pre></td></tr></table></figure>
+<h2 id="主体内容"><a href="#主体内容" class="headerlink" title="主体内容"></a>主体内容</h2><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-number">1.</span>同步阻塞<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>模型（<span class="hljs-variable">BIO</span>）：<br>	传统的<span class="hljs-variable">BIO</span>模型， 通常由一个独立的<span class="hljs-variable">Acceptor</span>线程负责监听客户端的链接，塔基收到客户端连接请求之后为每个客户端创建一个新的线程进行链路处理，处理完之后，通过输出流返回应答给客户端，线程销毁。<br>	该模型最大的问题就是当客户端并发访问量增加后，服务端的线程个数和客户端并发访问数成<span class="hljs-number">1</span><span class="hljs-operator">:</span><span class="hljs-number">1</span>的正比关系。可能会导致线程耗尽。<br><br><span class="hljs-number">2.</span>同步非阻塞<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>模型<span class="hljs-punctuation">(</span><span class="hljs-variable">NIO</span><span class="hljs-punctuation">)</span><br>	此处的<span class="hljs-variable">NIO</span>并非<span class="hljs-variable">java</span>的<span class="hljs-variable">nio</span>框架，<span class="hljs-variable">socket</span>链接默认是阻塞模式，可以通过设置将<span class="hljs-variable">socket</span>变成为非阻塞的模式。<br>	这种模式下，当用户线程发起<span class="hljs-variable">IO</span>操作时，内核缓冲区没有数据的情况下，系统调用会立即返回<span class="hljs-variable">EWOULDBLOCK</span>失败，用户线程需要一直轮训发起<span class="hljs-variable">IO</span>操作，当有数据时，用户线程进行<span class="hljs-variable">IO</span>调用此时会进入阻塞状态。<br>	<br><span class="hljs-number">3.</span><span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>多路复用<br>	通过<span class="hljs-variable">select</span><span class="hljs-operator">/</span><span class="hljs-variable">epoll</span>系统调用，一个进程<span class="hljs-punctuation">(</span><span class="hljs-variable">Selector</span><span class="hljs-punctuation">)</span>可以监视多个文件描述符（<span class="hljs-variable">channel</span>）（<span class="hljs-variable">fd</span>）<span class="hljs-operator">,</span>一旦某个描述符就绪，内核能够将就绪的状态返回给应用系统（<span class="hljs-variable">SelectionKey</span>）。用户线程根据就绪状态发起<span class="hljs-variable">IO</span>调用。<br><span class="hljs-number">4.</span>信号驱动<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>模型（未理解）<br>	信号驱动的 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 模型是一种异步 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 模型，它允许应用程序在等待 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作完成时继续执行其他任务。在这种模型中，当应用程序发起一个 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作时，它并不会一直等待操作完成。相反，它会注册一个信号处理程序，该处理程序在 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作完成时被调用。这意味着，当 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作完成时，内核会发送一个信号告知应用程序，应用程序可以在信号处理程序中获取 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作的结果。信号驱动的 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 模型适用于大量的 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作，因为它可以同时处理多个 <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span> 操作，而不必等待一个操作完成后才开始下一个操作。<br><span class="hljs-number">5.</span>异步<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>模型（未理解）<br>	应用程序通过异步调用发起 <span class="hljs-variable">IO</span> 操作，并在操作完成时通过回调函数得到结果。无需额外创建信号处理函数或线程<span class="hljs-operator">/</span>进程，因此可以大大降低系统的资源消耗和复杂度，并且在高并发场景下可以更加有效地利用系统资源保证程序的性能和可伸缩性。<br><br>从<span class="hljs-variable">IO</span>执行的过程中看，信号驱动的 <span class="hljs-variable">IO</span> 模型只有前半部分实现了异步，而异步<span class="hljs-variable">IO</span>模型则在整个<span class="hljs-variable">IO</span>操作过程中都是异步的。所以，相对于信号驱动的 <span class="hljs-variable">IO</span> 模型，异步 <span class="hljs-variable">IO</span> 模型在高并发场景下优势较大，可以更好地适应高并发、高负载的应用程序需求。<br></code></pre></td></tr></table></figure>
+
+<h2 id="扩展内容"><a href="#扩展内容" class="headerlink" title="扩展内容"></a>扩展内容</h2><figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-number">1.</span> <span class="hljs-variable">JAVA</span> <span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>演进历史<br>	（<span class="hljs-number">1</span>）<span class="hljs-variable">jdk1</span><span class="hljs-number">.4</span>之前 采用<span class="hljs-variable">BIO</span>模式<br>	（<span class="hljs-number">2</span>）<span class="hljs-variable">jdk1</span><span class="hljs-number">.4</span>     发布基于<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>多路复用的<span class="hljs-variable">NIO</span><br>	（<span class="hljs-number">3</span>）<span class="hljs-variable">jdk1</span><span class="hljs-number">.7</span>     发布<span class="hljs-variable">NIO2</span><span class="hljs-number">.0</span>，支持<span class="hljs-variable">AIO</span>（异步<span class="hljs-built_in">I</span><span class="hljs-operator">/</span><span class="hljs-built_in">O</span>操作）<span class="hljs-operator">,</span><span class="hljs-variable">Netty</span>并没有使用<span class="hljs-variable">AIO</span><br><span class="hljs-number">2.</span> 用户线程和系统内核的交互<br>	用户程序不直接和内核交互，而是通过缓冲区来进行交互，流程如下：<br>	（<span class="hljs-number">1</span>）等待数据从网络上到达网卡，当所等待的数据到达时，他被复制到内核中的某个缓冲区。这个工作由操作系统自动完成。<br>	（<span class="hljs-number">2</span>）就是把内核缓冲区的数据复制到进程缓冲区。<span class="hljs-variable">JAVA</span> 举例<br>	<br>	客户端请求：<span class="hljs-variable">Linux</span>通过网卡读取客户端的请求数据，将数据读取到内核缓冲区。<br>	获取请求数据：<span class="hljs-variable">JAVA</span>服务器通过<span class="hljs-variable">read</span>系统调用，从<span class="hljs-variable">linux</span>内核缓冲区读取数据，再送入<span class="hljs-variable">JAVA</span>进程缓冲区。<br>	服务端业务处理：<span class="hljs-variable">JAVA</span>服务器在自己的用户空间中处理客户端的请求。<br>	服务端返回数据：<span class="hljs-variable">JAVA</span>服务器完成处理后，构建好的响应数据，讲这些数据通过<span class="hljs-variable">write</span>操作用户缓冲区写入内核缓冲区，<br>	发送给客户端：<span class="hljs-variable">LInux</span>内核通过网络<span class="hljs-variable">IO</span><span class="hljs-operator">,</span>将内核缓冲区中的数据写入网卡，网卡通过底层网络协议，将数据发送给客户端。<br><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Netty/">#Netty</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/5d49a0d1.html" title="CommandLineRunner和ApplicationRunner">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CommandLineRunner和ApplicationRunner</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/5729df21.html" title="多线程">
+                        <span class="hidden-mobile">多线程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,884 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Kafka是一个能够支持高并发以及流式消息处理的消息中间件，并且Kafka天生就是支持集群的，今天就主要来介绍一下如何搭建Kafka集群。  Kafka目前支持使用Zookeeper模式搭建集群以及KRaft模式（即无Zookeeper）模式这两种模式搭建集群，这两种模式各有各的好处，今天就来分别介绍一下这两种方式。 1，Kafka集群中的节点类型我们首先需要了解一下，一个Kafka集群是由下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka两种集群详解和搭建教程">
+<meta property="og:url" content="https://fyyhub.github.io/article/d6131b35.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="Kafka是一个能够支持高并发以及流式消息处理的消息中间件，并且Kafka天生就是支持集群的，今天就主要来介绍一下如何搭建Kafka集群。  Kafka目前支持使用Zookeeper模式搭建集群以及KRaft模式（即无Zookeeper）模式这两种模式搭建集群，这两种模式各有各的好处，今天就来分别介绍一下这两种方式。 1，Kafka集群中的节点类型我们首先需要了解一下，一个Kafka集群是由下">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b59e81dddf064aa6af65004ab79fb081~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1ea9ecb836134fd59d4ec003f01c9267~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+<meta property="og:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/309a0e640f974307bb760ffd82963821~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+<meta property="og:image" content="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7fce47477bec44e28304e28243280e4e~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2db785f21f7041f597aa1c70088f828a~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2753c5435163415eb7f62c7694f9221f~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+<meta property="article:published_time" content="2023-11-14T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.273Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b59e81dddf064aa6af65004ab79fb081~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp">
+  
+  
+  
+  <title>Kafka两种集群详解和搭建教程 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Kafka两种集群详解和搭建教程"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-14 00:00" pubdate>
+          2023年11月14日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          77 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Kafka两种集群详解和搭建教程</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+Kafka是一个能够支持高并发以及流式消息处理的消息中间件，并且Kafka天生就是支持集群的，今天就主要来介绍一下如何搭建Kafka集群。
+
+<p>Kafka目前支持使用Zookeeper模式搭建集群以及KRaft模式（即无Zookeeper）模式这两种模式搭建集群，这两种模式各有各的好处，今天就来分别介绍一下这两种方式。</p>
+<h2 id="1，Kafka集群中的节点类型"><a href="#1，Kafka集群中的节点类型" class="headerlink" title="1，Kafka集群中的节点类型"></a>1，Kafka集群中的节点类型</h2><p>我们首先需要了解一下，一个Kafka集群是由下列几种类型的节点构成的，它们充当着不同的作用：</p>
+<ul>
+<li><strong><code>Broker</code>节点</strong>：即<strong>代理节点</strong>，是Kafka中的工作节点，充当消息队列的角色，<strong>负责储存和处理消息</strong>，每个Broker都是一个独立的Kafka服务器，可以在不同的机器上运行，除此之外Broker还负责分区（partition）的管理，将主题（topic）划分为多个分区，并分布在集群的不同Broker上</li>
+<li><strong><code>Controller</code>节点</strong>：即<strong>控制器节点</strong>，是集群中的特殊节点，负责储存和管理整个<strong>集群元数据</strong>和<strong>状态</strong>，它能够监控整个集群中的Broker，在需要时还能够进行平衡操作</li>
+<li><strong>混合节点</strong>：即同时担任Broker和Controller节点角色的节点</li>
+</ul>
+<h2 id="2，两种模式集群的搭建方式"><a href="#2，两种模式集群的搭建方式" class="headerlink" title="2，两种模式集群的搭建方式"></a>2，两种模式集群的搭建方式</h2><p>接下来，我就来介绍一下两种模式的集群架构和搭建方式，即Zookeeper模式集群和KRaft模式集群。</p>
+<h3 id="1-Zookeeper模式集群"><a href="#1-Zookeeper模式集群" class="headerlink" title="(1) Zookeeper模式集群"></a>(1) Zookeeper模式集群</h3><p>这是一种比较简单，相对“传统”的搭建方式了！在这种模式下，每个Kafka节点都是依赖于Zookeeper的，使用Zookeeper存储集群中所有节点的元数据。</p>
+<p>只要所有的Kafka节点连接到<strong>同一个Zookeeper上面</strong>（或者同一个Zookeeper集群），<strong>这些Kafka节点就构成了一个集群</strong>。所以说就算是只有一个Kafka节点在运行，这一个节点也可以称作一个集群。</p>
+<p>在Zookeeper模式集群中，Zookeeper节点（或者集群）就充当了Controller的角色，而所有的Kafka节点就充当着Broker的角色。</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b59e81dddf064aa6af65004ab79fb081~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>下面就来介绍一下搭建过程，这里我在4台Linux虚拟机上分别运行Zookeeper和Kafka来模拟一个集群，一共一个Zookeeper节点和三个Kafka节点构成，如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">节点名</th>
+<th align="center">地址和端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Zookeeper节点</td>
+<td align="center"><code>zookeeper:2181</code></td>
+</tr>
+<tr>
+<td align="center">Kafka节点1</td>
+<td align="center"><code>kafka1:9092</code></td>
+</tr>
+<tr>
+<td align="center">Kafka节点2</td>
+<td align="center"><code>kafka2:9092</code></td>
+</tr>
+<tr>
+<td align="center">Kafka节点3</td>
+<td align="center"><code>kafka3:9092</code></td>
+</tr>
+</tbody></table>
+<p>上述地址例如<code>kafka1</code>等等，是通过修改虚拟机的主机名（hostname）实现的，这样虚拟机之间可以直接通过这些主机名相互访问，<strong>这个主机名我们就可以视作实际在服务器上面搭建时，服务器的外网地址或者域名</strong>，这里就不再赘述如何修改虚拟机的主机名了，需要保证上述所有虚拟机在一个虚拟机网段中并且能够互相<code>ping</code>通，即上述所有虚拟机需要两两之间可以通过网络互相访问。</p>
+<p>运行Kafka和Zookeeper都需要Java 8及其以上运行环境，大家要首先在虚拟机中安装并配置好。</p>
+<h4 id="①-搭建Zookeeper"><a href="#①-搭建Zookeeper" class="headerlink" title="① 搭建Zookeeper"></a>① 搭建Zookeeper</h4><p>首先我们要运行起一个Zookeeper节点，这里就不再赘述Zookeeper节点如何搭建了！搭建可以查看<a href="https://link.juejin.cn/?target=https://zookeeper.apache.org/doc/r3.8.1/zookeeperStarted.html" title="https://zookeeper.apache.org/doc/r3.8.1/zookeeperStarted.html">官方文档</a>，或者使用<a href="https://link.juejin.cn/?target=https://hub.docker.com/_/zookeeper" title="https://hub.docker.com/_/zookeeper">Docker的方式</a>搭建。</p>
+<p>搭建完成并运行Zookeeper之后，我们会把所有的Kafka节点都配置到这一个Zookeeper节点上。</p>
+<h4 id="②-配置并运行所有Kafka节点"><a href="#②-配置并运行所有Kafka节点" class="headerlink" title="② 配置并运行所有Kafka节点"></a>② 配置并运行所有Kafka节点</h4><p>首先去<a href="https://link.juejin.cn/?target=https://kafka.apache.org/downloads" title="https://kafka.apache.org/downloads">Kafka官网下载</a>最新版并解压，然后将解压出来的Kafka<strong>分别复制到三台虚拟机中</strong>。</p>
+<p>然后修改<strong>每台虚拟机</strong>的Kafka目录中的配置文件，配置文件位于解压的Kafka文件夹中的<code>config/server.properties</code>，使用文本编辑器打开，并找到下列配置项进行配置：</p>
+<ul>
+<li><code>broker.id</code> 表示每个节点的<code>id</code>，<strong>每个节点需要设置为不一样的整数</strong>，我这里分别设置为<code>1</code>，<code>2</code>和<code>3</code></li>
+<li><code>zookeeper.connect</code> 表示<strong>要使用的Zookeeper的地址和端口</strong>，我这里都配置为<code>zookeeper:2181</code></li>
+<li><code>advertised.listeners</code> 表示<strong>这个Kafka节点的外网地址</strong>，这里分别配置为<code>PLAINTEXT://kafka1:9092</code>，<code>PLAINTEXT://kafka2:9092</code>和<code>PLAINTEXT://kafka3:9092</code>，需要注意的是这个配置项必须要配置为其所在服务器的外网地址，如果说你是在一台服务器上面配置Kafka并要通过外网访问，这个配置就需要配置为服务器外网地址（域名），并且都以<code>PLAINTEXT://</code>开头</li>
+</ul>
+<p>注意上述<code>advertised.listeners</code>这个配置项默认情况下是被注释掉了的，大家需要去仔细找一下并去掉注释（开头的<code>#</code>）然后再进行配置。</p>
+<p>三台虚拟机配置完成后，分别使用终端进入到Kafka目录下并启动，执行下列命令：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-server-start.sh config/server.properties</code></p>
+<p>在上述三台虚拟机上面都通过这个命令启动Kafka，如图则启动成功：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1ea9ecb836134fd59d4ec003f01c9267~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>到此，整个集群就搭建完成了！大家需要保证上述三台虚拟机中的终端不被关闭。</p>
+<h4 id="③-创建话题测试"><a href="#③-创建话题测试" class="headerlink" title="③ 创建话题测试"></a>③ 创建话题测试</h4><p>我们先在<code>kafka1</code>的虚拟机上面再开一个终端并进入Kafka目录，执行下列命令创建Topic：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-topics.sh --create --topic my-topic --bootstrap-server localhost:9092</code></p>
+<p>然后去<code>kafka2</code>的虚拟机上面再开一个终端并进入Kafka目录，执行下列命令列出Topic：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-topics.sh --list --bootstrap-server localhost:9092</code></p>
+<p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/309a0e640f974307bb760ffd82963821~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>可见我们在第一个节点上创建了话题，但是在第二个节点上仍然可以获取这个话题，说明集群创建成功，数据在集群之间可以共享。</p>
+<h3 id="2-KRaft模式集群"><a href="#2-KRaft模式集群" class="headerlink" title="(2) KRaft模式集群"></a>(2) KRaft模式集群</h3><p>在上述传统方案中，Kafka需要依赖Zookeeper完成元数据存放和共享，这样也就暴露出了一些问题：</p>
+<ul>
+<li>搭建Kafka集群时还需要额外搭建Zookeeper，增加了运维成本</li>
+<li>Zookeeper是强一致性的组件（符合CP理论），如果集群中数据发生变化，那么必须要等到其它节点都同步，至少超过一半同步完成，这样节点数多性能差</li>
+</ul>
+<p>那么KRaft模式是新版本Kafka中推出的集群模式，这种模式下就完全不需要Zookeeper了！<strong>只需要数个Kafka节点就可以直接构成集群</strong>，在这时<strong>集群中的Kafka节点既有可能是Controller节点也可能是Broker节点</strong>，在这个模式中，我们不仅可以手动配置某个节点的角色（是Controller还是Broker），还可以使其同时担任Broker和Controller角色（混合节点）。</p>
+<p>在KRaft模式中，集群的节点会通过<strong>投票选举</strong>的方式，选择出一个主要的Controller节点，这个节点也称作<strong>领导者</strong>，它将负责维护整个集群的元数据和状态信息，那么其它的Controller节点或者混合节点就称之为<strong>追随者</strong>，它们会从领导者同步集群元数据和状态信息。如果领导者宕机了，所有的节点会重新投票选举一个新的领导者。</p>
+<p>在选举过程中，所有的节点都会参与投票过程，而候选节点只会是Controller节点或者混合节点（即Broker节点不会被选举为领导者）。</p>
+<p>需要注意的是，在默认情况下Kafka集群中的Broker节点和Controller节点通常会监听不同的端口：</p>
+<ul>
+<li>Broker节点是Kafka集群中的数据节点（消息队列），它们负责接收客户端的消息和传递消息给客户端，默认情况下，每个Broker节点会监听<code>9092</code>端口，该端口用于与客户端进行通信，客户端可以将消息发送到这个端口，或者从这个端口接收消息，这个端口可以称作<strong>客户端通信端口</strong></li>
+<li>Controller节点是Kafka集群中的控制器节点，负责管理集群的状态和元数据，Controller节点监听的端口通常是<code>9093</code>，该端口用于集群中其他节点获取元数据或在混合节点选举新的Controller时进行通信，通过该端口，其他节点可以与Controller节点交互，获取集群的元数据信息或参与控制器的选举过程，这个端口可以称作<strong>控制器端口</strong></li>
+<li>混合节点（即同时担任Broker和Controller角色的节点）中，这两个端口都会被使用，默认情况下混合节点将监听<code>9092</code>端口接收和传递消息给客户端，并监听<code>9093</code>端口用于与其他节点进行元数据交换和控制器选举通信，可见混合节点会同时使用两个端口分别作为<strong>客户端通信端口</strong>与<strong>控制器端口</strong></li>
+</ul>
+<p>所以需要根据实际情况配置网络设置和防火墙规则，以确保Kafka集群中的节点能够在正确的端口上进行通信。上述提到的两种端口也是可以修改的，当然不建议修改。</p>
+<p>同样地，就算是你只是搭建了一个Kafka节点，这一个节点也仍然被视为一个Kafka集群，并且KRaft模式下如果只需要建立一个节点，那么这个节点必须是混合节点。</p>
+<p><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7fce47477bec44e28304e28243280e4e~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>下面同样是开启三台虚拟机，搭建三个Kafka节点构成的KRaft模式集群如下：</p>
+<table>
+<thead>
+<tr>
+<th align="center">节点名</th>
+<th align="center">地址</th>
+<th align="center">节点类型</th>
+<th align="center">客户端通信端口</th>
+<th align="center">控制器端口</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Kafka节点1</td>
+<td align="center"><code>kafka1</code></td>
+<td align="center">混合节点</td>
+<td align="center"><code>9092</code></td>
+<td align="center"><code>9093</code></td>
+</tr>
+<tr>
+<td align="center">Kafka节点2</td>
+<td align="center"><code>kafka2</code></td>
+<td align="center">混合节点</td>
+<td align="center"><code>9092</code></td>
+<td align="center"><code>9093</code></td>
+</tr>
+<tr>
+<td align="center">Kafka节点3</td>
+<td align="center"><code>kafka3</code></td>
+<td align="center">混合节点</td>
+<td align="center"><code>9092</code></td>
+<td align="center"><code>9093</code></td>
+</tr>
+</tbody></table>
+<p>这里就不再赘述下载Kafka的过程了！</p>
+<h4 id="①-修改配置文件"><a href="#①-修改配置文件" class="headerlink" title="① 修改配置文件"></a>① 修改配置文件</h4><p>在KRaft模式下，配置文件位于Kafka目录中的<code>config/kraft/server.properties</code>，使用文本编辑器打开并找到下列配置以修改：</p>
+<ul>
+<li><code>node.id</code> 表示这个**节点的<code>id</code>**，一个集群中每个节点<code>id</code>不能重复，需要是不小于<code>1</code>的整数，这里三台虚拟机的配置分别为<code>1</code>，<code>2</code>和<code>3</code>（类似上述Zookeeper的<code>broker.id</code>配置）</li>
+<li><code>controller.quorum.voters</code> 设定<strong>投票者列表</strong>，即需要<strong>配置所有的Controller节点<code>id</code>及其地址端口</strong>，配置格式为<code>节点1的id@节点1地址:节点1端口,节点2的id@节点2地址:节点2端口,节点3的id@节点3地址:节点3端口...</code>，这里的端口需要是<strong>控制器端口</strong>，默认都是<code>9093</code>，上面也提到过了，默认不需要修改，我这里三台虚拟机的都配置为<code>1@kafka1:9093,2@kafka2:9093,3@kafka3:9093</code>（实际在服务器上搭建时替换为服务器的外网地址或者域名）</li>
+<li><code>advertised.listeners</code> 表示<strong>这个Kafka节点的外网地址</strong>，这里分别配置为<code>PLAINTEXT://kafka1:9092</code>，<code>PLAINTEXT://kafka2:9092</code>和<code>PLAINTEXT://kafka3:9092</code>（和上述Zookeeper模式中的一样，实际在服务器上搭建时替换为服务器的外网地址或者域名）</li>
+</ul>
+<p>上述是必须要进行配置的，还有下面配置是可以选择性配置的：</p>
+<ul>
+<li><code>process.roles</code> 表示设定这个<strong>节点的类型</strong>，设定为<code>broker</code>表示设定这个节点为Broker节点，同样地设定<code>controller</code>表示设定为Controller节点，默认是<code>broker,controller</code>表示这个节点会自动切换节点类型，这里先保持默认不变，下面再来详细讨论</li>
+</ul>
+<h4 id="②-生成集群ID并使用集群ID格式化数据目录"><a href="#②-生成集群ID并使用集群ID格式化数据目录" class="headerlink" title="② 生成集群ID并使用集群ID格式化数据目录"></a>② 生成集群ID并使用集群ID格式化数据目录</h4><p>在KRaft模式下，一个集群需要设定一个<code>id</code>，我们可以使用自带的命令生成，先进入上述任意一台虚拟机并使用终端进入Kafka目录中，执行下列命令生成一个UUID：</p>
+<p>arduino</p>
+<p>复制代码</p>
+<p><code>bin/kafka-storage.sh random-uuid</code></p>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2db785f21f7041f597aa1c70088f828a~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="image.png"></p>
+<p>我们这里记录下这个ID以备用。</p>
+<blockquote>
+<p>这个集群ID事实上是一个长度16位的字符串通过Base64编码后得来的，因此你也可以不使用上述命令，直接自定义一个16位长度的纯英文和数字组成的字符串，然后将这个字符串编码为Base64格式作为这个集群ID也可以。可以使用<a href="https://link.juejin.cn/?target=https://c.runoob.com/front-end/693/" title="https://c.runoob.com/front-end/693/">菜鸟工具</a>中的在线Base64编码工具。</p>
+</blockquote>
+<p>然后在上述三台虚拟机中，都使用终端进入Kafka目录后，执行下列命令：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-storage.sh format -t 生成的集群ID -c config/kraft/server.properties</code></p>
+<p>这样，三个Kafka节点都使用了这一个ID完成了集群元数据配置，表示这三个Kafka节点构成一个集群。</p>
+<h4 id="③-启动Kafka"><a href="#③-启动Kafka" class="headerlink" title="③ 启动Kafka"></a>③ 启动Kafka</h4><p>同样地，在三台虚拟机中，都使用终端进入Kafka目录后，执行下列命令：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-server-start.sh config/kraft/server.properties</code></p>
+<p>三台虚拟机全部启动后，这个集群才启动完毕。</p>
+<h4 id="④-创建话题测试"><a href="#④-创建话题测试" class="headerlink" title="④ 创建话题测试"></a>④ 创建话题测试</h4><p>同样地，现在第一个虚拟机的Kafka目录下执行下列命令：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-topics.sh --create --topic my-topic-kraft --bootstrap-server localhost:9092</code></p>
+<p>然后在第二个虚拟机的Kafka目录下查看话题：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-topics.sh --list --bootstrap-server localhost:9092</code></p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2753c5435163415eb7f62c7694f9221f~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp" srcset="/img/loading.gif" lazyload alt="image-20230612212505591"></p>
+<p>可见集群节点之间可以互相通信。</p>
+<blockquote>
+<p>无论是在虚拟机还是服务器上，都要保证<code>9092</code>和<code>9093</code>端口开放，且所有虚拟机&#x2F;服务器之间都能够两两互相访问（网络连通）！</p>
+</blockquote>
+<h2 id="3，重要配置介绍"><a href="#3，重要配置介绍" class="headerlink" title="3，重要配置介绍"></a>3，重要配置介绍</h2><p>无论是那种模式的集群，我们都涉及到了许多配置项，大家通过上述的搭建示例也能够了解到每个配置项的意义，这里就专门来着重介绍一下，Kafka中一些重要的配置项。</p>
+<h3 id="1-listeners"><a href="#1-listeners" class="headerlink" title="(1) listeners"></a>(1) <code>listeners</code></h3><p>这个配置项用于<strong>指定Kafka服务器监听客户端连接的地址和端口</strong>，当 Kafka 服务器启动时，它将监听<code>listeners</code>配置项中指定的地址和端口，等待客户端的连接请求。</p>
+<p>一般情况下这个配置以<code>PLAINTEXT://</code>或者<code>CONTROLLER://</code>开头，意义如下：</p>
+<ul>
+<li>若这个节点是Broker节点，则以<code>PLAINTEXT://</code>开头</li>
+<li>若这个节点是Controller节点，则以<code>CONTROLLER://</code>开头</li>
+<li>若这个节点是混合节点，则需要同时配置两者开头的地址</li>
+</ul>
+<p>这个配置项<strong>通常不需要修改</strong>，下面给出几个配置示例：</p>
+<ul>
+<li><code>PLAINTEXT://:9092</code> 本节点作为Broker节点，监听本机<strong>所有可用网卡</strong>的<code>9092</code>端口（使用<code>9092</code>端口作为<strong>客户端通信端口</strong>），也是默认配置</li>
+<li><code>PLAINTEXT://127.0.0.1:9092</code> 本节点作为Broker节点，监听本地的<code>9092</code>端口，这样仅接受来自本地的请求</li>
+<li><code>CONTROLLER://:10000</code> 本节点作为Controller节点，监听本机<strong>所有可用网卡</strong>的<code>10000</code>端口（使用<code>10000</code>端口作为<strong>控制器端口</strong>）</li>
+<li><code>PLAINTEXT://:9092,CONTROLLER://:9093</code> 本节点作为混合节点，监听本机<strong>所有可用网卡</strong>的<code>9092</code>和<code>9093</code>端口，其中<code>9092</code>作为<strong>客户端通信端口</strong>，<code>9093</code>作为<strong>控制器端口</strong></li>
+</ul>
+<h3 id="2-advertise-listeners"><a href="#2-advertise-listeners" class="headerlink" title="(2) advertise.listeners"></a>(2) <code>advertise.listeners</code></h3><p>这个配置容易和<code>listeners</code>混淆，事实上它们是有较大的区别的。</p>
+<p>该配置项指定Kafka服务器<strong>广播给客户端的地址和端口</strong>，通常配置为<strong>Kafka所在服务器的外网地址</strong>。</p>
+<p>当客户端（生产者或消费者）尝试连接到Kafka服务器时，它首先会获取Kafka服务器广播的地址和端口，也就是<code>advertise.listeners</code>配置所指定的地址和端口，然后才会使用<code>advertise.listeners</code>配置所指定的地址和端口来建立与Kafka服务器的连接。</p>
+<p>相信这时大家会有个疑问：既然客户端要连接Kafka（例如Spring Boot集成Kafka客户端），那一定是已经知道了Kafka对外的地址端口了，那为什么连接的时候还需要获取一下广播的地址端口再进行连接呢？这样是不是有一些多此一举？</p>
+<p>事实上，Kafka设计这个配置是为了解决下面较为复杂的网络场景：</p>
+<ul>
+<li><strong>多网络接口的主机部署</strong>：在一个多网络接口的主机部署Kafka时，Kafka服务器可能会监听多个地址和端口，这些地址和端口可能与客户端实际访问的地址和端口不同，<code>advertise.listeners</code>允许服务器指定一个公开的、可访问的地址和端口，以便客户端能够正确连接</li>
+<li><strong>NAT&#x2F;代理环境</strong>：在某些网络环境下，Kafka服务器位于一个私有网络中，客户端位于一个公共网络中，两者之间可能存在网络地址转换（NAT）或代理，在这种情况下，Kafka服务器的内部地址和端口对客户端来说是不可访问的。通过使用<code>advertise.listeners</code>，Kafka服务器可以将一个公共地址和端口广播给客户端，使得客户端能够通过公共网络连接到服务器</li>
+<li><strong>容器环境</strong>：例如你把Kafka放在Docker容器中运行，按照默认配置，Kafka服务端只会监听容器网络的<code>9092</code>端口，我们知道外部不能直接访问容器的网络，而是需要使用网络映射，假设你把Kafka容器的<code>9092</code>端口映射至了宿主机<code>9095</code>端口，也就是说外部需要通过<code>9095</code>端口访问到Kafka容器的<code>9092</code>端口，那么你就配置<code>advertise.listeners</code>为<code>PLAINTEXT://服务器外网地址:9095</code>，客户端就可以正确访问容器中的Kafka了</li>
+</ul>
+<p>总之，这个配置设置为<strong>Kafka服务器所在的外网地址即可</strong>！例如<code>PLAINTEXT://69.54.112.239:9092</code>。</p>
+<h3 id="3-process-roles"><a href="#3-process-roles" class="headerlink" title="(3) process.roles"></a>(3) <code>process.roles</code></h3><p>这是KRaft模式下专门的配置，用于配置这个节点的类型，可以配置为下列值：</p>
+<ul>
+<li><code>broker</code> 表示这个节点是Broker节点，充当消息队列的角色</li>
+<li><code>controller</code> 表示这个节点是Controller节点，充当元数据存放和管理的角色</li>
+<li><code>broker,controller</code> 表示这个节点同时担任Broker和Controller的角色，也称作<strong>混合节点</strong></li>
+</ul>
+<p>如果没有配置这个选项，则Kafka会以Zookeeper模式运行。</p>
+<p>这里有下列注意事项：</p>
+<ul>
+<li>如果设定节点为<code>controller</code>：<ul>
+<li>则<strong>不能</strong>配置<code>advertised.listeners</code>，可以将其注释掉或者删掉</li>
+<li><code>listeners</code>需要配置为<code>CONTROLLER://</code>开头，建议配置为<code>CONTROLLER://:9093</code></li>
+</ul>
+</li>
+<li>如果设定节点为<code>broker</code>：<ul>
+<li>则需要配置<code>advertised.listeners</code>为服务器外网地址和端口，这和Zookeeper模式中相同</li>
+<li><code>listeners</code>需要配置为<code>PLAINTEXT://</code>开头，建议配置为<code>PLAINTEXT://:9092</code></li>
+</ul>
+</li>
+<li>如果设定节点为混合节点：<ul>
+<li>同样需要配置<code>advertised.listeners</code>为服务器外网地址和端口</li>
+<li><code>listeners</code>需要同时配置<code>CONTROLLER://</code>和<code>PLAINTEXT://</code>，建议配置为<code>PLAINTEXT://:9092,CONTROLLER://:9093</code></li>
+</ul>
+</li>
+</ul>
+<p>在开发环境或者小规模集群，可以全部使用混合节点，如果是生产环境就建议设定好每个节点的类型了！并且通常需要先启动Controller节点再启动Broker节点。</p>
+<blockquote>
+<p>事实上，我们发现Kafka的KRaft配置目录<code>config/kraft</code>下有三个配置文件，其中<code>server.properties</code>是混合节点的配置模板，而<code>broker.properties</code>和<code>controller.properties</code>分别是Broker节点和Controller节点的配置模板，大家如果要设定节点类型，可以直接使用对应的配置文件，将对应配置文件需要修改的部分修改一下，然后将上述格式化数据目录命令和启动命令中的配置文件路径改变一下即可，这样可以省略我们设定<code>process.roles</code>和<code>listeners</code>或者控制器节点删除<code>advertise.listeners</code>配置的操作。</p>
+</blockquote>
+<h3 id="4-controller-quorum-voters"><a href="#4-controller-quorum-voters" class="headerlink" title="(4) controller.quorum.voters"></a>(4) <code>controller.quorum.voters</code></h3><p>该配置项用于配置集群中Controller节点选举过程中的投票者，集群中<strong>所有的Controller节点都需要被罗列在这个配置项中</strong>，其配置格式为<code>id1@host1:port1,id2@host2:port2,id3@host3:port3...</code>。</p>
+<p>有的同学可能认为这里需要把集群中<strong>所有节点</strong>都写进去，事实上这是错误的，这里只需要写<strong>所有的Controller节点和混合节点</strong>的<code>id</code>、地址和端口即可，这个配置中配置的端口当然是<strong>控制器端口</strong>。</p>
+<p>上述集群搭建的例子中，由于所有的节点都是混合节点，因此就全部写在其中了！如果我们手动设定每个节点的类型，例如：</p>
+<table>
+<thead>
+<tr>
+<th align="center">节点名</th>
+<th align="center">节点<code>id</code></th>
+<th align="center">地址</th>
+<th align="center">服务器通信端口</th>
+<th align="center">控制器端口</th>
+<th align="center">节点类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Kafka节点1</td>
+<td align="center"><code>1</code></td>
+<td align="center"><code>kafka1</code></td>
+<td align="center">&#x2F;</td>
+<td align="center"><code>9093</code></td>
+<td align="center">Controller</td>
+</tr>
+<tr>
+<td align="center">Kafka节点2</td>
+<td align="center"><code>2</code></td>
+<td align="center"><code>kafka2</code></td>
+<td align="center"><code>9092</code></td>
+<td align="center">&#x2F;</td>
+<td align="center">Broker</td>
+</tr>
+<tr>
+<td align="center">Kafka节点3</td>
+<td align="center"><code>3</code></td>
+<td align="center"><code>kafka3</code></td>
+<td align="center"><code>9092</code></td>
+<td align="center">&#x2F;</td>
+<td align="center">Broker</td>
+</tr>
+</tbody></table>
+<p>那么所有节点的<code>controller.quorum.voters</code>都需要配置为<code>1@kafka1:9093</code>。</p>
+<p>事实上，所有的节点都是通过这个配置中的节点列表，来得知所有的控制器节点信息（以获取集群元数据）并得到投票候选者的，因此集群中所有节点，不论是Broker还是Controller，还是混合节点，都需要配置这一项。</p>
+<h3 id="5-其它配置"><a href="#5-其它配置" class="headerlink" title="(5) 其它配置"></a>(5) 其它配置</h3><p>除了上述我们涉及到的一些配置之外，还有下列配置大家可以进行修改：</p>
+<ul>
+<li><code>socket.send.buffer.bytes</code> 每次发送的数据包的最大大小（单位：字节）</li>
+<li><code>socket.receive.buffer.bytes</code> 每次接收的数据包的最大大小（单位：字节）</li>
+<li><code>socket.request.max.bytes</code> 接收的最大请求大小（单位：字节）</li>
+<li><code>num.partitions</code> 每个<code>Topic</code>的默认分区数</li>
+</ul>
+<p>上述无论是哪个模式的集群，都可以在配置文件中找到这些配置，如果找不到可手动加入。除了修改配置文件之外，我们还可以在启动Kafka的命令中指定配置和值，例如：</p>
+<p>bash</p>
+<p>复制代码</p>
+<p><code>bin/kafka-server-start.sh config/server.properties --override zookeeper.connect=127.0.0.1:2181 --override broker.id=1</code></p>
+<p>上述命令在启动时通过命令指定了<code>zookeeper.connect</code>配置值为<code>127.0.0.1:2181</code>，以及<code>broker.id</code>为<code>1</code>，可见在后面追加<code>--override 配置名=值</code>即可，注意命令行中指定的配置值会覆盖掉配置文件中的配置值！</p>
+<h2 id="4，总结"><a href="#4，总结" class="headerlink" title="4，总结"></a>4，总结</h2><p>本文介绍了Kafka的两种集群模式结构及其搭建方式，其中一些概念尤其是KRaft模式可能需要大家多读几遍，并结合实际操作才能明白。</p>
+<p>参考文档：</p>
+<ul>
+<li>Kafka快速开始：<a href="https://link.juejin.cn/?target=https://kafka.apache.org/quickstart" title="https://kafka.apache.org/quickstart">传送门</a></li>
+<li>Kafka所有配置：<a href="https://link.juejin.cn/?target=https://kafka.apache.org/documentation/%23configuration" title="https://kafka.apache.org/documentation/#configuration">传送门</a></li>
+<li>KRaft模式集群配置：<a href="https://link.juejin.cn/?target=https://kafka.apache.org/documentation/%23kraft" title="https://kafka.apache.org/documentation/#kraft">传送门</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Kafka/">#Kafka</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/2e271d30.html" title="obsidian中使用网页剪报 - 哔哩哔哩">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">obsidian中使用网页剪报 - 哔哩哔哩</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/2bab8fa4.html" title="Redis6.0+版本修改密码无效">
+                        <span class="hidden-mobile">Redis6.0+版本修改密码无效</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

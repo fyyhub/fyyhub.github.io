@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 概述Java 7 中引入的对资源 try-with-resources 的支持允许我们声明要在 try 块中使用的资源，并保证资源将在该块执行后关闭。 声明的资源需要实现_自动关闭接口_。 2. 使用_资源Try代码块_简而言之，要自动关闭，必须在 try 中声明和初始化资源： try (PrintWriter writer &#x3D; new PrintWriter(new File">
+<meta property="og:type" content="article">
+<meta property="og:title" content="try-with-resources使用指南">
+<meta property="og:url" content="https://fyyhub.github.io/article/9148af35.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="1. 概述Java 7 中引入的对资源 try-with-resources 的支持允许我们声明要在 try 块中使用的资源，并保证资源将在该块执行后关闭。 声明的资源需要实现_自动关闭接口_。 2. 使用_资源Try代码块_简而言之，要自动关闭，必须在 try 中声明和初始化资源： try (PrintWriter writer &#x3D; new PrintWriter(new File">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://assets.cnblogs.com/images/copycode.gif">
+<meta property="article:published_time" content="2024-04-07T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.273Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="JAVA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://assets.cnblogs.com/images/copycode.gif">
+  
+  
+  
+  <title>try-with-resources使用指南 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="try-with-resources使用指南"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-07 00:00" pubdate>
+          2024年4月7日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          29 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">try-with-resources使用指南</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+
+<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>Java 7 中引入的对资源 <em>try-with-resources</em> 的支持允许我们声明要在 <em>try</em> 块中使用的资源，并保证资源将在该块执行后关闭。</p>
+<p>声明的资源需要实现_自动关闭接口_。</p>
+<h2 id="2-使用-资源Try代码块"><a href="#2-使用-资源Try代码块" class="headerlink" title="2. 使用_资源Try代码块_"></a>2. 使用_资源Try代码块_</h2><p>简而言之，要自动关闭，必须在 <em>try</em> 中声明和初始化资源：</p>
+<p>try (PrintWriter writer &#x3D; new PrintWriter(new File(“test.txt”))) {<br>    writer.println(“Hello World”);<br>}</p>
+<h2 id="3-用-资源的try-替换-try-finally"><a href="#3-用-资源的try-替换-try-finally" class="headerlink" title="3. 用_资源的try_替换_try-_finally"></a>3. 用_资源的try_替换_try-_finally</h2><p>使用新的“try_资源_”功能的简单而明显的方法是替换传统的_冗长的“try-catch-finally_”块。</p>
+<p>让我们比较以下代码示例。</p>
+<p>第一个是典型的try-_catch-finally_块：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>Scanner scanner &#x3D; null;<br>try {<br>    scanner = new Scanner(new File(“test.txt”));<br>    while (scanner.hasNext()) {<br>        System.out.println(scanner.nextLine());<br>    }<br>} catch (FileNotFoundException e) {<br>    e.printStackTrace();<br>} finally {<br>    if (scanner !&#x3D; null) {<br>        scanner.close();<br>    }<br>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>这是使用_资源try_的新的超级简洁解决方案：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>try (Scanner scanner &#x3D; new Scanner(new File(“test.txt”))) {<br>    while (scanner.hasNext()) {<br>        System.out.println(scanner.nextLine());<br>    }<br>} catch (FileNotFoundException fnfe) {<br>    fnfe.printStackTrace();<br>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>下面是进一步探索_扫描程序_类的位置。</p>
+<h2 id="4-使用-多个资源t-ry-with-resources-块"><a href="#4-使用-多个资源t-ry-with-resources-块" class="headerlink" title="4. 使用_多个资源t_ry-with-resources 块"></a>4. <em>使用_多个资源t_ry-with-resources</em> 块</h2><p>我们可以在 <em>try-with-resources</em> 块中声明多个资源，方法是用分号分隔它们：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>try (Scanner scanner &#x3D; new Scanner(new File(“testRead.txt”));<br>    PrintWriter writer = new PrintWriter(new File(“testWrite.txt”))) {<br>    while (scanner.hasNext()) {<br>    writer.print(scanner.nextLine());<br>    }<br>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h2 id="5-具有自动关闭功能的-自定义资源"><a href="#5-具有自动关闭功能的-自定义资源" class="headerlink" title="5. _具有自动关闭功能的_自定义资源"></a>5. _具有自动关闭功能的_自定义资源</h2><p>若要构造将由 <em>try-with-resources</em> 块正确处理的自定义资源，该类应实现 Closeable 或 <em>AutoCloseable</em> 接口并重写 <em>close</em> 方法：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>public class MyResource implements AutoCloseable {<br>    @Override<br>    public void close() throws Exception {<br>        System.out.println(“Closed MyResource”);<br>    }<br>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h2 id="6-资源关闭顺序"><a href="#6-资源关闭顺序" class="headerlink" title="6. 资源关闭顺序"></a>6. 资源关闭顺序</h2><p>首先定义&#x2F;获取的资源将最后关闭。让我们看一下此行为的示例：</p>
+<p>资源 1：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>public class AutoCloseableResourcesFirst implements AutoCloseable {</p>
+<pre><code class="hljs">public AutoCloseableResourcesFirst() &#123;
+    System.out.println(&quot;Constructor -&gt; AutoCloseableResources\_First&quot;);
+&#125;
+
+public void doSomething() &#123;
+    System.out.println(&quot;Something -&gt; AutoCloseableResources\_First&quot;);
+&#125;
+
+@Override
+public void close() throws Exception &#123;
+    System.out.println(&quot;Closed AutoCloseableResources\_First&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>资源 2：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>public class AutoCloseableResourcesSecond implements AutoCloseable {</p>
+<pre><code class="hljs">public AutoCloseableResourcesSecond() &#123;
+    System.out.println(&quot;Constructor -&gt; AutoCloseableResources\_Second&quot;);
+&#125;
+
+public void doSomething() &#123;
+    System.out.println(&quot;Something -&gt; AutoCloseableResources\_Second&quot;);
+&#125;
+
+@Override
+public void close() throws Exception &#123;
+    System.out.println(&quot;Closed AutoCloseableResources\_Second&quot;);
+&#125;
+</code></pre>
+<p>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>使用：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>private void orderOfClosingResources() throws Exception {<br>    try (AutoCloseableResourcesFirst af &#x3D; new AutoCloseableResourcesFirst();<br>        AutoCloseableResourcesSecond as = new AutoCloseableResourcesSecond()) {</p>
+<pre><code class="hljs">    af.doSomething();
+    as.doSomething();
+&#125;
+</code></pre>
+<p>}</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>输出：</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<p>Constructor -&gt; AutoCloseableResources_First<br>Constructor -&gt; AutoCloseableResources_Second<br>Something-&gt; AutoCloseableResources_First<br>Something-&gt; AutoCloseableResources_Second<br>Closed AutoCloseableResources_Second<br>Closed AutoCloseableResources_First</p>
+<p><a href="javascript:void(0);" title="复制代码"><img src="//assets.cnblogs.com/images/copycode.gif" srcset="/img/loading.gif" lazyload alt="复制代码"></a></p>
+<h2 id="7-catch-和-finally"><a href="#7-catch-和-finally" class="headerlink" title="7.catch__和_finally_"></a>7.<em>catch__和_finally</em>_</h2><p>_try资源_块仍然可以具有_catch_和_finally_块，其工作方式与传统的_try_块相同。</p>
+<h2 id="8-Java-9-–-有效的finally变量"><a href="#8-Java-9-–-有效的finally变量" class="headerlink" title="8. Java 9 – 有效的finally变量"></a>8. Java 9 – 有效的finally变量</h2><p>在Java 9之前，我们只能在_try-with-resources_块中使用新变量：</p>
+<p>try (Scanner scanner &#x3D; new Scanner(new File(“testRead.txt”));<br>    PrintWriter writer = new PrintWriter(new File(“testWrite.txt”))) {<br>    &#x2F;&#x2F; omitted<br>}</p>
+<p>如上所示，这在声明多个资源时尤其冗长。从 Java 9 开始，作为 <a target="_blank" rel="noopener" href="https://openjdk.java.net/jeps/213">JEP 213</a> 的一部分，我们现在可以在_资源try_块中使用finally甚至有效的_finally_变量：</p>
+<p>final Scanner scanner &#x3D; new Scanner(new File(“testRead.txt”));<br>PrintWriter writer = new PrintWriter(new File(“testWrite.txt”))<br>try (scanner;writer) {<br>    &#x2F;&#x2F; omitted<br>}</p>
+<p>简而言之，如果变量在第一次赋值后没有更改，即使它没有明确标记为 final，它实际上是 _final_。</p>
+<p>如上所示，<em>scanner</em> 变量被显式声明为 _final_，因此我们可以将其与 <em>try-with-resources</em> 块一起使用。尽管_编写器_变量不是_显式 final_，但它在第一次赋值后不会更改。因此，我们也可以使用_编写器_变量。</p>
+<h2 id="9-结论"><a href="#9-结论" class="headerlink" title="9. 结论"></a>9. 结论</h2><p>在本文中，我们讨论了如何使用 try-with-resources 以及如何用 try-with-resources 替换 _try_、_catch_，_finally_。</p>
+<p>我们还研究了使用 <em>AutoCloseable</em> 构建自定义资源以及资源的关闭顺序。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/JAVA/">#JAVA</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/939d7320.html" title="replicaof  和 slaveof区别">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">replicaof  和 slaveof区别</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/ce91021a.html" title="@ControllerAdvice 的介绍及三种用法(转载)">
+                        <span class="hidden-mobile">@ControllerAdvice 的介绍及三种用法(转载)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,656 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="# DrissionPage学习  官网：http:&#x2F;&#x2F;drissionpage.cn&#x2F;features&#x2F;intimate&#x2F; 自动化测试框架：DrissionPage 1.DrissionPage事件1.1元素定位查找12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DrissionPage学习">
+<meta property="og:url" content="https://fyyhub.github.io/article/c8098d99.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="# DrissionPage学习  官网：http:&#x2F;&#x2F;drissionpage.cn&#x2F;features&#x2F;intimate&#x2F; 自动化测试框架：DrissionPage 1.DrissionPage事件1.1元素定位查找12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-12T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.275Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>DrissionPage学习 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="DrissionPage学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-12 00:00" pubdate>
+          2024年8月12日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          92 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">DrissionPage学习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+# DrissionPage学习
+
+<p>官网：<a target="_blank" rel="noopener" href="http://drissionpage.cn/features/intimate/">http://drissionpage.cn/features/intimate/</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43936332/article/details/135977426">自动化测试框架：DrissionPage</a></p>
+<h2 id="1-DrissionPage事件"><a href="#1-DrissionPage事件" class="headerlink" title="1.DrissionPage事件"></a>1.DrissionPage事件</h2><h3 id="1-1元素定位查找"><a href="#1-1元素定位查找" class="headerlink" title="1.1元素定位查找"></a>1.1元素定位查找</h3><figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs clean"># 根据属性查找，@ 后面可跟任意属性<br>page.ele(<span class="hljs-string">&#x27;@id:ele_id&#x27;</span>, timeout=<span class="hljs-number">2</span>)  # 查找 id 为 ele_id 的元素，设置等待时间<span class="hljs-number">2</span>秒  <br>page.eles(<span class="hljs-string">&#x27;@class&#x27;</span>)  # 查找所有拥有 <span class="hljs-keyword">class</span> 属性的元素<br>page.eles(<span class="hljs-string">&#x27;@class:class_name&#x27;</span>)  # 查找所有 <span class="hljs-keyword">class</span> 含有 ele_class 的元素 <br>page.eles(<span class="hljs-string">&#x27;@class=class_name&#x27;</span>)  # 查找所有 <span class="hljs-keyword">class</span> 等于 ele_class 的元素 <br> <br># 根据 <span class="hljs-keyword">class</span> 或 id 查找<br>page.ele(<span class="hljs-string">&#x27;#ele_id&#x27;</span>)  # 等价于 page.ele(<span class="hljs-string">&#x27;@id=ele_id&#x27;</span>)<br>page.ele(<span class="hljs-string">&#x27;#:ele_id&#x27;</span>)  # 等价于 page.ele(<span class="hljs-string">&#x27;@id:ele_id&#x27;</span>)<br>page.ele(<span class="hljs-string">&#x27;.ele_class&#x27;</span>)  # 等价于 page.ele(<span class="hljs-string">&#x27;@class=ele_class&#x27;</span>)<br>page.ele(<span class="hljs-string">&#x27;.:ele_class&#x27;</span>)  # 等价于 page.ele(<span class="hljs-string">&#x27;@class:ele_class&#x27;</span>)<br> <br># 根据 tag name 查找<br>page.ele(<span class="hljs-string">&#x27;tag:li&#x27;</span>)  # 查找第一个 li 元素  <br>page.eles(<span class="hljs-string">&#x27;tag:li&#x27;</span>)  # 查找所有 li 元素  <br> <br># 根据 tag name 及属性查找<br>page.ele(<span class="hljs-string">&#x27;tag:div@class=div_class&#x27;</span>)  # 查找 <span class="hljs-keyword">class</span> 为 div_class 的 div 元素<br>page.ele(<span class="hljs-string">&#x27;tag:div@class:ele_class&#x27;</span>) # 查找 <span class="hljs-keyword">class</span> 含有 ele_class 的 div 元素<br>page.ele(<span class="hljs-string">&#x27;tag:div@class=ele_class&#x27;</span>) # 查找 <span class="hljs-keyword">class</span> 等于 ele_class 的 div 元素<br>page.ele(<span class="hljs-string">&#x27;tag:div@text():search_text&#x27;</span>) # 查找文本含有 search_text 的 div 元素<br>page.ele(<span class="hljs-string">&#x27;tag:div@text()=search_text&#x27;</span>) # 查找文本等于 search_text 的 div 元素<br> <br># 根据文本内容查找<br>page.ele(<span class="hljs-string">&#x27;search text&#x27;</span>)  # 查找包含传入文本的元素  <br>page.eles(<span class="hljs-string">&#x27;text:search text&#x27;</span>)  # 如文本以 @、tag:、css:、xpath:、text: 开头，则应在前加上 text: 避免冲突  <br>page.eles(<span class="hljs-string">&#x27;text=search text&#x27;</span>)  # 文本等于 search_text 的元素<br> <br># 根据 xpath 或 css selector 查找<br>page.eles(<span class="hljs-string">&#x27;xpath://div[@class=&quot;ele_class&quot;]&#x27;</span>)  <br>page.eles(<span class="hljs-string">&#x27;css:div.ele_class&#x27;</span>)  <br> <br># 根据 loc 查找<br>loc1 = By.ID, <span class="hljs-string">&#x27;ele_id&#x27;</span><br>loc2 = By.XPATH, <span class="hljs-string">&#x27;//div[@class=&quot;ele_class&quot;]&#x27;</span><br>page.ele(loc1)<br>page.ele(loc2)<br> <br># 查找下级元素<br>element = page.ele(<span class="hljs-string">&#x27;@id:ele_id&#x27;</span>)<br>element.ele(<span class="hljs-string">&#x27;@class:class_name&#x27;</span>)  # 在 element 下级查找第一个 <span class="hljs-keyword">class</span> 为 ele_class 的元素<br>element.eles(<span class="hljs-string">&#x27;tag:li&#x27;</span>)  # 在 ele_id 下级查找所有li元素<br> <br># 根据位置查找<br>element.parent  # 父元素  <br>element.next  # 下一个兄弟元素  <br>element.prev  # 上一个兄弟元素  <br> <br># 获取 shadow-root，把它作为元素对待。只支持 open 的 shadow-root<br>ele1 = element.shadow_root.ele(<span class="hljs-string">&#x27;tag:div&#x27;</span>)<br> <br># 串连查找<br>page.ele(<span class="hljs-string">&#x27;@id:ele_id&#x27;</span>).ele(<span class="hljs-string">&#x27;tag:div&#x27;</span>).next.ele(<span class="hljs-string">&#x27;some text&#x27;</span>).eles(<span class="hljs-string">&#x27;tag:a&#x27;</span>)<br> <br># 简化写法<br>eles = page(<span class="hljs-string">&#x27;@id:ele_id&#x27;</span>)(<span class="hljs-string">&#x27;tag:div&#x27;</span>).next(<span class="hljs-string">&#x27;some text&#x27;</span>).eles(<span class="hljs-string">&#x27;tag:a&#x27;</span>)<br>ele2 = ele1(<span class="hljs-string">&#x27;tag:li&#x27;</span>).next(<span class="hljs-string">&#x27;some text&#x27;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2元素操作"><a href="#1-2元素操作" class="headerlink" title="1.2元素操作"></a>1.2元素操作</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">element</span>.click(by_js)  <span class="hljs-comment"># 点击元素，可选择是否用 js 方式点击</span><br><span class="hljs-keyword">element</span>.input(<span class="hljs-built_in">value</span>)  <span class="hljs-comment"># 输入文本</span><br><span class="hljs-keyword">element</span>.run_script(js)  <span class="hljs-comment"># 对元素运行 JavaScript 脚本</span><br><span class="hljs-keyword">element</span>.submit()  <span class="hljs-comment"># 提交</span><br><span class="hljs-keyword">element</span>.<span class="hljs-built_in">clear</span>()  <span class="hljs-comment"># 清空元素</span><br><span class="hljs-keyword">element</span>.screenshot(path, filename)  <span class="hljs-comment"># 对元素截图</span><br><span class="hljs-keyword">element</span>.select(<span class="hljs-keyword">text</span>)  <span class="hljs-comment"># 根据文本选择下拉列表</span><br><span class="hljs-keyword">element</span>.set_attr(attr, <span class="hljs-built_in">value</span>)  <span class="hljs-comment"># 设置元素属性值</span><br><span class="hljs-keyword">element</span>.remove_attr(attr)  <span class="hljs-comment"># 删除属性</span><br><span class="hljs-keyword">element</span>.drag(x, y, speed, shake)  <span class="hljs-comment"># 拖动元素相对距离，可设置速度和是否随机抖动</span><br><span class="hljs-keyword">element</span>.drag_to(ele_or_loc, speed, shake)  <span class="hljs-comment"># 拖动元素到另一个元素或某个坐标，可设置速度和是否随机抖动</span><br><span class="hljs-keyword">element</span>.hover()  <span class="hljs-comment"># 在元素上悬停鼠标</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-3获取元素属性"><a href="#1-3获取元素属性" class="headerlink" title="1.3获取元素属性"></a>1.3获取元素属性</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-keyword">element</span>.html  <span class="hljs-comment"># 返回元素 outerHTML</span><br><span class="hljs-keyword">element</span>.inner_html  <span class="hljs-comment"># 返回元素 innerHTML</span><br><span class="hljs-keyword">element</span>.tag  <span class="hljs-comment"># 返回元素 tag name</span><br><span class="hljs-keyword">element</span>.<span class="hljs-keyword">text</span>  <span class="hljs-comment"># 返回元素 innerText 值</span><br><span class="hljs-keyword">element</span>.comments  <span class="hljs-comment"># 返回元素内注释列表</span><br><span class="hljs-keyword">element</span>.link  <span class="hljs-comment"># 返回元素 href 或 src 绝对 url</span><br><span class="hljs-keyword">element</span>.texts()  <span class="hljs-comment"># 返回元素内所有直接子节点的文本，包括元素和文本节点，可指定只返回文本节点</span><br><span class="hljs-keyword">element</span>.attrs  <span class="hljs-comment"># 返回元素所有属性的字典</span><br><span class="hljs-keyword">element</span>.attr(attr)  <span class="hljs-comment"># 返回元素指定属性的值</span><br><span class="hljs-keyword">element</span>.css_path  <span class="hljs-comment"># 返回元素绝对 css 路径</span><br><span class="hljs-keyword">element</span>.xpath  <span class="hljs-comment"># 返回元素绝对 xpath 路径</span><br><span class="hljs-keyword">element</span>.parent  <span class="hljs-comment"># 返回元素父元素</span><br><span class="hljs-keyword">element</span>.next  <span class="hljs-comment"># 返回元素后一个兄弟元素</span><br><span class="hljs-keyword">element</span>.prev  <span class="hljs-comment"># 返回元素前一个兄弟元素</span><br><span class="hljs-keyword">element</span>.parents(<span class="hljs-built_in">num</span>)  <span class="hljs-comment"># 返回第 num 级父元素</span><br><span class="hljs-keyword">element</span>.nexts(<span class="hljs-built_in">num</span>, mode)  <span class="hljs-comment"># 返回后面第几个元素或节点</span><br><span class="hljs-keyword">element</span>.prevs(<span class="hljs-built_in">num</span>, mode)  <span class="hljs-comment"># 返回前面第几个元素或节点</span><br><span class="hljs-keyword">element</span>.ele(loc_or_str, timeout)  <span class="hljs-comment"># 返回当前元素下级第一个符合条件的子元素、属性或节点文本</span><br><span class="hljs-keyword">element</span>.eles(loc_or_str, timeout)  <span class="hljs-comment"># 返回当前元素下级所有符合条件的子元素、属性或节点文本</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-DrissionPage基本使用"><a href="#2-DrissionPage基本使用" class="headerlink" title="2.DrissionPage基本使用"></a>2.DrissionPage基本使用</h2><h3 id="2-1控制浏览器，导入ChromiumPage："><a href="#2-1控制浏览器，导入ChromiumPage：" class="headerlink" title="2.1控制浏览器，导入ChromiumPage："></a><strong>2.1控制浏览器，导入<code>ChromiumPage</code>：</strong></h3><blockquote>
+<p>from DrissionPage import ChromiumPage</p>
+</blockquote>
+<h4 id="2-1-1-示例代码1："><a href="#2-1-1-示例代码1：" class="headerlink" title="2.1.1 示例代码1："></a>2.1.1 示例代码1：</h4><figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs nsis">from DrissionPage import ChromiumPage<br> <br><span class="hljs-comment"># 创建页面对象，并启动或接管浏览器</span><br><span class="hljs-keyword">page</span> = ChromiumPage()<br><span class="hljs-comment"># 跳转到登录页面</span><br><span class="hljs-keyword">page</span>.get(<span class="hljs-string">&#x27;https://gitee.com/login&#x27;</span>)    <span class="hljs-comment"># get()方法用于访问参数中的网址。它会等待页面完全加载，再继续执行后面的代码。</span><br> <br><span class="hljs-comment"># 定位到账号文本框</span><br>ele = <span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;#user_login&#x27;</span>)    <span class="hljs-comment"># ele()方法用于查找元素,&#x27;#user_login&#x27;是定位符文本，#意思是按id属性查找元素。ele()内置了等待，如果元素未加载，它会执行等待，直到元素出现或到达时限。默认超时时间 10 秒。</span><br> <br><span class="hljs-comment"># 输入对文本框输入账号</span><br>ele.input(<span class="hljs-string">&#x27;账号&#x27;</span>)<br><span class="hljs-comment"># 定位到密码文本框并输入密码</span><br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;#user_password&#x27;</span>).input(<span class="hljs-string">&#x27;密码&#x27;</span>)<br><span class="hljs-comment"># 点击登录按钮</span><br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;@value=登 录&#x27;</span>).click()    <span class="hljs-comment"># @表示按属性名查找</span><br><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-1-2示例代码2-Recorder是追加写入-："><a href="#2-1-2示例代码2-Recorder是追加写入-：" class="headerlink" title="2.1.2示例代码2(Recorder是追加写入)："></a>2.1.2示例代码2(Recorder是追加写入)：</h4><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-built_in">from</span> DrissionPage import ChromiumPage<br><span class="hljs-built_in">from</span> DataRecorder import Recorder  <span class="hljs-comment"># 这个是追加写入</span><br><span class="hljs-built_in">from</span> <span class="hljs-built_in">time</span> import sleep<br> <br><span class="hljs-comment"># 创建页面对象</span><br> <br>page = ChromiumPage()<br> <br><span class="hljs-comment"># 创建记录器对象</span><br> <br>recorder = Recorder(<span class="hljs-string">&#x27;data.csv&#x27;</span>)<br>recorder.add_data((<span class="hljs-string">&quot;标题&quot;</span>, <span class="hljs-string">&quot;导演&quot;</span>, <span class="hljs-string">&quot;上映时间&quot;</span>, <span class="hljs-string">&quot;评分&quot;</span>))<br> <br><span class="hljs-comment"># 访问网页</span><br> <br>page.<span class="hljs-built_in">get</span>(<span class="hljs-string">&#x27;https://www.maoyan.com/board/4&#x27;</span>)<br> <br><span class="hljs-keyword">while</span> True:<br>    <span class="hljs-comment"># 遍历页面上所有 dd 元素</span><br>    <span class="hljs-keyword">for</span> mov <span class="hljs-keyword">in</span> page.eles(<span class="hljs-string">&#x27;t:dd&#x27;</span>):<br>        <span class="hljs-comment"># 获取须要的信息</span><br>        score = mov(<span class="hljs-string">&#x27;.score&#x27;</span>).<span class="hljs-keyword">text</span><br>        title = mov(<span class="hljs-string">&#x27;@data-act=boarditem-click&#x27;</span>).attr(<span class="hljs-string">&#x27;title&#x27;</span>)<br>        star = mov(<span class="hljs-string">&#x27;.star&#x27;</span>).<span class="hljs-keyword">text</span><br>        <span class="hljs-built_in">time</span> = mov(<span class="hljs-string">&#x27;.releasetime&#x27;</span>).<span class="hljs-keyword">text</span><br>        <span class="hljs-comment"># 写入到记录器</span><br>        recorder.add_data((title, star, <span class="hljs-built_in">time</span>, score))<br>    sleep(<span class="hljs-number">1</span>)<br>    <span class="hljs-comment"># 获取下一页按钮，有就点击</span><br>    btn = page(<span class="hljs-string">&#x27;下一页&#x27;</span>, timeout=<span class="hljs-number">2</span>)<br>    <span class="hljs-keyword">if</span> btn:<br>        btn.click()<br>        page.<span class="hljs-built_in">wait</span>.load_start()<br>    <span class="hljs-comment"># 没有则退出程序</span><br>    <span class="hljs-keyword">else</span>:<br>        break<br>recorder.record()<br><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-1-3-示例代码3"><a href="#2-1-3-示例代码3" class="headerlink" title="2.1.3 示例代码3"></a>2.1.3 示例代码3</h4><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment">#抓取震坤行商品</span><br><span class="hljs-attribute">from</span> DrissionPage import  ChromiumPage<br><span class="hljs-attribute">import</span>  time<br><br><span class="hljs-attribute">page</span> = ChromiumPage()<br><span class="hljs-comment"># page = ChromiumPage()这句意思是打开一个浏览器，这个浏览器是安装DrissionPage时自动安装的</span><br><br><span class="hljs-comment"># 跳转到震坤行页面</span><br><span class="hljs-attribute">page</span>.get(&#x27;https://www.zkh.com/?utm_source=baidu&amp;utm_medium=CPT&#x27;)<br><span class="hljs-attribute">time</span>.sleep(<span class="hljs-number">1</span>)<br><span class="hljs-attribute">page</span>.ele(&#x27;xpath://*[@id=<span class="hljs-string">&quot;app&quot;</span>]/div/div/div[<span class="hljs-number">3</span>]/div/div[<span class="hljs-number">1</span>]/div[<span class="hljs-number">1</span>]/input&#x27;).input(<span class="hljs-string">&quot;口罩&quot;</span>)<br><span class="hljs-attribute">time</span>.sleep(<span class="hljs-number">1</span>)<br><span class="hljs-attribute">page</span>.ele(&#x27;xpath://*[@id=<span class="hljs-string">&quot;app&quot;</span>]/div/div/div[<span class="hljs-number">3</span>]/div/div[<span class="hljs-number">1</span>]/button&#x27;).click()<br><span class="hljs-comment"># page.to_tab(page.latest_tab)  goods-title</span><br><br><span class="hljs-attribute">while</span> True:<br>    <span class="hljs-attribute">page</span>.wait.load_start()<br><br>    <span class="hljs-attribute">page</span>.scroll.to_location(<span class="hljs-number">0</span>,<span class="hljs-number">10000</span>) #滚动到指定位置<br>    <span class="hljs-attribute">time</span>.sleep(<span class="hljs-number">0</span>.<span class="hljs-number">5</span>)<br>    <span class="hljs-attribute">page</span>.scroll.to_location(<span class="hljs-number">0</span>, <span class="hljs-number">10000</span>)<br>    <span class="hljs-attribute">time</span>.sleep(<span class="hljs-number">0</span>.<span class="hljs-number">5</span>)<br>    <span class="hljs-attribute">page</span>.scroll.to_location(<span class="hljs-number">0</span>, <span class="hljs-number">10000</span>)<br>    <span class="hljs-attribute">time</span>.sleep(<span class="hljs-number">0</span>.<span class="hljs-number">5</span>)<br>    <span class="hljs-attribute">divs</span>=page.eles(&#x27;xpath://div[@class=<span class="hljs-string">&quot;goods-name clamp2&quot;</span>]&#x27;)<br>    <span class="hljs-attribute">for</span> i in divs:<br>        <span class="hljs-attribute">title</span> = i.attr(&#x27;title&#x27;)<br>        <span class="hljs-attribute">print</span>(title)<br><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2收发数据包，导入SessionPage："><a href="#2-2收发数据包，导入SessionPage：" class="headerlink" title="2.2收发数据包，导入SessionPage："></a>2.2收发数据包，导入<code>SessionPage</code>：</h3><blockquote>
+<p>from DrissionPage import SessionPage</p>
+</blockquote>
+<h4 id="2-2-1示例代码："><a href="#2-2-1示例代码：" class="headerlink" title="2.2.1示例代码："></a>2.2.1示例代码：</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> DrissionPage <span class="hljs-keyword">import</span> SessionPage<br> <br><span class="hljs-comment"># 创建页面对象</span><br>page = SessionPage()<br> <br><span class="hljs-comment"># 爬取前5页</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">6</span>):<br>    page.get(<span class="hljs-string">f&#x27;https://gitee.com/explore/all?page=<span class="hljs-subst">&#123;i&#125;</span>&#x27;</span>)<br>    <span class="hljs-comment"># 获取所有开源库&lt;a&gt;元素列表</span><br>    links = page.eles(<span class="hljs-string">&#x27;.title project-namespace-path&#x27;</span>)    <span class="hljs-comment"># 页面对象的eles()获取页面中所有class属性为&#x27;title project-namespace-path&#x27;的元素对象，eles()方法用于查找多个符合条件的元素，返回由它们组成的list</span><br>    <span class="hljs-comment"># 遍历所有&lt;a&gt;元素</span><br>    <span class="hljs-keyword">for</span> link <span class="hljs-keyword">in</span> links:<br>        <span class="hljs-comment"># 打印链接信息</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;link.text&#125;</span>:<span class="hljs-subst">&#123;link.link&#125;</span>&quot;</span>)    <span class="hljs-comment"># .text获取元素的文本，.link获取元素的href或src属性</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-2-2下载网页"><a href="#2-2-2下载网页" class="headerlink" title="2.2.2下载网页"></a>2.2.2下载网页</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> DrissionPage <span class="hljs-keyword">import</span> SessionPage<br> <br>url = <span class="hljs-string">&#x27;https://www.baidu.com/img/flexible/logo/pc/result.png&#x27;</span><br>save_path = <span class="hljs-string">r&#x27;images&#x27;</span>  <span class="hljs-comment"># 保存的路径，当前的项目路径，如为空则保存在与py同目录</span><br> <br>page = SessionPage()<br>page.download(url, save_path, <span class="hljs-string">&#x27;img&#x27;</span>)  <span class="hljs-comment"># 支持重命名，处理文件名冲突，img是图片名字</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-获取新窗口句柄"><a href="#3-获取新窗口句柄" class="headerlink" title="3.获取新窗口句柄"></a>3.获取新窗口句柄</h2><h3 id="3-1-无需切入切出，逻辑清晰"><a href="#3-1-无需切入切出，逻辑清晰" class="headerlink" title="3.1.无需切入切出，逻辑清晰"></a>3.1.无需切入切出，逻辑清晰</h3><p>使用过 selenium 的人都知道，selenium 同一时间只能操作一个标签页或<code>&lt;iframe&gt;</code>元素，要操作其它标签页，或<code>&lt;iframe&gt;</code>元素，需要用<code>switch_to()</code> 方法切换，操作后还要切换回来。如果是多级<code>&lt;iframe&gt;</code>，还要逐级切入，相当麻烦。</p>
+<p>DrissionPage 则无需这些麻烦的操作，它把每个标签页和<code>&lt;iframe&gt;</code>都看作独立的对象，可以同时并发操作，而且可以直接跨多层<code>&lt;iframe&gt;</code>获取里面的元素，然后直接处理，非常方便。</p>
+<p>对比一下，获取 2 层<code>&lt;iframe&gt;</code>内一个 id 为<code>&#39;div1&#39;</code>的元素：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-comment"># 使用 selenium</span><br>driver.<span class="hljs-keyword">switch_to.frame(0)</span><br><span class="hljs-keyword"></span>driver.<span class="hljs-keyword">switch_to.frame(0)</span><br><span class="hljs-keyword"></span>ele = driver.find_element(<span class="hljs-keyword">By.ID, </span><span class="hljs-string">&#x27;div1&#x27;</span>)<br>driver.<span class="hljs-keyword">switch_to.default_content()</span><br><span class="hljs-keyword"></span><br><span class="hljs-comment"># 使用 DrissionPage</span><br>ele = page(<span class="hljs-string">&#x27;#div1&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>多标签页同时操作，selenium 无此功能：</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs stata"><span class="hljs-keyword">tab1</span> = page.get_tab(1)<br><span class="hljs-keyword">tab2</span> = page.get_tab(2)<br><br><span class="hljs-keyword">tab1</span>.<span class="hljs-built_in">get</span>(&#x27;https:<span class="hljs-comment">//www.baidu.com&#x27;)</span><br><span class="hljs-keyword">tab2</span>.<span class="hljs-built_in">get</span>(&#x27;https:<span class="hljs-comment">//www.163.com&#x27;)</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-示例代码1"><a href="#3-2-示例代码1" class="headerlink" title="3.2 示例代码1"></a>3.2 示例代码1</h3><figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs nsis"><span class="hljs-comment">#登录百度爬取</span><br>from DrissionPage import  ChromiumPage<br>import  time<br><br><span class="hljs-keyword">page</span> = ChromiumPage()这句意思是打开一个浏览器，这个浏览器是安装DrissionPage时自动安装的<br><br><span class="hljs-comment"># 跳转百度页面</span><br><span class="hljs-keyword">page</span>.get(<span class="hljs-string">&#x27;https://www.baidu.com&#x27;</span>)<br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">1</span>)<br><br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;xpath://*[@id=&quot;kw&quot;]&#x27;</span>).input(<span class="hljs-string">&quot;宿舍&quot;</span>)<br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">1</span>)<br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;xpath://*[@id=&quot;su&quot;]&#x27;</span>).click()<br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">1</span>)<br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;xpath://*[@id=&quot;3&quot;]/div/div[1]/h3/a&#x27;</span>).click()<br><br><span class="hljs-comment">#切换到新页面</span><br>ab=<span class="hljs-keyword">page</span>.get_tab(<span class="hljs-keyword">page</span>.latest_tab) <span class="hljs-comment">#获取新窗口页面句柄</span><br><span class="hljs-comment"># 等待页面跳转</span><br><span class="hljs-keyword">page</span>.wait.load_start()<br><span class="hljs-comment"># ab = page.geqwt_tab(0) #这样也可以获取新框框页面句柄</span><br><br><span class="hljs-literal">print</span>(ab.title) <span class="hljs-comment">#获取页面标题</span><br><span class="hljs-comment"># exit()</span><br><br><br><span class="hljs-comment">#切换到新页面</span><br><span class="hljs-comment"># ab=page.get_tab(1)</span><br><span class="hljs-comment"># page.get_tab(page.latest_tab)</span><br><span class="hljs-comment"># print(ab.title)</span><br><span class="hljs-comment"># page.get_tab(page.latest_tab)</span><br><span class="hljs-comment"># print(page.title)</span><br><span class="hljs-comment"># exit()</span><br><br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">1</span>)<br><span class="hljs-comment">#通过用新窗口的句柄来进行操作</span><br>ab.ele(<span class="hljs-string">&#x27;xpath:/html/body/div[1]/div[3]/form/div/input[4]&#x27;</span>).input(<span class="hljs-string">&quot;家&quot;</span>)<br>ab.ele(<span class="hljs-string">&#x27;xpath:/html/body/div[1]/div[3]/form/div/span&#x27;</span>).click()<br><br>lis = ab.ele(<span class="hljs-string">&#x27;xpath:/html/body/div[2]/div[1]/div/div[2]/ul&#x27;</span>)<br><span class="hljs-comment"># lis = page.ele(&#x27;xpath://ul[@class=&quot;w4]&#x27;)</span><br><span class="hljs-comment"># print(lis)</span><br>lis1 = lis.eles(<span class="hljs-string">&#x27;tag:li&#x27;</span>)<br>for i in lis1:<br>    lis2 = i.eles(<span class="hljs-string">&#x27;tag:a&#x27;</span>)<br>    for j in lis2:<br>        href=j.attr(<span class="hljs-string">&#x27;href&#x27;</span>) <span class="hljs-comment">#获取href属性值</span><br>        <span class="hljs-comment"># title=i.text </span><br>        title=j.attr(<span class="hljs-string">&#x27;title&#x27;</span>) <span class="hljs-comment">#获取title属性值</span><br>        <span class="hljs-literal">print</span>(href,title)<br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">4</span>)<br><span class="hljs-comment"># ab.close()  #关闭当前页面 （这样也可以）</span><br><span class="hljs-keyword">page</span>.close_tabs(ab) <span class="hljs-comment">#关闭当前页面</span><br><br><span class="hljs-comment"># ac=page.get_tab(-1)</span><br>ac=<span class="hljs-keyword">page</span>.get_tab(<span class="hljs-keyword">page</span>.latest_tab) <span class="hljs-comment">#将句柄调回原来的页面中</span><br><span class="hljs-literal">print</span>(ac.title)<br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">1</span>)<br><br>ac.ele(<span class="hljs-string">&#x27;xpath://*[@id=&quot;6&quot;]/div/div[1]/h3/a&#x27;</span>).click()<br><br>time.<span class="hljs-keyword">sleep</span>(<span class="hljs-number">2</span>)<br><span class="hljs-keyword">page</span>.<span class="hljs-keyword">quit</span>() <span class="hljs-comment">#退出浏览器</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="4-与selenium对比"><a href="#4-与selenium对比" class="headerlink" title="4.与selenium对比"></a>4.与selenium对比</h2><p><a target="_blank" rel="noopener" href="http://drissionpage.cn/features/features_demos/selenium/">与selenium对比</a></p>
+<h3 id="4-1跳转到一个标签页"><a href="#4-1跳转到一个标签页" class="headerlink" title="4.1跳转到一个标签页"></a>4.1跳转到一个标签页</h3><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 使用 selenium：</span><br><span class="hljs-attribute">driver</span>.switch_to.window(driver.window_handles[<span class="hljs-number">0</span>])<br><br><span class="hljs-comment"># 使用 DrissionPage：</span><br><span class="hljs-attribute">tab</span> = page.get_tab(<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-2按文本选择下拉列表"><a href="#4-2按文本选择下拉列表" class="headerlink" title="4.2按文本选择下拉列表"></a>4.2按文本选择下拉列表</h3><figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs autoit"><span class="hljs-meta"># 使用 selenium：</span><br>from selenium.webdriver.support.<span class="hljs-keyword">select</span> import <span class="hljs-keyword">Select</span><br>select_element = <span class="hljs-keyword">Select</span>(element)<br>select_element.select_by_visible_text(<span class="hljs-string">&#x27;text&#x27;</span>)<br><br><span class="hljs-meta"># 使用 DrissionPage：</span><br>element.<span class="hljs-keyword">select</span>(<span class="hljs-string">&#x27;text&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-3拖拽一个元素"><a href="#4-3拖拽一个元素" class="headerlink" title="4.3拖拽一个元素"></a>4.3拖拽一个元素</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"># 使用 selenium：<br>ActionChains(driver).drag_and_drop(ele1, ele2).<span class="hljs-keyword">perform</span>()<br><br># 使用 DrissionPage：<br>ele1.drag_to(ele2)<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-4滚动窗口到底部（保持水平滚动条不变）"><a href="#4-4滚动窗口到底部（保持水平滚动条不变）" class="headerlink" title="4.4滚动窗口到底部（保持水平滚动条不变）"></a>4.4滚动窗口到底部（保持水平滚动条不变）</h3><figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nsis"><span class="hljs-comment"># 使用 selenium：</span><br>driver.execute_script(<span class="hljs-string">&quot;window.scrollTo(document.documentElement.scrollLeft, document.body.scrollHeight);&quot;</span>)<br><br><span class="hljs-comment"># 使用 DrissionPage：</span><br><span class="hljs-keyword">page</span>.scroll.to_bottom()<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-5设置-headless-模式"><a href="#4-5设置-headless-模式" class="headerlink" title="4.5设置 headless 模式"></a>4.5设置 headless 模式</h3><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># 使用 selenium：</span><br><span class="hljs-attribute">options</span> = webdriver.ChromeOptions()<br><span class="hljs-attribute">options</span>.add_argument(<span class="hljs-string">&quot;--headless&quot;</span>)<br><br><span class="hljs-comment"># 使用 DrissionPage：</span><br><span class="hljs-attribute">set_headless</span>(True)<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-6获取伪元素内容"><a href="#4-6获取伪元素内容" class="headerlink" title="4.6获取伪元素内容"></a>4.6获取伪元素内容</h3><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs applescript"><span class="hljs-comment"># 使用 selenium：</span><br><span class="hljs-built_in">text</span> = webdriver.execute_script(&#x27;<span class="hljs-literal">return</span> window.getComputedStyle(arguments[<span class="hljs-number">0</span>], <span class="hljs-string">&quot;::after&quot;</span>).getPropertyValue(<span class="hljs-string">&quot;content&quot;</span>);&#x27;, element)<br><br><span class="hljs-comment"># 使用 DrissionPage：</span><br><span class="hljs-built_in">text</span> = element.pseudo.<span class="hljs-keyword">after</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-7用-xpath-直接获取属性或文本节点（返回文本）"><a href="#4-7用-xpath-直接获取属性或文本节点（返回文本）" class="headerlink" title="4.7用 xpath 直接获取属性或文本节点（返回文本）"></a>4.7用 xpath 直接获取属性或文本节点（返回文本）</h3><figure class="highlight golo"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs golo"><span class="hljs-comment"># 使用 selenium：</span><br>相当复杂<br><br><span class="hljs-comment"># 使用 DrissionPage：</span><br>class_name = element(&#x27;xpath://div[<span class="hljs-meta">@id</span>=<span class="hljs-string">&quot;div_id&quot;</span>]/<span class="hljs-meta">@class</span>&#x27;)<br>text = element(&#x27;xpath://div[<span class="hljs-meta">@id</span>=<span class="hljs-string">&quot;div_id&quot;</span>]/text()[<span class="hljs-number">2</span>]&#x27;)<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-模式切换"><a href="#5-模式切换" class="headerlink" title="5.模式切换"></a>5.模式切换</h2><p><a target="_blank" rel="noopener" href="http://drissionpage.cn/features/features_demos/change_mode/">http://drissionpage.cn/features/features_demos&#x2F;change_mode&#x2F;</a></p>
+<p><strong>用浏览器登录网站，然后切换到 requests 读取网页。两者会共享登录信息。</strong></p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs nsis">from DrissionPage import WebPage<br>from time import <span class="hljs-keyword">sleep</span><br><br><span class="hljs-comment"># 创建页面对象，默认 d 模式</span><br><span class="hljs-keyword">page</span> = WebPage()  <br><span class="hljs-comment"># 访问个人中心页面（未登录，重定向到登录页面）</span><br><span class="hljs-keyword">page</span>.get(<span class="hljs-string">&#x27;https://gitee.com/profile&#x27;</span>)  <br><br><span class="hljs-comment"># 输入账号密码登录</span><br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;@id:user_login&#x27;</span>).input(<span class="hljs-string">&#x27;your_user_name&#x27;</span>)  <br><span class="hljs-keyword">page</span>.ele(<span class="hljs-string">&#x27;@id:user_password&#x27;</span>).input(<span class="hljs-string">&#x27;your_password\n&#x27;</span>)<br><span class="hljs-keyword">page</span>.wait.load_start()<br><br><span class="hljs-comment"># 切换到 s 模式</span><br><span class="hljs-keyword">page</span>.change_mode()  <br><span class="hljs-comment"># 登录后 session 模式的输出</span><br><span class="hljs-literal">print</span>(<span class="hljs-string">&#x27;登录后title：&#x27;</span>, <span class="hljs-keyword">page</span>.title, <span class="hljs-string">&#x27;\n&#x27;</span>)  <br><br><span class="hljs-comment">#输出：</span><br>登录后title： 个人资料 - 码云 Gitee.com<br></code></pre></td></tr></table></figure>
+
+<h4 id="获取登录后的元素"><a href="#获取登录后的元素" class="headerlink" title="获取登录后的元素"></a>获取登录后的元素</h4><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver"><span class="hljs-comment"># 接上段代码</span><br>foot = page.ele(<span class="hljs-string">&#x27;#footer-left&#x27;</span>)  <span class="hljs-comment"># 用 id 查找元素</span><br>first_col = foot.ele(<span class="hljs-string">&#x27;css:&gt;div&#x27;</span>)  <span class="hljs-comment"># 使用 css selector 在元素的下级中查找元素（第一个）</span><br>lnk = first_col.ele(<span class="hljs-string">&#x27;text:命令学&#x27;</span>)  <span class="hljs-comment"># 使用文本内容查找元素</span><br><span class="hljs-keyword">text</span> = lnk.<span class="hljs-keyword">text</span>  <span class="hljs-comment"># 获取元素文本</span><br>href = lnk.attr(<span class="hljs-string">&#x27;href&#x27;</span>)  <span class="hljs-comment"># 获取元素属性值</span><br><br>print(<span class="hljs-keyword">text</span>, href, <span class="hljs-string">&#x27;\n&#x27;</span>)<br><br><span class="hljs-comment"># 简洁模式串联查找</span><br><span class="hljs-keyword">text</span> = page(<span class="hljs-string">&#x27;@id:footer-left&#x27;</span>)(<span class="hljs-string">&#x27;css:&gt;div&#x27;</span>)(<span class="hljs-string">&#x27;text:命令学&#x27;</span>).<span class="hljs-keyword">text</span><br>print(<span class="hljs-keyword">text</span>)<br><br><span class="hljs-comment">#输出</span><br>Git 命令学习 <span class="hljs-keyword">https</span>://oschina.gitee.io/learn-git-branching/<br><br>Git 命令学习<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/python/">#python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/ee343eb6.html" title="spring Cloud gateway rest调用报错">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">spring Cloud gateway rest调用报错</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/a730ba11.html" title="docker容器中的程序，为什么一定要前台运行">
+                        <span class="hidden-mobile">docker容器中的程序，为什么一定要前台运行</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

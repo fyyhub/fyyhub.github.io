@@ -1,0 +1,761 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="-   [RabbitMQ 如何做分布式](https:&#x2F;&#x2F;boilingfrog.github.io&#x2F;2022&#x2F;01&#x2F;07&#x2F;rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F&#x2F;#rabbitmq-%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%86%E5%B8%83%E5%BC%8F)     -   [前言](ht">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMq集群">
+<meta property="og:url" content="https://fyyhub.github.io/article/28af8ecc.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="-   [RabbitMQ 如何做分布式](https:&#x2F;&#x2F;boilingfrog.github.io&#x2F;2022&#x2F;01&#x2F;07&#x2F;rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F&#x2F;#rabbitmq-%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%86%E5%B8%83%E5%BC%8F)     -   [前言](ht">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster.png">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster-data.png">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster-mirror.png">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/mq-rabbitmq-federation-link.png">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster-shove.png">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-data-empty.jpg">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-data.jpg">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-disc.jpg">
+<meta property="og:image" content="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-ram.jpg">
+<meta property="article:published_time" content="2024-08-19T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.274Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="Rabbitmq">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster.png">
+  
+  
+  
+  <title>RabbitMq集群 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="RabbitMq集群"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-08-19 00:00" pubdate>
+          2024年8月19日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          77 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">RabbitMq集群</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+-   [RabbitMQ 如何做分布式](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#rabbitmq-%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%86%E5%B8%83%E5%BC%8F)
+    -   [前言](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E5%89%8D%E8%A8%80)
+    -   [集群配置方案](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88)
+        -   [cluster](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#cluster)
+            -   [普通模式](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E6%99%AE%E9%80%9A%E6%A8%A1%E5%BC%8F)
+            -   [镜像模式](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E9%95%9C%E5%83%8F%E6%A8%A1%E5%BC%8F)
+        -   [federation](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#federation)
+        -   [shovel](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#shovel)
+    -   [节点类型](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E8%8A%82%E7%82%B9%E7%B1%BB%E5%9E%8B)
+        -   [RAM node](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#ram-node)
+        -   [Disk node](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#disk-node)
+    -   [集群的搭建](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E9%9B%86%E7%BE%A4%E7%9A%84%E6%90%AD%E5%BB%BA)
+        -   [1、局域网配置](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#1%E5%B1%80%E5%9F%9F%E7%BD%91%E9%85%8D%E7%BD%AE)
+        -   [2、每台及其中安装 RabbitMQ](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#2%E6%AF%8F%E5%8F%B0%E5%8F%8A%E5%85%B6%E4%B8%AD%E5%AE%89%E8%A3%85-rabbitmq)
+        -   [3、设置不同节点间同一认证的Erlang Cookie](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#3%E8%AE%BE%E7%BD%AE%E4%B8%8D%E5%90%8C%E8%8A%82%E7%82%B9%E9%97%B4%E5%90%8C%E4%B8%80%E8%AE%A4%E8%AF%81%E7%9A%84erlang-cookie)
+        -   [4、使用 -detached运行各节点](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#4%E4%BD%BF%E7%94%A8--detached%E8%BF%90%E8%A1%8C%E5%90%84%E8%8A%82%E7%82%B9)
+        -   [5、将节点加入到集群中](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#5%E5%B0%86%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E5%88%B0%E9%9B%86%E7%BE%A4%E4%B8%AD)
+        -   [6、查看集群状态](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#6%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81)
+    -   [参考](https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E5%8F%82%E8%80%83)
+
+<h2 id="RabbitMQ-如何做分布式"><a href="#RabbitMQ-如何做分布式" class="headerlink" title="RabbitMQ 如何做分布式"></a>RabbitMQ 如何做分布式<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#rabbitmq-%E5%A6%82%E4%BD%95%E5%81%9A%E5%88%86%E5%B8%83%E5%BC%8F"></a></h2><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E5%89%8D%E8%A8%80"></a></h3><p>前面几篇文章介绍了消息队列中遇到的问题，这篇来聊聊 RabbitMQ 的集群搭建。</p>
+<h3 id="集群配置方案"><a href="#集群配置方案" class="headerlink" title="集群配置方案"></a>集群配置方案<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88"></a></h3><p>RabbitMQ 中集群的部署方案有三种 cluster,federation,shovel。</p>
+<h4 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#cluster"></a></h4><p>cluster 有两种模式，分别是普通模式和镜像模式</p>
+<p>cluster 的特点：</p>
+<p>1、不支持跨网段，用于同一个网段内的局域网；</p>
+<p>2、可以随意的动态增加或者减少；</p>
+<p>3、节点之间需要运行相同版本的 RabbitMQ 和 Erlang 。</p>
+<h5 id="普通模式"><a href="#普通模式" class="headerlink" title="普通模式"></a>普通模式<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E6%99%AE%E9%80%9A%E6%A8%A1%E5%BC%8F"></a></h5><p>cluster 普通模式(默认的集群模式)，所有节点中的元数据是一致的，RabbitMQ 中的元数据会被复制到每一个节点上。</p>
+<p>队列里面的数据只会存在创建它的节点上，其他节点除了存储元数据，还存储了指向 Queue 的主节点(owner node)的指针。</p>
+<p>集群中节点之间没有主从节点之分。</p>
+<p><img src="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster.png" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<p>举个栗子来说明下普通模式的消息传输：</p>
+<p>假设我们 RabbitMQ 中有是三个节点，分别是 <code>node1,node2,node3</code>。如果队列 queue1 的连接创建发生在 node1 中，那么该队列的元数据会被同步到所有的节点中，但是 queue1 中的消息，只会在 node1 中。</p>
+<ul>
+<li>如果一个消费者通过 node2 连接，然后来消费 queue1 中的消息?</li>
+</ul>
+<p>RabbitMQ 会临时在 node1、node2 间进行消息传输，因为非 owner 节点除了存储元数据，还会存储指向 Queue 的主节点(owner node)的指针。RabbitMQ 会根据这个指向，把 node1 中的消息实体取出并经过 node2 发送给 consumer 。</p>
+<ul>
+<li>如果一个生产者通过 node2 连接，然后来向 queue1 中生产数据?</li>
+</ul>
+<p>同理，RabbitMQ 会根据 node2 中的主节点(owner node)的指针，把消息转发送给 owner 节点 node1,最后插入的数据还是在 node1 中。</p>
+<p><img src="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster-data.png" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<p>同时对于队列的创建，要平均的落在每个节点上，如果只在一个节点上创建队列，所有的消费，最终都会落到这个节点上，会产生瓶颈。</p>
+<p>存在的问题：</p>
+<p>如果 node1 节点故障了，那么 node2 节点无法取出 node1 中还未消费的消息实体。</p>
+<p>1、如果做了队列的持久化，消息不会被丢失，等到 node1 恢复了，就能接着进行消费，但是在恢复之前其他节点不能创建 node1 中已将创建的队列。</p>
+<p>2、如果没有做持久化，消息会丢失，但是 node1 中的队列，可以在其他节点重新创建，不用等待 node1 的恢复。</p>
+<p>普通模式不支持消息在每个节点上的复制，当然 RabbitMQ 中也提供了支持复制的模式，就是镜像模式(参见下文)。</p>
+<h5 id="镜像模式"><a href="#镜像模式" class="headerlink" title="镜像模式"></a>镜像模式<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E9%95%9C%E5%83%8F%E6%A8%A1%E5%BC%8F"></a></h5><p>镜像队列会在节点中同步队列的数据，最终的队列数据会存在于每个节点中，而不像普通模式中只会存在于创建它的节点中。</p>
+<p>优点很明显，当有主机宕机的时候，因为队列数据会同步到所有节点上，避免了普通模式中的单点故障。</p>
+<p>缺点就是性能不好，集群内部的同步通讯会占用大量的网络带宽，适合一些可靠性要求比较高的场景。</p>
+<p>针对镜像模式 RabbitMQ 也提供了几种模式，有效值为 <code>all，exactly，nodes</code> 默认为 all。</p>
+<ul>
+<li><p>all 表示集群中所有的节点进行镜像；</p>
+</li>
+<li><p>exactly 表示指定个数的节点上进行镜像，节点个数由<code>ha-params</code>指定;</p>
+</li>
+<li><p>nodes 表示在指定的节点上进行镜像，节点名称由<code>ha-params</code>指定;</p>
+</li>
+</ul>
+<p>所以针对普通队列和镜像队列，我们可以选择其中几个队列作为镜像队列，在性能和可靠性之间找到一个平衡。</p>
+<p>关于镜像模式中消息的复制，这里也用的很巧妙，值得借鉴</p>
+<p>1、master 节点向 slave 节点同步消息是通过组播 GM(Guaranteed Multicast) 来同步的。</p>
+<p>2、所有的消息经过 master 节点，master 对消息进行处理，同时也会通过 GM 广播给所有的 slave，slave收到消息之后在进行数据的同步操作。</p>
+<p>3、GM 实现的是一种可靠的组播通信协议，该协议能保证组播消息的原子性。具体如何实现呢？</p>
+<p>它的实现大致为:将所有的节点形成一个循环链表，每个节点都会监控位于自己左右两边的节点，当有节点新增时，相邻的节点保证当前广播的消息会复制到新的节点上 当有节点失效时，相邻的节点会接管以保证本次广播的消息会复制到所有的节点。</p>
+<p>因为是一个循环链表，所以 master 发出去的消息最后也会返回到 master 中，master 如果收到了自己发出的操作命令，这时候就可以确定命令已经同步到了所有的节点。</p>
+<p><img src="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster-mirror.png" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<h4 id="federation"><a href="#federation" class="headerlink" title="federation"></a>federation<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#federation"></a></h4><p>federation 插件的设计目标是使 RabbitMQ 在不同的 Broker 节点之间进行消息传递而无需建立集群。</p>
+<p>看了定义还是很迷糊，来举举栗子吧</p>
+<p>假设我们有一个 RabbitMQ 的集群，分别部署在不同的城市，那么我们假定分别是在北京，上海，广州。</p>
+<p>![mq]<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/(/img/mq/mq-rabbitmq-federation.png)">https://boilingfrog.github.io/(/img/mq/mq-rabbitmq-federation.png)</a></p>
+<p>如果一个现在有一个业务 clientA，部署的机器在北京，然后连接到北京节点的 broker1 。然后网络连通性也很好，发送消息到 broker1 中的 exchangeA 中，消息能够很快的发送到，就算在开启了 <code>publisher confirm</code> 机制或者事务机制的情况下，也能快速确认信息，这种情况下是没有问题的。</p>
+<p>如果一个现在有一个业务 clientB，部署的机器在上海，然后连接到北京节点的 broker1 。然后网络连通性不好，发送消息到 broker1 中的 exchangeA 中，因为网络不好，所以消息的确认有一定的延迟，这对于我们无疑使灾难，消息量大情况下，必然造成数据的阻塞，在开启了 <code>publisher confirm</code> 机制或者事务机制的情况下，这种情况将会更严重。</p>
+<p>当然如果把 clientB ，部署在北京的机房中，这个问题就解决了，但是多地容灾就不能实现了。</p>
+<p>针对这种情况如何解决呢，这时候 federation 就登场了。</p>
+<p>比如位于上海的业务 clientB，连接北京节点的 broker1。然后发送消息到 broker1 中的 exchangeA 中。这时候是存在网络连通性的问题的。</p>
+<ul>
+<li><p>1、让上海的业务 clientB，连接上海的节点 broker2；</p>
+</li>
+<li><p>2、通过 Federation ，在北京节点的 broker1 和上海节点的 broker2 之间建立一条单向的 <code>Federation link</code>；</p>
+</li>
+<li><p>3、Federation 插件会在上海节点的 broker2 中创建一个同名的交换器 exchangeA (具体名字可配置，默认同名), 同时也会创建一个内部交换器，通过路由键 rkA ,将这两个交换器进行绑定，同时也会在 broker2 中创建一个</p>
+<p>1、Federation 插件会在上海节点的 broker2 中创建一个同名的交换器 exchangeA (具体名字可配置，默认同名)；</p>
+<p>2、Federation 插件会在上海节点的 broker2 中创建一个内部交换器，通过路由键 rkA ,将 exchangeA 和内部交换器进行绑定；</p>
+<p>3、Federation 插件会在上海节点的 broker2 中创建队列，和内部交换器进行绑定，同时这个队列会和北京节点的 broker1 中的 exchangeA，建立一条 AMQP 链接，来实时的消费队列中的消息了；</p>
+</li>
+<li><p>4、经过上面的流程，就相当于在上海节点 broker2 中的 exchangeA 和北京节点 broker1 中的 exchangeA 建立了<code>Federation link</code>；</p>
+</li>
+</ul>
+<p>这样位于上海的业务 clientB 链接到上海的节点 broker2，然后发送消息到该节点中的 exchangeA，这个消息会通过<code>Federation link</code>，发送到北京节点 broker1 中的 exchangeA，所以可以减少网络连通性的问题。</p>
+<p><img src="https://boilingfrog.github.io//img/mq/mq-rabbitmq-federation-link.png" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<h4 id="shovel"><a href="#shovel" class="headerlink" title="shovel"></a>shovel<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#shovel"></a></h4><p>连接方式与 federation 的连接方式类似，不过 shovel 工作更低一层。federation 是从一个交换器中转发消息到另一个交换器中，而 shovel 只是简单的从某个 broker 中的队列中消费数据，然后转发消息到另一个 broker 上的交换器中。</p>
+<p>shovel 主要是：保证可靠连续地将 message 从某个 broker 上的 queue （作为源端）中取出，再将其 publish 到另外一个 broker 中的相应 exchange 上（作为目的端）。</p>
+<p>作为源的 queue 和作为目的的 exchange 可以同时位于一个 broker 上，也可以位于不同 broker 上。Shovel 行为就像优秀的客户端应用程序能够负责连接源和目的地、负责消息的读写及负责连接失败问题的处理。</p>
+<p>Shovel 的主要优势在于：</p>
+<p>1、松藕合：Shovel 可以移动位于不同管理域中的 Broker (或者集群)上的消息，这些 Broker (或者集群〉可以包含不同的用户和 vhost ，也可以使用不同的 RabbitMQ 和 Erlang 版本；</p>
+<p>2、支持广域网：Shovel 插件同样基于 AMQP 协议 Broker 之间进行通信 被设计成可以容忍时断时续的连通情形 井且能够保证消息的可靠性；</p>
+<p>3、高度定制：当 Shove 成功连接后，可以对其进行配置以执行相关的 AMQP 命令。</p>
+<p>使用 Shove 解决消息堆积</p>
+<p>对于消息堆积，如果消息堆积的数量巨大时，消息队列的性能将严重收到影响，通常的做法是增加消费者的数量或者优化消费者来处理</p>
+<p>如果一些消息堆积场景不能简单的增加消费者的数量来解决，就只能优化消费者的消费能力了，但是优化毕竟需要时间，这时候可以通过 Shove 解决</p>
+<p>可以通过 Shove 将阻塞的消息，移交给另一个备份队列，等到本队列的消息没有阻塞了，然后将备份队列中的消息重新’铲’过来</p>
+<p><img src="https://boilingfrog.github.io//img/mq/mq-rabbitmq-cluster-shove.png" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<h3 id="节点类型"><a href="#节点类型" class="headerlink" title="节点类型"></a>节点类型<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E8%8A%82%E7%82%B9%E7%B1%BB%E5%9E%8B"></a></h3><h4 id="RAM-node"><a href="#RAM-node" class="headerlink" title="RAM node"></a>RAM node<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#ram-node"></a></h4><p>内存节点将所有的队列、交换机、绑定、用户、权限和 vhost 的元数据定义存储在内存中，好处是可以使得像交换机和队列声明等操作更加的快速。</p>
+<h4 id="Disk-node"><a href="#Disk-node" class="headerlink" title="Disk node"></a>Disk node<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#disk-node"></a></h4><p>元数据存储在磁盘中，单节点系统只允许磁盘类型的节点，防止重启RabbitMQ的时候，丢失系统的配置信息</p>
+<p>RabbitMQ要求在集群中至少有一个磁盘节点，所有其他节点可以是内存节点，当节点加入或者离开集群时，必须要将该变更通知到至少一个磁盘节点。</p>
+<p>如果集群中唯一的一个磁盘节点崩溃的话，集群仍然可以保持运行，但是无法进行其他操作（增删改查），直到节点恢复。针对这种情况可以设置两个磁盘节点、至少保证一个是可用的，就能保证元数据的修改了。</p>
+<p>看了很多文章，有的地方会认为所有持久化的消息都会存储到磁盘节点中，这是不正确的。对于内存节点，如果消息进行了持久化的操作，持久化的消息会存储在该节点中的磁盘中，而不是磁盘节点的磁盘中。</p>
+<p>来个栗子：</p>
+<p>这里构建了一个普通的 cluster 集群(见下文)，选择其中的一个内存节点，推送消息到该节点中，并且每条消息都选择持久化，来看下，这个节点的内存变化</p>
+<p>来看下没有消息时，节点中的内存占用</p>
+<p><img src="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-data-empty.jpg" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<p>这里向<code>rabbitmqcluster1</code>推送了 397330 条消息，发现磁盘内存从原来的 6.1GiB 变成了 3.9GiB，而磁盘节点的内存没有变化</p>
+<p><img src="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-data.jpg" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<p>对于内存节点，如果消息进行了持久化的操作，持久化的消息会存储在该节点中的磁盘中，而不是磁盘节点的磁盘中。</p>
+<h3 id="集群的搭建"><a href="#集群的搭建" class="headerlink" title="集群的搭建"></a>集群的搭建<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E9%9B%86%E7%BE%A4%E7%9A%84%E6%90%AD%E5%BB%BA"></a></h3><p>这是搭建一个普通的 cluster 模式,使用 vagrant 构建三台 centos7 虚拟机，<a target="_blank" rel="noopener" href="https://www.cnblogs.com/ricklz/p/14724934.html">vagrant构建centos虚拟环境</a></p>
+<h4 id="1、局域网配置"><a href="#1、局域网配置" class="headerlink" title="1、局域网配置"></a>1、局域网配置<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#1%E5%B1%80%E5%9F%9F%E7%BD%91%E9%85%8D%E7%BD%AE"></a></h4><p>首先配置 hostname</p>
+<figure class="highlight dsconfig"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dsconfig">$ <span class="hljs-string">hostnamectl</span> <span class="hljs-built_in">set-hostname</span> <span class="hljs-string">rabbitmqcluster1</span> <span class="hljs-built_in">--static</span><br></code></pre></td></tr></table></figure>
+
+<p>重启即可查看最新的 hostname</p>
+<figure class="highlight nestedtext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs nestedtext"><span class="hljs-attribute">$ hostnamectl</span><br><span class="hljs-attribute">   Static hostname</span><span class="hljs-punctuation">:</span> <span class="hljs-string">rabbitmqcluster1</span><br>         <span class="hljs-attribute">Icon name</span><span class="hljs-punctuation">:</span> <span class="hljs-string">computer-vm</span><br>           <span class="hljs-attribute">Chassis</span><span class="hljs-punctuation">:</span> <span class="hljs-string">vm</span><br>        <span class="hljs-attribute">Machine ID</span><span class="hljs-punctuation">:</span> <span class="hljs-string">e147b422673549a3b4fda77127bd4bcd</span><br>           <span class="hljs-attribute">Boot ID</span><span class="hljs-punctuation">:</span> <span class="hljs-string">aa195e0427d74d079ea39f344719f59b</span><br>    <span class="hljs-attribute">Virtualization</span><span class="hljs-punctuation">:</span> <span class="hljs-string">oracle</span><br>  <span class="hljs-attribute">Operating System</span><span class="hljs-punctuation">:</span> <span class="hljs-string">CentOS Linux 7 (Core)</span><br>       <span class="hljs-attribute">CPE OS Name</span><span class="hljs-punctuation">:</span> <span class="hljs-string">cpe:/o:centos:centos:7</span><br>            <span class="hljs-attribute">Kernel</span><span class="hljs-punctuation">:</span> <span class="hljs-string">Linux 3.10.0-327.4.5.el7.x86_64</span><br>      <span class="hljs-attribute">Architecture</span><span class="hljs-punctuation">:</span> <span class="hljs-string">x86-64</span><br></code></pre></td></tr></table></figure>
+
+<p>然后在三个节点的<code>/etc/hosts</code>下设置相同的配置信息</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog"><span class="hljs-number">192.168.56.111</span> rabbitmqcluster1<br><span class="hljs-number">192.168.56.112</span> rabbitmqcluster2<br><span class="hljs-number">192.168.56.113</span> rabbitmqcluster3<br></code></pre></td></tr></table></figure>
+
+<h4 id="2、每台及其中安装-RabbitMQ"><a href="#2、每台及其中安装-RabbitMQ" class="headerlink" title="2、每台及其中安装 RabbitMQ"></a>2、每台及其中安装 RabbitMQ<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#2%E6%AF%8F%E5%8F%B0%E5%8F%8A%E5%85%B6%E4%B8%AD%E5%AE%89%E8%A3%85-rabbitmq"></a></h4><p>具体的安装过程可参见<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_40584261/article/details/106826044">Centos7安装RabbitMQ最新版3.8.5，史上最简单实用安装步骤</a></p>
+<h4 id="3、设置不同节点间同一认证的Erlang-Cookie"><a href="#3、设置不同节点间同一认证的Erlang-Cookie" class="headerlink" title="3、设置不同节点间同一认证的Erlang Cookie"></a>3、设置不同节点间同一认证的Erlang Cookie<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#3%E8%AE%BE%E7%BD%AE%E4%B8%8D%E5%90%8C%E8%8A%82%E7%82%B9%E9%97%B4%E5%90%8C%E4%B8%80%E8%AE%A4%E8%AF%81%E7%9A%84erlang-cookie"></a></h4><p>每台机器中安装 RabbitMQ ,都会生成单独的<code>Erlang Cookie</code>。<code>Erlang Cookie</code>是保证不同节点可以相互通信的密钥，要保证集群中的不同节点相互通信必须共享相同的<code>Erlang Cookie</code>。具体的目录存放在<code>/var/lib/rabbitmq/.erlang.cookie</code>。</p>
+<p>所以这里把 <code>rabbitmqcluster1</code> 中的<code>Erlang Cookie</code>，复制到其他机器中，覆盖原来的<code>Erlang Cookie</code>。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs elixir"><span class="hljs-variable">$ </span>scp /var/lib/rabbitmq/.erlang.cookie <span class="hljs-number">192.168</span>.<span class="hljs-number">56.112</span><span class="hljs-symbol">:/var/lib/rabbitmq</span><br><span class="hljs-variable">$ </span>scp /var/lib/rabbitmq/.erlang.cookie <span class="hljs-number">192.168</span>.<span class="hljs-number">56.113</span><span class="hljs-symbol">:/var/lib/rabbitmq</span><br></code></pre></td></tr></table></figure>
+
+<p>复制<code>Erlang Cookie</code>之后重启 rabbitmq</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">$ systemctl <span class="hljs-keyword">restart</span> rabbitmq-<span class="hljs-keyword">server</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="4、使用-detached运行各节点"><a href="#4、使用-detached运行各节点" class="headerlink" title="4、使用 -detached运行各节点"></a>4、使用 -detached运行各节点<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#4%E4%BD%BF%E7%94%A8--detached%E8%BF%90%E8%A1%8C%E5%90%84%E8%8A%82%E7%82%B9"></a></h4><figure class="highlight vbscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs vbscript">rabbitmqctl <span class="hljs-keyword">stop</span><br>rabbitmq-<span class="hljs-built_in">server</span> -detached <br></code></pre></td></tr></table></figure>
+
+<h4 id="5、将节点加入到集群中"><a href="#5、将节点加入到集群中" class="headerlink" title="5、将节点加入到集群中"></a>5、将节点加入到集群中<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#5%E5%B0%86%E8%8A%82%E7%82%B9%E5%8A%A0%E5%85%A5%E5%88%B0%E9%9B%86%E7%BE%A4%E4%B8%AD"></a></h4><p>在 <code>rabbitmqcluster2</code> 和 <code>rabbitmqcluster3</code> 中执行</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs crystal"><span class="hljs-variable">$ </span>rabbitmqctl stop_app<br><span class="hljs-variable">$ </span>rabbitmqctl join_cluster rabbit<span class="hljs-variable">@rabbitmqcluster1</span><br><span class="hljs-variable">$ </span>rabbitmqctl start_app<br></code></pre></td></tr></table></figure>
+
+<p>默认 rabbitmq 启动后是磁盘节点，所以可以看到集群启动之后，节点类型都是磁盘类型</p>
+<p><img src="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-disc.jpg" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<p>一般添加1到2个磁盘节点，别的节点节点为内存节点，这里我们将 <code>rabbitmqcluster3</code> 设置成磁盘节点，其他节点设置成内存节点</p>
+<p>修改 <code>rabbitmqcluster1</code> 和 <code>rabbitmqcluster2</code> 节点类型为内存节点</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs crystal"><span class="hljs-variable">$ </span>rabbitmqctl stop_app<br><span class="hljs-variable">$ </span>rabbitmqctl change_cluster_node_type ram<br><span class="hljs-variable">$ </span>rabbitmqctl start_app<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://boilingfrog.github.io//img/mq/rabbitmq-cluster-ram.jpg" srcset="/img/loading.gif" lazyload alt="mq"></p>
+<h4 id="6、查看集群状态"><a href="#6、查看集群状态" class="headerlink" title="6、查看集群状态"></a>6、查看集群状态<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#6%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81"></a></h4><figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs crystal"><span class="hljs-variable">$ </span>rabbitmqctl cluster_status<br></code></pre></td></tr></table></figure>
+
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考<a target="_blank" rel="noopener" href="https://boilingfrog.github.io/2022/01/07/rabbitmq%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F/#%E5%8F%82%E8%80%83"></a></h3><p>【RabbitMQ分布式集群架构和高可用性（HA）】<a target="_blank" rel="noopener" href="http://chyufly.github.io/blog/2016/04/10/rabbitmq-cluster/">http://chyufly.github.io/blog/2016/04/10/rabbitmq-cluster/</a><br>【RabbitMQ分布式部署方案简介】<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c7a1a63b745d">https://www.jianshu.com/p/c7a1a63b745d</a><br>【RabbitMQ实战指南】<a target="_blank" rel="noopener" href="https://book.douban.com/subject/27591386/">https://book.douban.com/subject/27591386/</a><br>【RabbitMQ两种集群模式配置管理】<a target="_blank" rel="noopener" href="https://blog.csdn.net/fgf00/article/details/79558498">https://blog.csdn.net/fgf00/article/details/79558498</a></p>
+<hr>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Rabbitmq/">#Rabbitmq</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/c796e17b.html" title="SpringCloud项目无法读取bootstrap.yml配置文件的解决办法">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SpringCloud项目无法读取bootstrap.yml配置文件的解决办法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/3eb81ee9.html" title="linux 查看主机是否重启">
+                        <span class="hidden-mobile">linux 查看主机是否重启</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

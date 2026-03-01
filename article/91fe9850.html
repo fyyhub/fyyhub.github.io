@@ -1,0 +1,662 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="背景随着容器技术的普及，越来越多的应用被容器化。人们使用容器的频率越来越高，但常常忽略一个基本但又非常重要的问题 - 容器镜像的体积。本文将介绍精简容器镜像的必要性并以基于 spring boot 的 java 应用为例描述最小化容器镜像的常用技巧。 精简容器镜像的必要性精简容器镜像是非常必要的，下面分别从安全性和敏捷性两个角度进行阐释。 安全性基于安全方面的考虑，将不必要的组件从镜像中移除可以减">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dockerfile 之最小化 Java 镜像的常用技巧">
+<meta property="og:url" content="https://fyyhub.github.io/article/91fe9850.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="背景随着容器技术的普及，越来越多的应用被容器化。人们使用容器的频率越来越高，但常常忽略一个基本但又非常重要的问题 - 容器镜像的体积。本文将介绍精简容器镜像的必要性并以基于 spring boot 的 java 应用为例描述最小化容器镜像的常用技巧。 精简容器镜像的必要性精简容器镜像是非常必要的，下面分别从安全性和敏捷性两个角度进行阐释。 安全性基于安全方面的考虑，将不必要的组件从镜像中移除可以减">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-08T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.275Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="docker">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Dockerfile 之最小化 Java 镜像的常用技巧 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Dockerfile 之最小化 Java 镜像的常用技巧"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2025-04-08 00:00" pubdate>
+          2025年4月8日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          37 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Dockerfile 之最小化 Java 镜像的常用技巧</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>随着<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/tke?from_column=20065&from=20065">容器</a>技术的普及，越来越多的应用被容器化。人们使用容器的频率越来越高，但常常忽略一个基本但又非常重要的问题 - <a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/tcr?from_column=20065&from=20065">容器镜像</a>的体积。本文将介绍精简容器镜像的必要性并以基于 spring boot 的 java 应用为例描述最小化容器镜像的常用技巧。</p>
+<h2 id="精简容器镜像的必要性"><a href="#精简容器镜像的必要性" class="headerlink" title="精简容器镜像的必要性"></a>精简容器镜像的必要性</h2><p>精简容器镜像是非常必要的，下面分别从安全性和敏捷性两个角度进行阐释。</p>
+<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><p>基于安全方面的考虑，将不必要的组件从镜像中移除可以减少攻击面、降低安全风险。虽然 docker 支持用户通过 Seccomp 限制容器内可以执行操作或者使用 AppArmor 为容器配置安全策略，但它们的使用门槛较高，要求用户具备安全领域的专业素养。</p>
+<h3 id="敏捷性"><a href="#敏捷性" class="headerlink" title="敏捷性"></a>敏捷性</h3><p>精简的容器镜像能提高容器的部署速度。假设某一时刻访问流量激增，您需要通过增加容器副本数以应对突发压力。如果某些<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/cdh?from_column=20065&from=20065">宿主机</a>不包含目标镜像，需要先拉取镜像，然后启动容器，这时使用体积较小的镜像能加速这一过程、缩短扩容时间。另外，镜像体积越小，其构建速度也越快，同时还能减少存储和传输的成本。</p>
+<h2 id="常用技巧"><a href="#常用技巧" class="headerlink" title="常用技巧"></a>常用技巧</h2><p>将一个 java 应用容器化所需的步骤可归纳如下：</p>
+<ol>
+<li>编译 java 源码并生成 jar 包。</li>
+<li>将应用 jar 包和依赖的第三方 jar 包移动到合适的位置。</li>
+</ol>
+<p>本章所用的样例是一个基于 spring boot 的 java 应用 spring-boot-docker，所用的未经优化的 dockerfile 如下：</p>
+<p>代码语言：javascript</p>
+<p>代码运行次数：0</p>
+<p>运行</p>
+<p>AI代码解释</p>
+<p>复制</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.5</span>-jdk-<span class="hljs-number">8</span><br><span class="hljs-keyword">COPY</span> src <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>src<br><span class="hljs-keyword">COPY</span> pom.xml <span class="hljs-regexp">/usr/</span>src/app<br>RUN mvn -f <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>pom.xml clean <span class="hljs-keyword">package</span><br>ENTRYPOINT [<span class="hljs-string">&quot;java&quot;</span>,<span class="hljs-string">&quot;-jar&quot;</span>,<span class="hljs-string">&quot;/usr/src/app/target/spring-boot-docker-1.0.0.jar&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<p>由于应用使用 maven 构建，dockerfile 中指定<code>maven:3.5-jdk-8</code>作为基础镜像，该镜像的大小为 635MB。通过这种方式最终构建出的镜像非常大，达到了 719MB，这是因为一方面基础镜像本身就很大，另一方面 maven 在构建过程中会下载许多用于执行构建任务的 jar 包。</p>
+<h3 id="多阶段构建"><a href="#多阶段构建" class="headerlink" title="多阶段构建"></a>多阶段构建</h3><p>Java 程序的运行只依赖 JRE，并不需要 maven 或者 JDK 中众多用于编译、调试、运行的工具，因此一个明显的优化方法是将用于编译构建 java 源码的镜像和用于运行 java 应用的镜像分开。为了达到这一目的，在 docker 17.05 版本之前需要用户维护 2 个 dockerfile 文件，这无疑增加了构建的复杂性。好在自 17.05 开始，docker 引入了多阶段构建的概念，它允许用户在一个 dockerfile 中使用多个 From 语句。每个 From 语句可以指定不同的基础镜像并将开启一个全新的构建流程。您可以选择性地将前一阶段的构建产物复制到另一个阶段，从而只将必要的内容保留在最终的镜像里。优化后的 dockerfile 如下：</p>
+<p>代码语言：javascript</p>
+<p>代码运行次数：0</p>
+<p>运行</p>
+<p>AI代码解释</p>
+<p>复制</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.5</span>-jdk-<span class="hljs-number">8</span> AS build<br><span class="hljs-keyword">COPY</span> src <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>src<br><span class="hljs-keyword">COPY</span> pom.xml <span class="hljs-regexp">/usr/</span>src/app<br>RUN mvn -f <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>pom.xml clean <span class="hljs-keyword">package</span><br><br><span class="hljs-keyword">FROM</span> openjdk:<span class="hljs-number">8</span>-jre<br>ARG DEPENDENCY=<span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>target/dependency<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/BOOT-INF/</span>lib <span class="hljs-regexp">/app/</span>lib<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/META-INF /</span>app/META-INF<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/BOOT-INF/</span>classes /app<br>ENTRYPOINT [<span class="hljs-string">&quot;java&quot;</span>,<span class="hljs-string">&quot;-cp&quot;</span>,<span class="hljs-string">&quot;app:app/lib/*&quot;</span>,<span class="hljs-string">&quot;hello.Application&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<p>该 dockerfile 选用<code>maven:3.5-jdk-8</code>作为第一阶段的构建镜像，选用<code>openjdk:8-jre</code>作为运行 java 应用的基础镜像并且只拷贝了第一阶段编译好的<code>.claass</code>文件和依赖的第三方 jar 包到最终的镜像里。通过这种方式优化后的镜像大小为 459MB。</p>
+<h3 id="使用-distroless-作为基础镜像"><a href="#使用-distroless-作为基础镜像" class="headerlink" title="使用 distroless 作为基础镜像"></a>使用 distroless 作为基础镜像</h3><p>虽然通过多阶段构建能减小最终生成的镜像的大小，但 459MB 的体积仍相对过大。经调查发现，这是因为使用的基础镜像<code>openjdk:8-jre</code>体积过大，到达了 443MB，因此下一步的优化方向是减小基础镜像的体积。</p>
+<p>Google 开源的项目 distroless 正是为了解决基础镜像体积过大这一问题。Distroless 镜像只包含应用程序及其运行时依赖项，不包含包管理器、shell 以及在标准 Linux 发行版中可以找到的任何其他程序。目前，distroless 为依赖 java、python、nodejs、dotnet 等环境的应用提供了基础镜像。</p>
+<p>使用 distroless 的 dockerfile 如下：</p>
+<p>代码语言：javascript</p>
+<p>代码运行次数：0</p>
+<p>运行</p>
+<p>AI代码解释</p>
+<p>复制</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.5</span>-jdk-<span class="hljs-number">8</span> AS build<br><span class="hljs-keyword">COPY</span> src <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>src<br><span class="hljs-keyword">COPY</span> pom.xml <span class="hljs-regexp">/usr/</span>src/app<br>RUN mvn -f <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>pom.xml clean <span class="hljs-keyword">package</span><br><br><span class="hljs-keyword">FROM</span> gcr.io<span class="hljs-regexp">/distroless/</span>java<br>ARG DEPENDENCY=<span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>target/dependency<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/BOOT-INF/</span>lib <span class="hljs-regexp">/app/</span>lib<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/META-INF /</span>app/META-INF<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/BOOT-INF/</span>classes /app<br>ENTRYPOINT [<span class="hljs-string">&quot;java&quot;</span>,<span class="hljs-string">&quot;-cp&quot;</span>,<span class="hljs-string">&quot;app:app/lib/*&quot;</span>,<span class="hljs-string">&quot;hello.Application&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<p>该 dockerfile 和上一版的唯一区别在于将运行阶段依赖的基础镜像由<code>openjdk:8-jre</code>（443 MB）替换成了<code>gcr.io/distroless/java</code>（119 MB）。经过这一优化，最终镜像的大小为 135MB。</p>
+<p>使用 distroless 的唯一不便是您无法 attach 到一个正在运行的容器上排查问题，因为镜像中不包含 shell。虽然 distroless 的 debug 镜像提供 busybox shell，但需要用户重新打包镜像、部署容器，对于那些已经基于非 debug 镜像部署的容器无济于事。 但从安全角度来看，无法 attach 容器并不完全是坏事，因为攻击者无法通过 shell 进行攻击。</p>
+<h3 id="使用-alpine-作为基础镜像"><a href="#使用-alpine-作为基础镜像" class="headerlink" title="使用 alpine 作为基础镜像"></a>使用 alpine 作为基础镜像</h3><p>如果您确实有 attach 容器的需求，又希望最小化镜像的大小，可以选用 alpine 作为基础镜像。Alpine 镜像的特点是体积非常下，基础款镜像的体积仅 4 MB 左右。</p>
+<p>使用 alpine 后的 dockerfile 如下：</p>
+<p>代码语言：javascript</p>
+<p>代码运行次数：0</p>
+<p>运行</p>
+<p>AI代码解释</p>
+<p>复制</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs gradle"><span class="hljs-keyword">FROM</span> maven:<span class="hljs-number">3.5</span>-jdk-<span class="hljs-number">8</span> AS build<br><span class="hljs-keyword">COPY</span> src <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>src<br><span class="hljs-keyword">COPY</span> pom.xml <span class="hljs-regexp">/usr/</span>src/app<br>RUN mvn -f <span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>pom.xml clean <span class="hljs-keyword">package</span><br><br><span class="hljs-keyword">FROM</span> openjdk:<span class="hljs-number">8</span>-jre-alpine<br>ARG DEPENDENCY=<span class="hljs-regexp">/usr/</span>src<span class="hljs-regexp">/app/</span>target/dependency<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/BOOT-INF/</span>lib <span class="hljs-regexp">/app/</span>lib<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/META-INF /</span>app/META-INF<br><span class="hljs-keyword">COPY</span> --<span class="hljs-keyword">from</span>=build $&#123;DEPENDENCY&#125;<span class="hljs-regexp">/BOOT-INF/</span>classes /app<br>ENTRYPOINT [<span class="hljs-string">&quot;java&quot;</span>,<span class="hljs-string">&quot;-cp&quot;</span>,<span class="hljs-string">&quot;app:app/lib/*&quot;</span>,<span class="hljs-string">&quot;hello.Application&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<p>这里并未直接继承基础款 alpine，而是选用从 alpine 构建出的包含 java 运行时的<code>openjdk:8-jre-alpine</code>（83MB）作为基础镜像。使用该 dockerfile 构建出的镜像体积为 99.2MB，比基于 distroless 的还要小。</p>
+<p>执行命令<code>docker exec -ti &lt;container_id&gt; sh</code>可以成功 attach 到运行的容器中。</p>
+<h3 id="distroless-vs-alpine"><a href="#distroless-vs-alpine" class="headerlink" title="distroless vs alpine"></a>distroless vs alpine</h3><p>既然 distroless 和 alpine 都能提供非常小的基础镜像，那么在生产环境中到底应该选择哪一种呢？如果安全性是您的首要考虑因素，建议选用 distroless，因为它唯一可运行的二进制文件就是您打包的应用；如果您更关注镜像的体积，可以选用 alpine。</p>
+<h3 id="其他技巧"><a href="#其他技巧" class="headerlink" title="其他技巧"></a>其他技巧</h3><p>除了可以通过上述技巧精简镜像外，还有以下方式：</p>
+<ol>
+<li>将 dockerfile 中的多条指令合并成一条，通过减少镜像层数的方式达到精简镜像体积的目的。</li>
+<li>将稳定且体积较大的内容置于镜像下层，将变动频繁且体积较小的内容置于镜像上层。虽然该方式无法直接精简镜像体积，但充分利用了镜像的缓存机制，同样可以达到加快镜像构建和容器部署的目的。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>本文通过一系列的优化，将 java 应用的镜像体积由最初的 719MB 缩小到 100MB 左右。如果您的应用依赖其他环境，也可以用类似的原则进行优化。</li>
+<li>针对 java 镜像，google 提供的另一款工具 jib 能为您屏蔽镜像构建过程中的复杂细节，自动构建出精简的 java 镜像。使用它您无须编写 dockerfile，甚至不需要安装 docker。</li>
+<li>对于类似 distroless 这样无法 attach 或者不方便 attach 的容器，建议您将它们的日志中心化存储，以便问题的追踪和排查。</li>
+</ol>
+<!-- toc -->
+<meta name="referrer" content="no-referrer" />
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/docker/">#docker</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/3f69882.html" title="DeepSeek免费使用渠道大全 🚀">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DeepSeek免费使用渠道大全 🚀</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/a5d2a699.html" title="SpringBoot三种方法接口返回日期格式化">
+                        <span class="hidden-mobile">SpringBoot三种方法接口返回日期格式化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

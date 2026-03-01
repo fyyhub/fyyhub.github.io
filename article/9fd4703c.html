@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="### 第一部分：exports 和 [module](https:&#x2F;&#x2F;so.csdn.net&#x2F;so&#x2F;search?q&#x3D;module&amp;spm&#x3D;1001.2101.3001.7020 &quot;module&quot;).exports  为了让Node.js的文件可以相互调用，Node.js提供了一个简单的模块系统。模块是Node.js 应用程序的基本组成部分，文件和模块是一一对应的。换言之，一个 Node.j">
+<meta property="og:type" content="article">
+<meta property="og:title" content=" 一文解读exports、module.exports 和 export、export default">
+<meta property="og:url" content="https://fyyhub.github.io/article/9fd4703c.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="### 第一部分：exports 和 [module](https:&#x2F;&#x2F;so.csdn.net&#x2F;so&#x2F;search?q&#x3D;module&amp;spm&#x3D;1001.2101.3001.7020 &quot;module&quot;).exports  为了让Node.js的文件可以相互调用，Node.js提供了一个简单的模块系统。模块是Node.js 应用程序的基本组成部分，文件和模块是一一对应的。换言之，一个 Node.j">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/direct/62ec231d5f74446cb4347dfd6ca596a7.png">
+<meta property="article:published_time" content="2024-12-03T00:00:00.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.276Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="前端">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/direct/62ec231d5f74446cb4347dfd6ca596a7.png">
+  
+  
+  
+  <title> 一文解读exports、module.exports 和 export、export default - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text=" 一文解读exports、module.exports 和 export、export default"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-12-03 00:00" pubdate>
+          2024年12月3日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none"> 一文解读exports、module.exports 和 export、export default</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+<meta name="referrer" content="no-referrer" />
+### 第一部分：exports 和 [module](https://so.csdn.net/so/search?q=module&spm=1001.2101.3001.7020 "module").exports
+
+<p>为了让<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=Node&spm=1001.2101.3001.7020" title="Node">Node</a>.js的文件可以相互调用，Node.js提供了一个简单的模块系统。模块是Node.js 应用程序的基本<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86&spm=1001.2101.3001.7020">组成部分</a>，文件和模块是一一对应的。换言之，一个 Node.js 文件就是一个模块，这个文件可能是JavaScript 代码、JSON 或者编译过的C&#x2F;C++ 扩展。</p>
+<h4 id="1-exports"><a href="#1-exports" class="headerlink" title="1. exports"></a>1. exports</h4><h5 id="1-1-导出模块"><a href="#1-1-导出模块" class="headerlink" title="1.1 导出模块"></a>1.1 导出模块</h5><p>exports 对象是由模块系统创建的。在我们自己写模块的时候，需要在模块最后写好模块接口，声明这个模块对外暴露什么内容，exports 提供了暴露接口的方法。如下代码示例：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span>hello.jsvar sayHello = <span class="hljs-keyword">function</span> () &#123;    console.log(<span class="hljs-string">&#x27;hello&#x27;</span>)&#125;var sos = <span class="hljs-number">110</span>;var app = &#123;    name: <span class="hljs-string">&#x27;testApp&#x27;</span>,    version: <span class="hljs-string">&#x27;1.0.0&#x27;</span>,    help: <span class="hljs-keyword">function</span> () &#123;        console.log(<span class="hljs-string">&#x27;what can i do for you?&#x27;</span>)    &#125;&#125;<span class="hljs-regexp">//</span>导出一个方法exports.sayHello = sayHello;<span class="hljs-regexp">//</span>导出一个变量exports.sos = sos;<span class="hljs-regexp">//</span>导出一个JSON对象exports.app = app;<br></code></pre></td></tr></table></figure>
+
+<p>或者写成下面的形式：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">//hello.jsexports.sayHello = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span> &#123;    console.<span class="hljs-built_in">log</span>(<span class="hljs-string">&#x27;hello&#x27;</span>)&#125;exports.sos = <span class="hljs-number">110</span>;exports.app = &#123;    name: <span class="hljs-string">&#x27;testApp&#x27;</span>,    version: <span class="hljs-string">&#x27;1.0.0&#x27;</span>,    help: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span> &#123;        console.<span class="hljs-built_in">log</span>(<span class="hljs-string">&#x27;what can i do for you?&#x27;</span>)    &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在以上示例中，hello.js 通过 exports 对象把 sayHello 作为模块的访问接口，在其他模块（或js文件）中通过 require(’.&#x2F;hello’) 加载这个模块，然后就可以直接访 问 hello.js 中 exports 对象的成员<a target="_blank" rel="noopener" href="https://marketing.csdn.net/p/3127db09a98e0723b83b2914d9256174?pId=2782&utm_source=glcblog&spm=1001.2101.3001.7020">函数</a>了。</p>
+<h5 id="1-2-引入模块"><a href="#1-2-引入模块" class="headerlink" title="1.2 引入模块"></a>1.2 引入模块</h5><p>在 Node.js 中，引入一个模块非常简单，如下我们创建一个 main.js 文件并引入 hello 模块，代码如下:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//m</span>ain.jsvar hello = require(<span class="hljs-string">&#x27;./hello&#x27;</span>);<span class="hljs-regexp">//</span>调用模块hello中的方法hello.sayHello();<span class="hljs-regexp">//</span>调用模块hello中的变量console.log(hello.sos)console.log(hello.app.version)<span class="hljs-regexp">//</span>调用模块hello中的JSON对象属性hello.app.help()<br></code></pre></td></tr></table></figure>
+
+<p>执行命令（node main.js）运行main.js，结果如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">hello1101</span>.<span class="hljs-number">0</span>.<span class="hljs-number">0</span>what can i do for you?<br></code></pre></td></tr></table></figure>
+
+<p>以上实例中，代码 require(’.&#x2F;hello’) 引入了当前目录下的 hello.js 文件（.&#x2F; 为当前目录，node.js 默认后缀为 js）。</p>
+<p>Node.js 提供了 exports 和 require 两个对象，其中 exports 是模块公开的接口，require 用于从外部获取一个模块的接口，即所获取模块的 exports 对象。</p>
+<h4 id="2-module-exports"><a href="#2-module-exports" class="headerlink" title="2. module.exports"></a>2. module.exports</h4><h5 id="2-1-导出模块"><a href="#2-1-导出模块" class="headerlink" title="2.1 导出模块"></a>2.1 导出模块</h5><p>有时候我们希望把一个对象封装到模块中，格式如下：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">//hello.js <span class="hljs-keyword">function</span> Hello() &#123;    var <span class="hljs-type">name</span>;    var sos = <span class="hljs-string">&#x27;110&#x27;</span>;    this.setName = <span class="hljs-keyword">function</span> (thyName) &#123;        <span class="hljs-type">name</span> = thyName;    &#125;;    this.sayHello = <span class="hljs-keyword">function</span> () &#123;        console.log(<span class="hljs-string">&#x27;Hello &#x27;</span> + <span class="hljs-type">name</span>);    &#125;;    this.app = &#123;        <span class="hljs-type">name</span>: <span class="hljs-string">&#x27;testApp&#x27;</span>,        <span class="hljs-keyword">version</span>: <span class="hljs-string">&#x27;1.0.0&#x27;</span>,        help: <span class="hljs-keyword">function</span> () &#123;            console.log(<span class="hljs-string">&#x27;what can i do for you?&#x27;</span>)        &#125;    &#125;;&#125;;// 把变量、方法、<span class="hljs-type">JSON</span>对象等封装在一起，一并导出module.exports = Hello;<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-2-引入模块"><a href="#2-2-引入模块" class="headerlink" title="2.2 引入模块"></a>2.2 引入模块</h5><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//m</span>ain.jsvar Hello = require(<span class="hljs-string">&#x27;./hello&#x27;</span>)<span class="hljs-regexp">//</span>通过new关键字，实例化一个hello模块的对象，通过这个对象才能调用hello模块相关的方法。hello = new Hello(); hello.setName(<span class="hljs-string">&quot;zhangSan&quot;</span>)hello.sayHello() console.log(hello.app.version)hello.app.help()<br></code></pre></td></tr></table></figure>
+
+<p>执行命令，运行main.js，结果如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Hello</span> zhangSan1.<span class="hljs-number">0</span>.<span class="hljs-number">0</span>what can i do for you?<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-exports-和-module-exports-的区别是什么？"><a href="#3-exports-和-module-exports-的区别是什么？" class="headerlink" title="3. exports 和 module.exports 的区别是什么？"></a>3. exports 和 module.exports 的区别是什么？</h4><p>上面两节的内容可以知道：相较于 exports，模块接口的唯一变化是使用 module.exports &#x3D; Hello 代替了exports.sayHello &#x3D; function(){}，exports.sos，exports.app。 在外部引用该模块时，其接口对象就是要输出的 Hello 对象本身，而不是原先的 exports。</p>
+<p>为了直观地展现两者的异同点，我们先来看两个实例：</p>
+<h5 id="3-1-exports-模式下两者的异同"><a href="#3-1-exports-模式下两者的异同" class="headerlink" title="3.1 exports 模式下两者的异同"></a>3.1 exports 模式下两者的异同</h5><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">//hello.jsvar sayHello = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span> &#123;    console.<span class="hljs-built_in">log</span>(<span class="hljs-string">&#x27;hello&#x27;</span>)&#125;var sos = <span class="hljs-number">110</span>;var app = &#123;    name: <span class="hljs-string">&#x27;testApp&#x27;</span>,    version: <span class="hljs-string">&#x27;1.0.0&#x27;</span>,    help: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span> &#123;        console.<span class="hljs-built_in">log</span>(<span class="hljs-string">&#x27;what can i do for you?&#x27;</span>)    &#125;&#125;exports.sayHello = sayHello;exports.sos = sos;exports.app = app;//打印exports和<span class="hljs-built_in">module</span>.exports的内容console.<span class="hljs-built_in">log</span>(exports);console.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">module</span>.exports);console.<span class="hljs-built_in">log</span>(exports === <span class="hljs-built_in">module</span>.exports);<br></code></pre></td></tr></table></figure>
+
+<p>运行如下 main.js 代码：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//m</span>ain.jsvar Hello = require(<span class="hljs-string">&#x27;./exports_mode&#x27;</span>) Hello.sayHello()<br></code></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml">&#123;  <span class="hljs-attr">sayHello:</span> [<span class="hljs-attr">Function:</span> <span class="hljs-string">sayHello</span>],  <span class="hljs-attr">sos:</span> <span class="hljs-number">110</span>,  <span class="hljs-attr">app:</span> &#123; <span class="hljs-attr">name:</span> <span class="hljs-string">&#x27;testApp&#x27;</span>, <span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;1.0.0&#x27;</span>, <span class="hljs-attr">help:</span> [<span class="hljs-attr">Function:</span> <span class="hljs-string">help</span>] &#125;&#125;&#123;  <span class="hljs-attr">sayHello:</span> [<span class="hljs-attr">Function:</span> <span class="hljs-string">sayHello</span>],  <span class="hljs-attr">sos:</span> <span class="hljs-number">110</span>,  <span class="hljs-attr">app:</span> &#123; <span class="hljs-attr">name:</span> <span class="hljs-string">&#x27;testApp&#x27;</span>, <span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;1.0.0&#x27;</span>, <span class="hljs-attr">help:</span> [<span class="hljs-attr">Function:</span> <span class="hljs-string">help</span>] &#125;&#125;<span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>很明显！！！ exports 和 module.exports 的内容是完全一样的，换言之：exports 指向的是 module.exports。</p>
+</blockquote>
+<h5 id="3-2-module-exports-模式下两者的异同"><a href="#3-2-module-exports-模式下两者的异同" class="headerlink" title="3.2 module.exports 模式下两者的异同"></a>3.2 module.exports 模式下两者的异同</h5><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lua">//hello.jsfunction Hello() &#123;    var name;    this.setName = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(thyName)</span></span> &#123;        name = thyName;    &#125;;    this.sayHello = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span> &#123;        console.<span class="hljs-built_in">log</span>(<span class="hljs-string">&#x27;Hello &#x27;</span> + name);    &#125;;    this.app = &#123;        name: <span class="hljs-string">&#x27;testApp&#x27;</span>,        version: <span class="hljs-string">&#x27;1.0.0&#x27;</span>,        help: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span> &#123;            console.<span class="hljs-built_in">log</span>(<span class="hljs-string">&#x27;what can i do for you?&#x27;</span>)        &#125;    &#125;;&#125;; // 把变量、方法、JSON对象等封装在一起，一并导出<span class="hljs-built_in">module</span>.exports = Hello;//打印exports和<span class="hljs-built_in">module</span>.exports的内容console.<span class="hljs-built_in">log</span>(exports);console.<span class="hljs-built_in">log</span>(<span class="hljs-built_in">module</span>.exports);console.<span class="hljs-built_in">log</span>(exports === <span class="hljs-built_in">module</span>.exports);<br></code></pre></td></tr></table></figure>
+
+<p>运行main.js如下：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs haxe"><span class="hljs-keyword">var</span> Hello = require(<span class="hljs-string">&#x27;./exports_mode&#x27;</span>)hello = <span class="hljs-keyword">new</span> <span class="hljs-type">Hello</span>(); hello.setName(<span class="hljs-string">&quot;zhangSan&quot;</span>)hello.sayHello()<br></code></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada">&#123;&#125;[<span class="hljs-keyword">Function</span>: Hello]falseHello zhangSan<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>很明显！！！module.exports 模式下，module.exports 和 exports 的内容是完全不同的，module.exports 导出的是模块（hello.js）对象本身（类别Java，可以理解为导出的是一个类，而不是实例化的对象），在此场景下 exports 是空的（类比Java，理解为一个空对象，没有实例化就是null）。</p>
+</blockquote>
+<h5 id="3-3-小结"><a href="#3-3-小结" class="headerlink" title="3.3 小结"></a>3.3 小结</h5><p>基于上面的实例，我们可以看到，输出的 module.exports 对象内容就是一个[Function]，在 javascript 里面是一个类。使用这种方式的好处是： exports 只能对外暴露单个函数，但是 module.exports 却能暴露一个类。</p>
+<h3 id="第二部分：export-和-export-default"><a href="#第二部分：export-和-export-default" class="headerlink" title="第二部分：export 和 export default"></a>第二部分：export 和 export default</h3><p>exports 和 module.exports 是Node.js的模块系统关键字，而 export 和 export default 则是 ES6模块系统的关键字。很明显，两者属于两个体系：</p>
+<blockquote>
+<blockquote>
+<p>require: node 和 es6 都支持的引入<br>export &#x2F; import : 只有es6 支持的导出引入<br>module.exports &#x2F; exports: 只有 node 支持的导出</p>
+</blockquote>
+</blockquote>
+<h4 id="1-export"><a href="#1-export" class="headerlink" title="1.export"></a>1.export</h4><p>export 用于对外输出本模块（一个文件可以理解为一个模块）变量的接口，import 用于在一个模块中加载另一个含有export接口的模块。也就是说使用export命令定义了模块的对外接口以后，其他JS文件就可以通过import命令加载这个模块（文件）。这几个都是ES6的语法。</p>
+<p>示例1：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">//app.jsexport var name<span class="hljs-operator">=</span><span class="hljs-string">&quot;ZhangSan&quot;</span><span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>示例2:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span>app.jsvar name1=<span class="hljs-string">&quot;ZhangSan&quot;</span>;var name2=<span class="hljs-string">&quot;LiSi&quot;</span>;export &#123; name1 ,name2 &#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-import"><a href="#2-import" class="headerlink" title="2.import"></a>2.import</h4><p>import 用于在一个模块中加载另一个含有export接口的模块。具体见下面的示例。</p>
+<p>对于上面的 示例1，引入方式为：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//m</span>ain.jsimport &#123; name &#125; from <span class="hljs-string">&quot;./app.js&quot;</span> <span class="hljs-regexp">//</span>路径根据实际情况填写<br></code></pre></td></tr></table></figure>
+
+<p>对于上面的 示例2，引入方式为：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//m</span>ain.jsimport &#123; name1 , name2 &#125; from <span class="hljs-string">&quot;./app.js&quot;</span> <span class="hljs-regexp">//</span>路径根据实际情况填写<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-export-和-export-default"><a href="#3-export-和-export-default" class="headerlink" title="3.export 和 export default"></a>3.export 和 export default</h4><p>通过上面这几个例子，读者一定了解了如何使用export，import，如果还是不懂可以自己动手试一试。上面讲的是export和import，但是export跟export default 有什么区别呢？如下：</p>
+<p>export与export default均可用于导出常量、函数、文件、模块等；<br>你可以在其它文件或模块中通过import+(常量 | 函数 | 文件 | 模块)名的方式，将其导入，以便能够对其进行使用；<br>在一个文件或模块中，export、import可以有多个，export default仅有一个；<br>通过export方式导出，在导入时要加{ }，export default则不需要<br>实际上，很多时候export与export default可以实现同样的目的，只是用法有些区别。注意第4条，通过export方式导出，在导入时要加{ }，export default则不需要。使用export default命令，为模块指定默认输出，这样就不需要知道所要加载模块的变量名。</p>
+<h3 id="第三部分：CommonJS-和-ES6"><a href="#第三部分：CommonJS-和-ES6" class="headerlink" title="第三部分：CommonJS 和 ES6"></a>第三部分：CommonJS 和 ES6</h3><h4 id="1-CommonJS"><a href="#1-CommonJS" class="headerlink" title="1. CommonJS"></a>1. CommonJS</h4><p>Node里面的模块系统遵循的是CommonJS规范。那问题又来了，什么是CommonJS规范呢？由于js以前比较混乱，各写各的代码，没有一个模块的概念，而这个规范出来其实就是对模块的一个定义。</p>
+<p>CommonJS定义的模块分为:</p>
+<blockquote>
+<blockquote>
+<p>模块标识(module)、模块定义(exports) 、模块引用(require)</p>
+</blockquote>
+</blockquote>
+<h5 id="1-1-exports-和-module-exports"><a href="#1-1-exports-和-module-exports" class="headerlink" title="1.1 exports 和 module.exports"></a>1.1 exports 和 module.exports</h5><p>在一个node执行一个文件时，会给这个文件内生成一个 exports和module对象，而module又有一个exports属性。他们之间的关系如下图，都指向一块{}内存区域。</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">exports</span> <span class="hljs-operator">=</span> module.exports <span class="hljs-operator">=</span> &#123;&#125;<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://i-blog.csdnimg.cn/direct/62ec231d5f74446cb4347dfd6ca596a7.png" srcset="/img/loading.gif" lazyload> </p>
+<p>实际上，require导出的内容是module.exports的指向的内存块内容，并不是exports的。简而言之，区分他们之间的区别就是 exports 只是 module.exports的引用，辅助后者添加内容用的。</p>
+<h5 id="1-2-注意事项"><a href="#1-2-注意事项" class="headerlink" title="1.2 注意事项"></a>1.2 注意事项</h5><p>在实际应用中，为了避免糊涂，尽量都用 module.exports 导出，然后用require导入。</p>
+<h4 id="2-ES6"><a href="#2-ES6" class="headerlink" title="2. ES6"></a>2. ES6</h4><p>ES6， 全称 ECMAScript 6.0 ，是 JavaScript 的下一个版本标准，2015.06 发版。ES6 主要是为了解决 ES5 的先天不足，比如 JavaScript 里并没有类的概念，但是目前浏览器的 JavaScript 是 ES5 版本，大多数高版本的浏览器也支持 ES6，不过只实现了 ES6 的部分特性和功能。</p>
+<p>在 ES6 前， 实现模块化使用的是 RequireJS 或者 seaJS（分别是基于 AMD 规范的模块化库， 和基于 CMD 规范的模块化库）。ES6 引入了模块化，其设计思想是在编译时就能确定模块的依赖关系，以及输入和输出的变量。</p>
+<blockquote>
+<p>ES6 的模块化分为导出（export） 与导入（import）两个模块。</p>
+</blockquote>
+<h5 id="2-1-ES6-的特点"><a href="#2-1-ES6-的特点" class="headerlink" title="2.1 ES6 的特点"></a>2.1 ES6 的特点</h5><ul>
+<li>ES6 的模块自动开启严格模式，不管你有没有在模块头部加上 use strict;</li>
+<li>模块中可以导入和导出各种类型的变量，如函数，对象，字符串，数字，布尔值，类等。</li>
+<li>每个模块都有自己的上下文，每一个模块内声明的变量都是局部变量，不会污染全局作用域。</li>
+<li>每一个模块只加载一次（是单例的）， 若再去加载同目录下同文件，直接从内存中读取。</li>
+</ul>
+<h5 id="2-2-基本用法"><a href="#2-2-基本用法" class="headerlink" title="2.2 基本用法"></a>2.2 基本用法</h5><ul>
+<li>模块导入导出各种类型的变量，如字符串，数值，函数，类。</li>
+<li>导出的函数声明与类声明必须要有名称（export default 命令另外考虑）。</li>
+<li>不仅能导出声明还能导出引用（例如函数）。</li>
+<li>export 命令可以出现在模块的任何位置，但必需处于模块顶层。</li>
+<li>import 命令会提升到整个模块的头部，首先执行。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%8D%9A%E5%AE%A2/" class="category-chain-item">博客</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%89%8D%E7%AB%AF/">#前端</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/ccabb2b0.html" title="两个仓库之间如何同步代码">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">两个仓库之间如何同步代码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/b3200b03.html" title="你听我说我的烦恼">
+                        <span class="hidden-mobile">你听我说我的烦恼</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

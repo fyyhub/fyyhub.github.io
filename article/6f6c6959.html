@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="All-round">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="VIP 视频解析的那些事儿现在，各大官方影视站，不开个会员基本上啥也看不了。不过上有政策下有对策，今天我们来聊一下现在网络上免费影视站的数据来源和解析原理。 视频采集采集顾名思义就是利用各种技术，将官方视频站上的数据采集到一块。首先我们要知道，并不是人人都是开发，就算是开发也不一定什么语言都会，环境搭建等环节会让好多人望而却步，需求是第一生产力，所以可视化软件的开发降低了很多门槛，废话不多说，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="聊聊 VIP 视频解析的那些事儿">
+<meta property="og:url" content="https://fyyhub.github.io/article/6f6c6959.html">
+<meta property="og:site_name" content="流浪流浪">
+<meta property="og:description" content="VIP 视频解析的那些事儿现在，各大官方影视站，不开个会员基本上啥也看不了。不过上有政策下有对策，今天我们来聊一下现在网络上免费影视站的数据来源和解析原理。 视频采集采集顾名思义就是利用各种技术，将官方视频站上的数据采集到一块。首先我们要知道，并不是人人都是开发，就算是开发也不一定什么语言都会，环境搭建等环节会让好多人望而却步，需求是第一生产力，所以可视化软件的开发降低了很多门槛，废话不多说，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/fyyCode/imageStore/56a7c71d1c6f31e0c762b35499569b025685f3ed4e83c3ca500b386d3c2962fe.png">
+<meta property="article:published_time" content="2022-10-17T11:14:30.000Z">
+<meta property="article:modified_time" content="2026-03-01T23:26:32.276Z">
+<meta property="article:author" content="All-round">
+<meta property="article:tag" content="CMS">
+<meta property="article:tag" content="视频解析">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/fyyCode/imageStore/56a7c71d1c6f31e0c762b35499569b025685f3ed4e83c3ca500b386d3c2962fe.png">
+  
+  
+  
+  <title>聊聊 VIP 视频解析的那些事儿 - 流浪流浪</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"fyyhub.github.io","root":"/","version":"1.9.3","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>流浪技师</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="聊聊 VIP 视频解析的那些事儿"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-17 11:14" pubdate>
+          2022年10月17日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">聊聊 VIP 视频解析的那些事儿</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <!-- toc -->
+
+<h1 id="VIP-视频解析的那些事儿"><a href="#VIP-视频解析的那些事儿" class="headerlink" title="VIP 视频解析的那些事儿"></a>VIP 视频解析的那些事儿</h1><p>现在，各大官方影视站，不开个会员基本上啥也看不了。不过上有政策下有对策，今天我们来聊一下现在网络上免费影视站的数据来源和解析原理。</p>
+<h2 id="视频采集"><a href="#视频采集" class="headerlink" title="视频采集"></a>视频采集</h2><p>采集顾名思义就是利用各种技术，将官方视频站上的数据采集到一块。首先我们要知道，并不是人人都是开发，就算是开发也不一定什么语言都会，环境搭建等环节会让好多人望而却步，需求是第一生产力，所以可视化软件的开发降低了很多门槛，废话不多说，现在比较出名的叫火车头采集</p>
+<p><img src="https://cdn.jsdelivr.net/gh/fyyCode/imageStore/56a7c71d1c6f31e0c762b35499569b025685f3ed4e83c3ca500b386d3c2962fe.png" srcset="/img/loading.gif" lazyload alt="图 1">  </p>
+<p>其实原理很简单，就是利用网页源数据解析，获取数据定时执行，然后采集到数据库（cms 下面会提到）。这样我们首先就获取到了所有的视频数据，但是数据并不能采集到真正的视频链接，获取到的都是视频播放页面的链接，那么下面我们就要去解析页面视频啦！</p>
+<h2 id="视频解析"><a href="#视频解析" class="headerlink" title="视频解析"></a>视频解析</h2><p>视频解析是整个流程中最重要的环节，能解析到真正的视频链接才能拿到各个应用内播放。上面提到我们采集到的是视频播放页面的链接，其实有了这个链接也就能通过数据解析，响应拦截，视频嗅探等获取到视频真正链接。但是如果我们没有会员，能访问的资源也是免费视频，会员视频是没有权限的。所以现在视频上的 VIP 视频解析，<strong>一解</strong>的原理就是，用会员账号的 cookie 去访问视频数据获取到视频链接，所以你得现有一个 VIP 哈哈哈哈哈，不过现在很多视频解析网站都是封装的一解，称作<strong>二解</strong>甚至是三，四，五。N 层嵌套。文章末尾会给大家送福利的哈哈。有了视频数据我们就可以把他拿到各种应用上去展示，就有了各式各样的视频站，APP。</p>
+<h2 id="视频应用"><a href="#视频应用" class="headerlink" title="视频应用"></a>视频应用</h2><ol>
+<li>影视站：现在网上有大大小小的影视站，一个影视站，从前端页面到后台管理，个人开发少说也要几个月的周期，那现在这么多影视站怎么来的呢，大多都是模板创建的，不同主题而已。比较出名的几个建站模板，苹果 CMS, 海洋 CMS，我记得我刚玩网络时就听说过海洋 CMS，到现在算来也有 10 多年了，只不过当时采集的不是正规视频。思路就是，将采集的视频保存数据库，有个管理页面，前端接口对接。</li>
+<li>APP: 从现在接触过和了解过的大多都还是对接 CMS 主题站的接口，比较出名的有神马壳 293，骡马壳（神马和骆驼直播杂交的），乐檬。最近比较火的应该是猫 TV 的开源版 TV-BOX，基于嗅探，解析的一款产品。在此思路上衍生的 biubiu。</li>
+</ol>
+<h2 id="阅读福利"><a href="#阅读福利" class="headerlink" title="阅读福利"></a>阅读福利</h2><h3 id="VIP-视频在线解析"><a href="#VIP-视频在线解析" class="headerlink" title="VIP 视频在线解析"></a>VIP 视频在线解析</h3><div class="note note-info">
+            <ol><li><a target="_blank" rel="noopener" href="http://tv.wandhi.com/go.html">http://tv.wandhi.com/go.html</a></li><li><a target="_blank" rel="noopener" href="http://www.ikukk.com/">http://www.ikukk.com/</a></li></ol>
+          </div>
+
+<h3 id="影视站"><a href="#影视站" class="headerlink" title="影视站"></a>影视站</h3><div class="note note-info">
+            <ol><li><a target="_blank" rel="noopener" href="https://www.52bdys.com/">https://www.52bdys.com/</a></li><li>其他的小网站可以自己百度搜索电影名+“在线免费观看” eg:”庆余年在线免费观看”，搜索随便点一个链接能观看的概率 90%吧。</li></ol>
+          </div>
+
+<h3 id="APP"><a href="#APP" class="headerlink" title="APP"></a>APP</h3><div class="note note-info">
+            <p>分享几个 APP 网站</p><ol><li><a target="_blank" rel="noopener" href="https://fsylr.com/tv">https://fsylr.com/tv</a></li><li><a target="_blank" rel="noopener" href="https://www.sharerw.com/a/ziyuan/">https://www.sharerw.com/a/ziyuan/</a></li><li><a target="_blank" rel="noopener" href="https://www.fenxm.com/tv">https://www.fenxm.com/tv</a></li></ol>
+          </div>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%BD%B1%E8%A7%86/" class="category-chain-item">影视</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CMS/">#CMS</a>
+      
+        <a href="/tags/%E8%A7%86%E9%A2%91%E8%A7%A3%E6%9E%90/">#视频解析</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/article/20083f70.html" title="我经历的技术架构转变">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">我经历的技术架构转变</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/article/c208d6fa.html" title="hexo 搭建+自动部署+开发">
+                        <span class="hidden-mobile">hexo 搭建+自动部署+开发</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+      思来想去 | 缘来如此
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
