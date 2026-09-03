@@ -2,6 +2,10 @@
 
 (function() {
   // Modified from [hexo-generator-search](https://github.com/wzpan/hexo-generator-search)
+  var searchData = null;
+  var searchLoading = false;
+  var inputBound = false;
+
   function localSearchFunc(path, searchSelector, resultSelector) {
     'use strict';
     // 0x00. environment initialization
@@ -17,17 +21,29 @@
       throw Error('No element selected by the resultSelector');
     }
 
+    // Reuse the parsed index from the previous open instead of fetching
+    // the full search index again on every show.bs.modal.
+    if (searchData) {
+      $result.html('');
+      return;
+    }
+    if (searchLoading) {
+      return;
+    }
+
     if ($result.attr('class').indexOf('list-group-item') === -1) {
       $result.html('<div class="m-auto text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div><br/>Loading...</div>');
     }
 
+    searchLoading = true;
     jQuery.ajax({
       // 0x01. load xml file
       url     : path,
       dataType: 'xml',
       success : function(xmlResponse) {
+        searchLoading = false;
         // 0x02. parse xml file
-        var dataList = jQuery('entry', xmlResponse).map(function() {
+        searchData = jQuery('entry', xmlResponse).map(function() {
           return {
             title  : jQuery('title', this).text(),
             content: jQuery('content', this).text(),
@@ -39,6 +55,13 @@
           $result.html('');
         }
 
+        // The handler reads the module-level searchData, so it must be
+        // attached only once; reopening the modal must not stack copies.
+        if (inputBound) {
+          return;
+        }
+        inputBound = true;
+
         $input.on('input', function() {
           // 0x03. parse query to keywords list
           var content = $input.val();
@@ -49,7 +72,7 @@
             return $input.removeClass('invalid').removeClass('valid');
           }
           // 0x04. perform local searching
-          dataList.forEach(function(data) {
+          searchData.forEach(function(data) {
             var isMatch = true;
             if (!data.title || data.title.trim() === '') {
               data.title = 'Untitled';
@@ -122,6 +145,10 @@
           $input.addClass('valid').removeClass('invalid');
           $result.html(resultHTML);
         });
+      },
+      error: function() {
+        searchLoading = false;
+        $result.html('');
       }
     });
   }
